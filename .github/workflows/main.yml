@@ -4,7 +4,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
-
+    
+permissions:
+  contents: write
+  
 jobs:
   deploy-to-github-pages:
     # Use the latest Ubuntu image to run steps on
@@ -27,7 +30,7 @@ jobs:
 
       # Commits wwwroot to GitHub Pages (https://github.com/marketplace/actions/deploy-to-github-pages)
       - name: Commit wwwroot to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@4.6.3  # Update to the latest version
+        uses: JamesIves/github-pages-deploy-action@v4.6
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
