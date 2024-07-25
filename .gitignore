@@ -1,0 +1,26 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/PFS/Client/bin/Debug/net8.0
+/PFS/Client/obj
+/PFS/PfsCmdLine/obj
+/PFS/PfsConfig/bin/Debug/net8.0
+/PFS/PfsConfig/obj
+/PFS/PfsExtFetch/bin/Debug/net8.0
+/PFS/PfsExtFetch/obj
+/PFS/PfsExtProviders/bin/Debug/net8.0
+/PFS/PfsExtProviders/obj
+/PFS/PfsExtTransactions/bin/Debug/net8.0
+/PFS/PfsExtTransactions/obj
+/PFS/PfsHelpers/bin/Debug/net8.0
+/PFS/PfsHelpers/obj
+/PFS/PfsReports/bin/Debug/net8.0
+/PFS/PfsReports/obj
+/PFS/PfsShared/bin/Debug/net8.0
+/PFS/PfsShared/obj
+/PFS/PfsTypes/bin/Debug/net8.0
+/PFS/PfsTypes/obj
+/PfsUI/bin/Debug/net8.0
+/PfsUI/obj

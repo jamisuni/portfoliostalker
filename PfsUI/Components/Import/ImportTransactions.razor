@@ -1,0 +1,251 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+@using Pfs.ExtTransactions;
+@using Microsoft.AspNetCore.Components.Forms
+
+<MudDialog>
+    <TitleContent>
+        Import Transactions:
+    </TitleContent>
+<DialogContent>
+<MudCard>
+<MudCardContent>
+        
+    <MudAppBar Color="Color.Secondary" Fixed="false" >
+
+        @if (_progress == Progress.PreConversion)
+        {
+            @if (_selFormat == ImportFormats.Unknown)
+            {
+                <MudText Color="Color.Primary" Typo="Typo.body2">1/5 Select Broker:</MudText>
+                <MudSpacer />
+
+                <MudSelect T="ImportFormats" Variant="Variant.Outlined" @bind-Value="_selFormat" Label="Select Broker">
+                    @foreach (ImportFormats provider in Enum.GetValues(typeof(ImportFormats)))
+                    {
+                        <MudSelectItem T="ImportFormats" Value="@provider">@provider.ToString()</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+            else
+            {
+                <MudText Color="Color.Primary" Typo="Typo.body2">2/5 Import data for: <b>@_selFormat.ToString()</b></MudText>
+                <MudSpacer />
+
+                <InputFile OnChange="OnInputFileChangeAsync"></InputFile>
+            }
+            <MudButton Color="Color.Primary" OnClick="OnBtnConvertFromRawAsync" >Convert</MudButton>
+        }
+
+        @if ( _progress == Progress.ViewAll)
+        {
+            <MudText Color="Color.Primary" Typo="Typo.body2">3/5 Conversion result:</MudText>
+            <MudSpacer />
+
+            <MudSelect T="string" Label="Type Filter" Variant="Variant.Outlined" MultiSelection="true" @bind-SelectedValues="_typeFilterSelection" MultiSelectionTextFunc="SelTypes">
+                @foreach (string type in _typeFilterAll)
+                {
+                <MudSelectItem T="string" Value="@type.ToString()">@type</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudMenu Icon="@Icons.Material.Filled.Menu">
+                <MudMenuItem OnClick="OnBtnExpandAll">Expand All</MudMenuItem>
+                <MudMenuItem OnClick="OnBtnCollapseAll">Collapse All</MudMenuItem>
+                <MudMenuItem OnClick="OnBtnExportFlaggedAsync">Export flagged</MudMenuItem>
+                <MudMenuItem OnClick="OnBtnDeleteFlagged">Delete flagged</MudMenuItem>
+                <MudMenuItem OnClick="OnBtnFlagUnmapped">Flag unmapped</MudMenuItem>
+            </MudMenu>
+
+            <MudSelect T="string" Label="Target Portfolio" @bind-Value="_selPortfolio" Required>
+                @foreach (string pf in _portfolios)
+                {
+                    <MudSelectItem Value="@pf">@pf</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSpacer />
+
+            <MudButton Color="Color.Primary" OnClick="OnBtnAddNewCompanies" >Add/Map Companies</MudButton>
+
+            <MudButton Color="Color.Primary" OnClick="OnBtnViewTestRunAsync" Disabled="@(string.IsNullOrWhiteSpace(_selPortfolio))" >View Accepted</MudButton>
+        }
+
+        @if ( _progress == Progress.ViewTestRun)
+        {
+            <MudText Color="Color.Primary" Typo="Typo.body2">4/5 Ready to process:</MudText>
+            <MudSpacer />
+
+            <MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="expand" OnClick="OnBtnExpandAll" />
+            <MudIconButton Icon="@Icons.Material.Filled.Remove" aria-label="collaps" OnClick="OnBtnCollapseAll" />
+            <MudSpacer />
+
+            <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save" OnClick="OnBtnProcessAsync">Save All</MudButton>
+        }
+
+        @if (_progress == Progress.ViewResultLog)
+        {
+            <MudText Color="Color.Primary" Typo="Typo.body2">5/5 FINISHED</MudText>
+            <MudSpacer />
+        }
+
+    </MudAppBar>
+
+    @if (_progress == Progress.PreConversion && _selFormat != ImportFormats.Unknown || _progress == Progress.ViewResultLog)
+    {
+        <MudTextField  @bind-Value="_viewRawTextual" Lines="20" Variant="Variant.Outlined" ReadOnly="true" />
+    }
+    else if (_progress == Progress.ViewAll || _progress == Progress.ViewTestRun)
+    {
+        <div id="unique_id_scroll_section" class="ma-0" style="height:550px;overflow: auto;">
+            <MudPaper Elevation="0" Height="3500px" Class="d-flex flex-column justify-space-between py-6">
+
+                <MudExpansionPanels @ref="_expPanels">
+                    @foreach ((string mapCompRef, List<ViewBtAction> vbtas ) in _viewByCompany)
+                    {
+                        <MudExpansionPanel>
+                            <TitleContent>
+                                <div class="d-flex">
+                                    @if (vbtas.First().stockMeta != null)
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.ThumbUp" class="mr-3"></MudIcon>
+                                        <MudText><strong>@($"{vbtas.First().stockMeta.marketId}${vbtas.First().stockMeta.symbol}")</strong>@("  " + vbtas.First().stockMeta.name)</MudText>
+                                    }
+                                    else {
+                                        <MudIcon Icon="@Icons.Material.Filled.ThumbDown" class="mr-3" Color="Color.Warning"></MudIcon>
+                                        <MudText Color="Color.Warning"><strong>@vbtas.First().bta.TA.Symbol</strong>@("  " + vbtas.First().bta.TA.CompanyName)</MudText>
+                                    }
+                                    <MudSpacer />
+                                    @if (_progress == Progress.ViewAll && vbtas.Count() > 0)
+                                    {
+                                        @if (_targetCompanies[mapCompRef].Flagged)
+                                        {
+                                            <MudTooltip Text="Unflag all under this company" Inline="false">
+                                            <MudIconButton Icon="@Icons.Material.Outlined.FlagCircle" @onclick="@(() => OnBtnFlagCompBTA(mapCompRef))" />
+                                            </MudTooltip>
+                                        }
+                                        else
+                                        {
+                                            <MudTooltip Text="Flag all under this company" Inline="false">
+                                            <MudIconButton Icon="@Icons.Material.Outlined.Circle" @onclick="@(() => OnBtnFlagCompBTA(mapCompRef))" />
+                                            </MudTooltip>
+                                        }
+                                        @if (_targetCompanies[mapCompRef].Test == TaMapCompany.TestState.UnTested)
+                                        {
+                                            <MudTooltip Text="Does test run to see how this companyes actions perform" Inline="false">
+                                            <MudIconButton Icon="@Icons.Material.Filled.Cyclone" Disabled="@string.IsNullOrEmpty(_selPortfolio)" @onclick="@(() => OnBtnTestAndRunCompany(mapCompRef))" />
+                                            </MudTooltip>
+                                        }
+                                        else if (_targetCompanies[mapCompRef].Test == TaMapCompany.TestState.TestOk)
+                                        {
+                                            <MudTooltip Text="Seams OK, click to save" Inline="false">
+                                            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled="@string.IsNullOrEmpty(_selPortfolio)" @onclick="@(() => OnBtnTestAndRunCompany(mapCompRef))" />
+                                            </MudTooltip>
+                                        }
+                                        <MudTooltip Text="Remove all transactions from under this company, be gone!" Inline="false">
+                                        <MudIconButton Icon="@Icons.Material.Filled.Delete"  @onclick="@(() => OnBtnDeleteCompany(mapCompRef))" />
+                                        </MudTooltip>
+                                    }
+                                </div>
+                            </TitleContent>
+                            <ChildContent>
+                                <MudSimpleTable Dense="true" Hover="true" Striped="true" Style="overflow-x: auto;">
+                                    <thead> <tr>
+                                        <th>Status</th>
+                                        <th>Type</th>
+                                        <th>Date</th>
+                                        <th>Units</th>
+                                        <th>PerUnit</th>
+                                        <th></th>
+                                    </tr> </thead>
+                                    @foreach (ViewBtAction entry in vbtas)
+                                    {
+                                        <tbody>  <tr>
+                                            <td>
+                                                @switch (entry.bta.Status)
+                                                {
+                                                    case BtAction.TAStatus.Ready:
+                                                        <span style="color:green">OK</span>
+                                                        break;
+
+                                                    case BtAction.TAStatus.Manual:
+                                                        <span style="color:orange">Manual</span>
+                                                        break;
+
+                                                    case BtAction.TAStatus.Acceptable:
+                                                        <span style="color:lightgreen">Acceptable</span>
+                                                        break;
+
+                                                    case BtAction.TAStatus.ErrTestDupl:
+                                                        <span style="color:orange">Duplicate</span>
+                                                        break;
+
+                                                    case BtAction.TAStatus.ErrTestUnits:
+                                                        <span style="color:red">UnitsMismatch</span>
+                                                        break;
+
+                                                    default:
+                                                        <span style="color:blueviolet">@entry.bta.Status</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (entry.bta.TA.Action != TaType.Unknown) {
+                                                    @entry.bta.TA.Action
+                                                }
+                                                else {
+                                                    @($"?: {entry.bta.BrokerAction}")
+                                                }
+                                            </td>
+                                            <td>@entry.bta.TA.RecordDate.ToYMD()</td>
+                                            <td>
+                                                @if (entry.bta.TA.Units == decimal.Round(entry.bta.TA.Units)) {
+                                                    @entry.bta.TA.Units.To()
+                                                }
+                                                else{
+                                                @entry.bta.TA.Units.To0000()
+                                            }
+                                            </td>
+                                            <td>@entry.bta.TA.McAmountPerUnit.To00()</td>
+                                            <td><MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                                                @if (_progress == Progress.ViewAll)
+                                                {
+                                                    @if (entry.bta.TA.Action != TaType.Unknown && entry.bta.Status == BtAction.TAStatus.MisRate)
+                                                    {
+                                                        <MudTooltip Text="Fix currency" Inline="false">
+                                                        <MudIconButton Icon="@Icons.Material.Filled.CurrencyExchange" @onclick="@(() => OnBtnFetchCurrencyAsync(entry))" />
+                                                        </MudTooltip>
+                                                    }
+                                                    @if (entry.bta.TA.Action != TaType.Unknown)
+                                                    {
+                                                        <MudTooltip Text="View transaction" Inline="false">
+                                                            <MudIconButton Icon="@Icons.Material.Filled.ManageSearch" @onclick="@(() => OnBtnViewTransaction(entry))" />
+                                                        </MudTooltip>
+                                                    }
+                                                    <MudTooltip Text="View original CSV content for this transaction" Inline="false">
+                                                    <MudIconButton Icon="@Icons.Custom.Uncategorized.FolderOpen" @onclick="@(() => OnBtnOriginalBTA(entry))" />
+                                                    </MudTooltip>
+                                                    <MudTooltip Text="Deletes transaction permanently off from processing" Inline="false">
+                                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" @onclick="@(() => OnBtnDeleteBTA(entry))" />
+                                                    </MudTooltip>
+                                                }
+                                                @if ( string.IsNullOrEmpty(entry.bta.ErrMsg) == false) {
+                                                    <MudTooltip Text="Processing transaction failed! See error msg from here." Inline="false">
+                                                    <MudIconButton Icon="@Icons.Material.Filled.ErrorOutline" @onclick="@(() => OnBtnErrorBTA(entry))" />
+                                                    </MudTooltip>
+                                                }
+                                            </MudButtonGroup></td>
+                                        </tr> </tbody>
+                                    }
+                                </MudSimpleTable>
+                            </ChildContent>
+                        </MudExpansionPanel>
+                    }
+                </MudExpansionPanels>
+
+            </MudPaper>
+        </div>
+    }
+</MudCardContent>
+</MudCard>
+</DialogContent>
+</MudDialog>

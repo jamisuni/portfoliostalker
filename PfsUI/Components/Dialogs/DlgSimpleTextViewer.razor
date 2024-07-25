@@ -1,0 +1,16 @@
+﻿@namespace PfsUI.Components
+
+<MudDialog>
+    <TitleContent>
+        <b>@Title</b>
+    </TitleContent>
+    <DialogContent>
+
+        <MudTextField T="string"  Text="@Text" Variant="Variant.Outlined" ReadOnly="true" Lines="10" />
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

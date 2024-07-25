@@ -1,0 +1,61 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudDialog>
+    <TitleContent>
+
+        <MudToggleIconButton Toggled="@_fullscreen" ToggledChanged="OnFullScreenChanged"
+                        Icon="@Icons.Material.Filled.Fullscreen" Color="@Color.Error" 
+                        ToggledIcon="@Icons.Material.Filled.Fullscreen" ToggledColor="@Color.Success" />
+
+        Order of [<b>$@Symbol</b>]
+
+    </TitleContent>
+
+    <DialogContent>
+
+        <MudSelect T="string" Label="Portfolio" Strict="true" Variant="Variant.Outlined" Format="F2" @bind-Value="PfName">
+            @foreach (string pf in _pfNames)
+            {
+                <MudSelectItem T="string" Value="@pf">@pf</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect T="SOrder.OrderType" @bind-Value="@_order.Type" Label="Select Type" Required  >
+            @foreach (SOrder.OrderType item in Enum.GetValues(typeof(SOrder.OrderType)))
+            {
+                if (item == SOrder.OrderType.Unknown)
+                    continue;
+
+                <MudSelectItem Value="@item">@item</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudTextField  @bind-Value="_order.Units" Label="Units" Variant="Variant.Outlined" />
+        <MudTextField  @bind-Value="_order.PricePerUnit" Label="Price" Variant="Variant.Outlined" />
+
+        <MudDatePicker Label="Last Day" @bind-Date="_lastDate" MinDate="_minDate" />
+
+    </DialogContent>
+
+    <DialogActions>
+        @if ( Edit && _order.FillDate.HasValue )
+        {
+            <MudButton Color="Color.Primary" OnClick="DlgResetOrderAsync">Reset Alarm</MudButton>
+        }
+        @if (Edit)
+        {
+            <MudButton Color="Color.Primary" OnClick="DlgDeleteOrder">Delete</MudButton>
+            <MudButton Color="Color.Primary" OnClick="DlgConvertOrderSync">Convert</MudButton>
+        }
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+        @if ( Edit)
+        {
+            <MudButton Color="Color.Primary" OnClick="DlgEditOrderAsync">Save</MudButton>
+        }
+        else
+        {
+            <MudButton Color="Color.Primary" OnClick="DlgAddOrderAsync">Add</MudButton>
+        }
+    </DialogActions>
+</MudDialog>

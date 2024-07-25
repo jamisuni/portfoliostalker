@@ -1,0 +1,43 @@
+﻿@using Pfs.Client
+@using Pfs.Types
+@namespace PfsUI.Components
+
+<MudDialog>
+    <TitleContent>
+        Add new stock meta
+    </TitleContent>
+
+    <DialogContent>
+
+        <MudPaper Class="pa-4 ma-2" Outlined="false">
+
+            <div class="row">
+                <div class="col-md-5">
+                    <MudSelect T="MarketId" Label="Market" @bind-Value="_market" >
+                        @foreach (MarketMeta market in _activeMarkets)
+                        {
+                            <MudSelectItem T="MarketId" Value="@market.ID">@market.ID</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+                <div class="col-md-5">
+                    <MudTextField @bind-Value="_symbol" Label="Symbol" Variant="Variant.Outlined" MaxLength="@Limit.Symbol" />
+                </div>
+                <div class="col-md-1">
+                    <MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Error" OnClick="OnBtnSearchSymbolAsync" />
+                </div>
+            </div>
+
+            <MudTextField @bind-Value="_company" Variant="Variant.Outlined" Label="company name" />
+            <MudTextField @bind-Value="_ISIN" Variant="Variant.Outlined" Label="optional ISIN" />
+        </MudPaper>
+
+    </DialogContent>
+
+    <DialogActions>
+
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="OnBtnSaveAsync">Add</MudButton>
+
+    </DialogActions>
+</MudDialog>

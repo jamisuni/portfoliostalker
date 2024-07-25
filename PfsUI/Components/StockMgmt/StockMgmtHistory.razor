@@ -1,0 +1,73 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+@if (_viewReport == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (string.IsNullOrEmpty(_errMsg) == false)
+{
+    <p><em>@_errMsg</em></p>
+}
+else
+{
+    <MudContainer Style="max-height: 500px; overflow-y: scroll">
+    @foreach ( ViewEntry entry in _viewReport)
+    {
+        <MudExpansionPanels>
+            <MudExpansionPanel>
+                <TitleContent>
+                    <MudStack>
+                        @entry.Hdr
+                    </MudStack>
+                </TitleContent>
+                <ChildContent>
+                    @if (entry.d.Total == null && string.IsNullOrWhiteSpace(entry.d.Note) == false)
+                    {
+                        <MudText>@($"{entry.d.PfName}: {entry.d.Note}")</MudText>
+                    }
+                    else if ( entry.d.Total == null )
+                    {
+                        <MudText>@($"{entry.d.PfName}: -no user's note-")</MudText>
+                    }
+                    @if (entry.Extras.Count() > 0 )
+                    {
+                        foreach ( string extra in entry.Extras )
+                        {
+                            <MudText><i>@extra</i></MudText>
+                        }
+                    }
+                    @if ( entry.Divident != null )
+                    {
+                        <td colspan="10">
+                            <!-- !!!NOTE!!! <= This is amount of columns on table that popdown extens to -->
+
+                            <MudTable T="RRHoldingDivident" Items="@entry.Divident" Context="dividents">
+                                <HeaderContent>
+                                    <MudTh>Ex Div Date</MudTh>
+                                    <MudTh>Payment Date</MudTh>
+                                    <MudTh>Per Share</MudTh>
+                                    <MudTh>Divident</MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd>@dividents.ExDivDate.ToYMD()</MudTd>
+                                    <MudTd>@dividents.PaymentDate.ToYMD()</MudTd>
+                                    <MudTd>
+                                        @(dividents.HcPaymentPerUnit.To00() + entry.HC)
+                                    </MudTd>
+                                    <MudTd>
+                                        @if (entry.d.RCEod != null )
+                                        {
+                                            <RCellDivident HomeCurrency="@_homeCurrency" RRDivident="@dividents" OptHideMcAlways="true" />
+                                        }
+                                    </MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                        </td>
+                    }
+                </ChildContent>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+    }
+    </MudContainer>
+}

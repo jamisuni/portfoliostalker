@@ -1,0 +1,55 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudDialog>
+    <TitleContent>
+        <h4>User Events</h4>
+    </TitleContent>
+
+    <DialogContent>
+        @if (_viewReport == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <MudTable T="ViewReportUserEventsData" Items="@_viewReport" Hover="true" SortLabel="Sort By" FixedHeader="true" Height="550px">
+                <HeaderContent>
+                    <MudTh>Mode</MudTh>
+                    <MudTh>Date</MudTh>
+                    <MudTh>Type</MudTh>
+                    <MudTh>Ticker</MudTh>
+                    <MudTh>Portfolio</MudTh>
+                    <MudTh>Description</MudTh>
+                    <MudTh>Operations</MudTh>
+                    <MudTh><MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" OnClick="OnBtnDeleteAllEvents" /></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd><MudIconButton Icon="@context.Icon" @onclick="@(() => OnBtnSwapMode(@context))" /></MudTd>
+                    <MudTd>@context.d.Date.ToString("MMM-dd")</MudTd>
+                    <MudTd>@context.d.Type.ToString()</MudTd>
+                    <MudTd><MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta))">$@context.d.StockMeta.symbol</MudButton></MudTd>
+                    <MudTd>@context.d.PfName</MudTd>
+                    <MudTd>@context.Desc</MudTd>
+                    <MudTd>
+                        @if (string.IsNullOrEmpty(context.Operation1) == false)
+                        {
+                            <MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => EvOperation1Async(@context))">@context.Operation1</MudButton>
+                        }
+                    </MudTd>
+                    <MudTd>
+                        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                        @if (context.d.Type == UserEventType.OrderBuy || context.d.Type == UserEventType.OrderSell)
+                        {
+                            <MudTooltip Text="Nope this order didnt get filled, reset it back to pending plz" Inline="false">
+                            <MudIconButton Icon="@Icons.Material.Filled.LockReset" aria-label="reset" @onclick="@(() => OnBtnResetOrder(@context))" />
+                            </MudTooltip>
+                        }
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" @onclick="@(() => OnBtnDeleteEvent(@context))" />
+                        </MudButtonGroup>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </DialogContent>
+</MudDialog>

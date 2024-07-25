@@ -1,0 +1,192 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+@if (_viewReport == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable T="ViewTrackingData" Items="@_viewReport" Hover="true" SortLabel="Sort By" FixedHeader="true" Height="560px" >
+        <ColGroup>
+            <col style="width: 5%;" />      @* Market *@
+            <col style="width: 5%;" />      @* Symbol *@
+            <col style="width: 20%;" />     @* CompanyName *@
+            <col style="width: 14%;" />     @* Providers *@
+            <col style="width: 14%;" />     @* Trackings *@
+            <col style="width: 14%;" />     @* Holdings *@
+            <col style="width: 14%;" />     @* Trades *@
+            <col style="width: 6%;" />  @* Date *@
+            <col style="width: 6%;" />      @* Operations *@
+        </ColGroup>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewTrackingData, object>(x=>x.d.Stock.marketId.ToString())">Market</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewTrackingData, object>(x=>x.d.Stock.symbol)">Ticker</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewTrackingData, object>(x=>x.d.Stock.name)">@_headerTextName</MudTableSortLabel></MudTh>
+            <MudTd>Providers</MudTd>
+            <MudTd>Tracking</MudTd>
+            <MudTd>Holdings</MudTd>
+            <MudTh>Trades</MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewTrackingData, object>(x=>x.d.RCEod?.fullEOD.Date)">Date</MudTableSortLabel></MudTh>
+            <MudTh>Oper.</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            @if ( context.d.IsMarketActive || context.d.Stock.marketId == MarketId.CLOSED )
+            {
+                <MudTd>@context.d.Stock.marketId.ToString()</MudTd>
+            }
+            else
+            {
+                <MudTd><span style="color:orange">@context.d.Stock.marketId.ToString()</span></MudTd>
+            }
+            <MudTd><MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => OnBtnStockMgmtLaunchAsync(@context.d.Stock.GetSRef()))">$@context.d.Stock.symbol</MudButton></MudTd>
+            <MudTd>@context.d.Stock.name</MudTd>
+
+            @if (context.d.FetchProvider == null || context.d.FetchProvider.Count() == 0)
+            {
+                @if ( context.d.Stock.marketId == MarketId.CLOSED)
+                {
+                    <MudTd>Closed!</MudTd>
+                }
+                else
+                {
+                    <MudTd><span style="color:orange">MISSING!</span></MudTd>    
+                }
+            }
+            else if (context.d.FetchProvider.Count() == 1)
+            {
+                <MudTd>@context.d.FetchProvider[0]</MudTd>
+            }
+            else
+            {
+                <MudTd>
+                    <MudMenu Label="Many">
+                        @foreach (ExtProviderId provId in context.d.FetchProvider)
+                        {
+                            <MudMenuItem>@provId</MudMenuItem>
+                        }
+                    </MudMenu>
+                </MudTd>
+            }
+
+            @if (context.d.IsMarketActive == false)
+            {
+                <MudTd>N/A</MudTd>
+            }
+            else if (context.d.AnyPfTracking.Count() == 0)
+            {
+                <MudTd>
+
+                    <MudMenu Label="Add PF?" >
+                        @foreach (string pfName in _allPfNames)
+                        {
+                            <MudMenuItem @onclick="@(() => OnAssignTrackingPf(@context, @pfName))">@pfName</MudMenuItem>
+                        }
+                    </MudMenu>
+
+                </MudTd>
+            }
+            else if (context.d.AnyPfTracking.Count() == 1)
+            {
+                <MudTd>@context.d.AnyPfTracking[0]</MudTd>
+            }
+            else
+            {
+                <MudTd>
+                    <MudMenu Label="Many PFs">
+                        @foreach (string pfName in context.d.AnyPfTracking)
+                        {
+                            <MudMenuItem>@pfName</MudMenuItem>
+                        }
+                    </MudMenu>
+                </MudTd>
+            }
+
+            @if ( context.d.AnyPfHoldings.Count() == 0 )
+            {
+                <MudTd></MudTd>
+            }
+            else if ( context.d.AnyPfHoldings.Count() == 1 )
+            {
+                <MudTd>@context.d.AnyPfHoldings[0]</MudTd>
+            }
+            else
+            {
+                <MudTd>
+                    <MudMenu Label="Many PFs">
+                        @foreach( string pfName in context.d.AnyPfHoldings)
+                        {
+                            <MudMenuItem>@pfName</MudMenuItem>
+                        }
+                    </MudMenu>
+                </MudTd>
+            }
+
+            @if (context.d.AnyPfTrades.Count() == 0)
+            {
+                <MudTd></MudTd>
+            }
+            else if (context.d.AnyPfTrades.Count() == 1)
+            {
+                <MudTd>@context.d.AnyPfTrades[0]</MudTd>
+            }
+            else
+            {
+                <MudTd>
+                    <MudMenu Label="Trades">
+                        @foreach (string pfTrades in context.d.AnyPfTrades)
+                        {
+                            <MudMenuItem>@pfTrades</MudMenuItem>
+                        }
+                    </MudMenu>
+                </MudTd>
+            }
+
+            <MudTd>
+                @if (context.d.IsIntraday != null)
+                {
+                    <MudAlert Severity="Severity.Normal">
+                        !!!TODO!!!IntraDay hh:mm
+                    </MudAlert>
+                }
+                else if (context.d.RCEod != null && context.d.RCEod.IsLatestEOD == true)
+                {
+                    @context.d.RCEod.fullEOD.Date.ToString("MMM-dd")
+                }
+                else if (context.d.RCEod != null && context.d.RCEod.IsLatestEOD == false)
+                {
+                    <MudAlert Severity="Severity.Warning">
+                        @(context.d.RCEod.fullEOD.Date.ToString("MMM-dd"))
+                    </MudAlert>
+                }
+                else if ( context.d.Stock.marketId != MarketId.CLOSED )
+                {
+                    <MudAlert Severity="Severity.Warning">
+                        N/D
+                    </MudAlert>
+                }
+            </MudTd>
+
+            <MudTd>
+                <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small">
+
+                    @if (context.d.Stock.marketId != MarketId.CLOSED)
+                    {
+                        @if (context.d.RCEod == null || context.d.RCEod.IsLatestEOD == false)
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled._360" aria-label="edit" @onclick="@(() => DoTestFetchEodAsync(context.d.Stock.GetSRef()))" Size="Size.Small" />
+                        }
+                        <MudIconButton Icon="@Icons.Material.Filled.SettingsSuggest" aria-label="edit" @onclick="@(() => DoManageStockAsync(context.d.Stock.GetSRef()))" Size="Size.Small" />
+                    }
+                    @if (context.allowDelete == true)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="edit" @onclick="@(() => DoDeleteStockAsync(context))" Size="Size.Small" />
+                    }
+                </MudButtonGroup>
+            </MudTd>
+
+        </RowTemplate>
+    </MudTable>
+
+    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled._360" Color="Color.Primary" OnClick="OnTestFetchBtnAsync">TEST FETCH</MudButton>
+}

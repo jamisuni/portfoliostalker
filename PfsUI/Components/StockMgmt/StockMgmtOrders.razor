@@ -1,0 +1,24 @@
+﻿@namespace PfsUI.Components
+
+<MudTable T="ViewStockOrders" Items="_orders" OnRowClick="@(args => OnRowClickedAsync(args))" >
+    <HeaderContent>
+        <MudTh>Portfolio</MudTh>
+        <MudTh>Type</MudTh>
+        <MudTh>Units</MudTh>
+        <MudTh>Price</MudTh>
+        <MudTh>Until</MudTh>
+        <MudTh>Edit</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd >@context.PfName</MudTd>
+        <MudTd >@context.Order.Type.ToString()</MudTd>
+        <MudTd >@context.Order.Units</MudTd>
+        <MudTd >@context.Order.PricePerUnit.ToString("0.00")@context.Currency</MudTd>
+        <MudTd >@context.Order.LastDate.ToString("yyyy-MM-dd")</MudTd>
+        <MudTd>
+            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                <MudIconButton Icon="@Icons.Material.Filled.ModeEdit" aria-label="edit" @onclick="@(() => OnEditOrderAsync(@context))" />
+            </MudButtonGroup>
+        </MudTd>
+    </RowTemplate>
+</MudTable>

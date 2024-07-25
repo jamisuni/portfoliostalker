@@ -1,0 +1,48 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudDialog>
+    <TitleContent>
+
+        <MudToggleIconButton Toggled="@_fullscreen" ToggledChanged="OnFullScreenChanged"
+                        Icon="@Icons.Material.Filled.Fullscreen" Color="@Color.Error" 
+                        ToggledIcon="@Icons.Material.Filled.Fullscreen" ToggledColor="@Color.Success" />
+
+        @_header
+
+    </TitleContent>
+
+    <DialogContent>
+
+        <MudNumericField @bind-Value="_units" Label="@_labelSoldUnits" Variant="Variant.Outlined" HideSpinButtons="true" />
+        <MudNumericField @bind-Value="_pricePerUnit" Label="Price per Unit" Variant="Variant.Outlined" Min="0" HideSpinButtons="true" AdornmentText="@UiF.Curr(_marketCurrency)" Adornment="Adornment.End" />
+        <MudNumericField @bind-Value="_totalFee" Label="Fee" Variant="Variant.Outlined" Min="0" HideSpinButtons="true" AdornmentText="@UiF.Curr(_marketCurrency)" Adornment="Adornment.End" />
+        <MudTextField @bind-Value="_tradeId" Label="Custom Sale ID" Variant="Variant.Outlined" />
+
+        @if (_viewCurrencyRate == true)
+        {
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-9">
+                        <MudNumericField @bind-Value="_currencyRate" Label="@_conversionLabel" Variant="Variant.Outlined" />
+                    </div>
+                    <div class="col-md-1">
+                        <MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Error" OnClick="OnBtnGetCurrencyAsync" />
+                    </div>
+                </div>
+            </div>
+        }
+
+        <MudDatePicker Label="Sale Day" @bind-Date="_tradeDate" MaxDate="@(DateTime.Now)" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd"  />
+
+        <MudTextField @bind-Value="_tradeNote" Label="Custom notes" Variant="Variant.Outlined" />
+
+    </DialogContent>
+
+    <DialogActions>
+
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="OnBtnSaleAsync">Sale</MudButton>
+
+    </DialogActions>
+</MudDialog>

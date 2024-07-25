@@ -1,0 +1,40 @@
+﻿@using Pfs.Client
+@using Pfs.Types
+@namespace PfsUI.Components
+
+<MudDialog>
+    <TitleContent>
+
+        <MudToggleIconButton Toggled="@_fullscreen" ToggledChanged="OnFullScreenChanged"
+                        Icon="@Icons.Material.Filled.Fullscreen" Color="@Color.Error" 
+                        ToggledIcon="@Icons.Material.Filled.Fullscreen" ToggledColor="@Color.Success" />
+
+    </TitleContent>
+
+    <DialogContent>
+
+        <MudSelect T="MarketId" Label="Market" @bind-Value="EditMarket" ReadOnly="@_lockMarket">
+            @foreach (MarketMeta market in _availableMarkets)
+            {
+                <MudSelectItem T="MarketId" Value="@market.ID">@market.ID</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect T="ExtProviderId" HelperText="Select providers" MultiSelection="true" @bind-SelectedValues="_editProviders" ReadOnly="@(!_lockMarket)" >
+            @foreach (ExtProviderId provId in _availableProviders)
+            {
+                <MudSelectItem T="ExtProviderId" Value="@provId">@provId</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudTextField @bind-Value="_editStocks" Label="MSFT,QCOM" Variant="Variant.Outlined" Lines="5" />
+
+    </DialogContent>
+
+    <DialogActions>
+
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="OnBtnSaveAsync">Save</MudButton>
+
+    </DialogActions>
+</MudDialog>

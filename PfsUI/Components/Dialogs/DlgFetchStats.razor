@@ -1,0 +1,69 @@
+﻿@using Pfs.Client
+@using Pfs.Types
+@namespace PfsUI.Components
+
+<MudDialog>
+    <TitleContent>
+
+
+    </TitleContent>
+
+    <DialogContent>
+
+        @if (_progress.TotalLeft > 0)
+        {
+            <MudStack Row="true">
+                <MudAlert Severity="Severity.Success" Variant="Variant.Outlined">@($"{_progress.PriorityLeft} PrioLeft")</MudAlert>
+                <MudAlert Severity="Severity.Success" Variant="Variant.Outlined">@($"{_progress.TotalLeft} TotalLeft")</MudAlert>
+            </MudStack>
+        }
+
+        <MudProgressLinear Color="Color.Primary" Value="@_totalProgress" Max="@_maxProgress" Class="my-7" />
+
+        @if (PendingAmount > 0)
+        {
+            <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">@($"{PendingAmount} Pending post market fetch time")</MudAlert>
+        }
+
+        @if (_failedProgress > 0)
+        {
+            <MudProgressLinear Color="Color.Secondary" Value="@_failedProgress" Max="@_maxProgress" Class="my-7" />
+        }
+
+        <MudCard>
+            <MudCardContent>
+                <MudSimpleTable Style="overflow-x: auto;">
+                    <thead>
+                        <tr>
+                            <th>Provider</th>
+                            <th>Busy</th>
+                            <th>Failed</th>
+                            <th>Success</th>
+                            <th>CreditsLeft</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (FetchProgress.PerProv pf in _progress.ProvInfo)
+                        {
+                            <tr>
+                                <td>@pf.ProvId</td>
+                                <td>@pf.Busy</td>
+                                <td>@pf.Failed</td>
+                                <td>@pf.Success</td>
+                                <td>@pf.CreditsLeft</td>
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+            </MudCardContent>
+            <MudCardActions>
+                
+            </MudCardActions>
+        </MudCard>
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="OnShowFailuresAsync">Failures</MudButton>
+    </DialogActions>
+</MudDialog>

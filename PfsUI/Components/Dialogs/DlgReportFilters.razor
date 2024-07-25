@@ -1,0 +1,115 @@
+﻿@using Pfs.Client
+@using Pfs.Types
+@namespace PfsUI.Components
+
+<MudDialog>
+    <TitleContent>
+
+        <MudToggleIconButton Toggled="@_fullscreen" ToggledChanged="OnFullScreenChanged"
+                        Icon="@Icons.Material.Filled.Fullscreen" Color="@Color.Error" 
+                        ToggledIcon="@Icons.Material.Filled.Fullscreen" ToggledColor="@Color.Success" />
+
+    </TitleContent>
+
+    <DialogContent>
+
+        <MudStack Row="true">
+            <MudTextField @bind-Value="_customName" Variant="Variant.Outlined" />
+
+            @if (_customAll.Length > 0 )
+            {
+                <MudMenu Icon="@Icons.Material.Filled.Menu">
+                    @foreach (string custom in _customAll)
+                    {
+                        <MudMenuItem @onclick="@(() => OnBtnLoadCustom(@custom))">@custom</MudMenuItem>
+                    }
+                </MudMenu>
+            }
+
+            @if (string.IsNullOrWhiteSpace(_customName) == false)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Save" aria-label="save" OnClick="OnBtnSaveCustomAsync" />
+            }
+
+            @if (string.IsNullOrWhiteSpace(_customName) == false && _customAll.Contains(_customName) )
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" OnClick="OnBtnDeleteCustom" />
+            }
+
+        </MudStack>
+
+        @if (_hidePF == false)
+        {
+            <MudSelect T="string" HelperText="Select portfolios" MultiSelection="true" @bind-SelectedValues="_selPFs">
+                @foreach (string pfName in _allPFs.Select(p => p.Name).ToList())
+                {
+                    <MudSelectItem T="string" Value="@pfName">@pfName</MudSelectItem>
+                }
+            </MudSelect>
+        }
+
+        <MudSelect T="MarketId" HelperText="Select markets" MultiSelection="true" @bind-SelectedValues="_selMarkets">
+            @foreach (MarketId marketId in _allMarkets)
+            {
+                <MudSelectItem T="MarketId" Value="@marketId">@marketId</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect T="ReportOwningFilter" HelperText="Select owning" MultiSelection="true" @bind-SelectedValues="_selOwning">
+            @foreach (ReportOwningFilter id in Enum.GetValues(typeof(ReportOwningFilter)))
+            {
+                if (id == ReportOwningFilter.Unknown)
+                    continue;
+
+                <MudSelectItem T="ReportOwningFilter" Value="@id">@id</MudSelectItem>
+            }
+        </MudSelect>
+
+        @if ( string.IsNullOrEmpty(_sectorNames[0]) == false)
+        {
+            <MudSelect T="string" HelperText="@_sectorNames[0]" MultiSelection="true" @bind-SelectedValues="_selSector0" >
+                @foreach (string field in _allSector0)
+                {
+                    if ( string.IsNullOrWhiteSpace(field) == false)
+                    {
+                        <MudSelectItem T="string" Value="@field">@field</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        }
+
+        @if (string.IsNullOrEmpty(_sectorNames[1]) == false)
+        {
+            <MudSelect T="string" HelperText="@_sectorNames[1]" MultiSelection="true" @bind-SelectedValues="_selSector1">
+                @foreach (string field in _allSector1)
+                {
+                    if (string.IsNullOrWhiteSpace(field) == false)
+                    {
+                        <MudSelectItem T="string" Value="@field">@field</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        }
+
+        @if (string.IsNullOrEmpty(_sectorNames[2]) == false)
+        {
+            <MudSelect T="string" HelperText="@_sectorNames[2]" MultiSelection="true" @bind-SelectedValues="_selSector2">
+                @foreach (string field in _allSector2)
+                {
+                    if (string.IsNullOrWhiteSpace(field) == false)
+                    {
+                        <MudSelectItem T="string" Value="@field">@field</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        }
+
+    </DialogContent>
+
+    <DialogActions>
+
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="OnBtnUseAsync">Use</MudButton>
+
+    </DialogActions>
+</MudDialog>

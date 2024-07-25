@@ -1,0 +1,36 @@
+﻿@namespace PfsUI.Components
+
+@using Pfs.Types
+
+<MudDialog>
+    <TitleContent>
+        @_title
+    </TitleContent>
+
+    <DialogContent>
+
+        <MudSelect T="SAlarmType" @bind-Value="@EditType" Label="Select Type" Required ReadOnly=@(EditType != SAlarmType.Unknown ? true : false)>
+             @foreach (SAlarmType item in Enum.GetValues(typeof(SAlarmType)))
+            {
+                if (item == SAlarmType.Unknown)
+                    continue;
+
+                <MudSelectItem Value="@item">@item</MudSelectItem>
+            }
+        </MudSelect>
+        <br />
+        <MudNumericField @bind-Value="_editLevel" Label="Alarm Level" Variant="Variant.Outlined" Min="0" />
+
+        <MudTextField  @bind-Value="_editNote" Label="Alarm Note" Variant="Variant.Outlined" />
+
+    </DialogContent>
+
+    <DialogActions>
+        @if ( Alarm != null )
+        {
+            <MudButton Color="Color.Primary" OnClick="DlgDeleteAsync">Delete</MudButton>
+        }
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="DlgSaveAsync">Save</MudButton>
+    </DialogActions>
+</MudDialog>

@@ -1,0 +1,60 @@
+﻿@namespace PfsUI.Components
+
+@using Pfs.Types
+
+@if (RCExCol != null && RCExCol.Valid())
+{
+    @switch (RCExCol.Id)
+    {
+        case ExtraColumnId.CloseWeekAgo:
+        case ExtraColumnId.CloseMonthAgo:
+            <MudTooltip Text=@($"Min={RCExCol.Min.ToV()} Max={RCExCol.Max.ToV()}") Inline="false">
+                <span style="color:@GetColor(RCExCol.Id, RCExCol.ChangeP)"><b>@RCExCol.ChangeP.ToP()</b></span>
+            </MudTooltip>
+            break;
+
+        default:
+            <b>N/A</b>
+            break;
+    }
+}
+
+@code {
+    [Parameter] public RCExtraColumn RCExCol { get; set; } = null;
+    [Parameter] public CurrencyId MarketCurrencyId { get; set; } = CurrencyId.Unknown;
+
+    public static string GetHeader(ExtraColumnId Id)
+    {
+        switch (Id)
+        {
+            case ExtraColumnId.CloseWeekAgo: return "Week";
+            case ExtraColumnId.CloseMonthAgo: return "Month";
+
+            default:
+                return null;
+        }
+    }
+
+    protected string GetColor(ExtraColumnId Id, decimal changeP)
+    {
+        switch ( Id )
+        {
+            case ExtraColumnId.CloseWeekAgo:
+                if (changeP <= -10)
+                    return "red";
+                else if (changeP >= 10)
+                    return "green";
+                else
+                    break;
+
+            case ExtraColumnId.CloseMonthAgo:
+                if (changeP <= -20)
+                    return "red";
+                else if (changeP >= 20)
+                    return "green";
+                else
+                    break;
+        }
+        return "black";
+    }
+}

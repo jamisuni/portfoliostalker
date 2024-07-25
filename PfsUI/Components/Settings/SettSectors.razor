@@ -1,0 +1,58 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudCard Outlined="true">
+    <MudContainer >
+        <MudTable T="ViewRow" Items="@_viewRow"  FixedHeader="true" Height="450px" Dense="true" >
+            <ColGroup>
+                <col style="width: 25%;" />
+                <col style="width: 5%;" />
+                <col style="width: 25%;" />
+                <col style="width: 5%;" />
+                <col style="width: 25%;" />
+                <col style="width: 5%;" />
+            </ColGroup>
+            <HeaderContent>
+
+                <MudTh><MudButton Variant=@GetVar(_sectorEdit[0]) Color="Color.Secondary" OnClick="OnBtnSector0Async">@GetTxt(_sectorEdit[0])</MudButton></MudTh>
+                <MudTh>#</MudTh>
+                
+                    <MudTh><MudButton Variant=@GetVar(_sectorEdit[1]) Color="Color.Secondary" OnClick="OnBtnSector1Async">@GetTxt(_sectorEdit[1])</MudButton></MudTh>
+                <MudTh>#</MudTh>
+
+                    <MudTh><MudButton Variant=@GetVar(_sectorEdit[2]) Color="Color.Secondary" OnClick="OnBtnSector2Async">@GetTxt(_sectorEdit[2])</MudButton></MudTh>
+                <MudTh>#</MudTh>
+
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd><MudTextField  @bind-Value="@context.Edit[0]" ReadOnly="@(!_sectorEdit[0])" MaxLength="@MAX" Margin="Margin.Dense" Label="@context.Label" /> </MudTd>
+                <MudTd>@context.Usage[0]</MudTd>
+                <MudTd><MudTextField @bind-Value="@context.Edit[1]" ReadOnly="@(!_sectorEdit[1])" MaxLength="@MAX" Margin="Margin.Dense" Label="@context.Label" /> </MudTd>
+                <MudTd>@context.Usage[1]</MudTd>
+                <MudTd><MudTextField @bind-Value="@context.Edit[2]" ReadOnly="@(!_sectorEdit[2])" MaxLength="@MAX" Margin="Margin.Dense" Label="@context.Label" /> </MudTd>
+                <MudTd>@context.Usage[2]</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudContainer>
+
+    <MudCardActions>
+
+    </MudCardActions>
+</MudCard>
+
+@code {
+
+    string GetTxt(bool edit)
+    {
+        if (edit)
+            return "Save: Sector Def";
+        return "Edit: Sector Def";
+    }
+
+    Variant GetVar(bool edit)
+    {
+        if (edit)
+            return Variant.Outlined;
+        return Variant.Filled;
+    }
+}

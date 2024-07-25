@@ -1,0 +1,68 @@
+﻿@namespace PfsUI.Components
+
+@using Pfs.Types
+
+@if (RRTotalHold == null)
+{
+}
+else if (RRTotalHold.McGrowthP < 0)
+{
+    <div class="col">
+        <div class="row">
+            <span style="color:red">@(RRTotalHold.McGrowthP + "% " + RRTotalHold.McGrowthAmount + UiF.Curr(MarketCurrency))</span>
+        </div> <div class="row">
+            @if (HomeCurrency != MarketCurrency)
+            {
+                <span style="color:red">@(RRTotalHold.HcGrowthP + "% " + RRTotalHold.HcGrowthAmount + UiF.Curr(HomeCurrency))</span>
+            }
+        </div>
+    </div>
+}
+else if (RRTotalHold.McGrowthP > 0)
+{
+    <div class="col">
+        <div class="row">
+            <span style="@GrowthColor(RRTotalHold.McGrowthP)">@(RRTotalHold.McGrowthP + "% " + RRTotalHold.McGrowthAmount + UiF.Curr(MarketCurrency))</span>
+        </div> <div class="row">
+            @if (HomeCurrency != MarketCurrency)
+            {
+                <span style="@GrowthColor(RRTotalHold.HcGrowthP)">@(RRTotalHold.HcGrowthP + "% " + RRTotalHold.HcGrowthAmount + UiF.Curr(HomeCurrency))</span>
+            }
+        </div>
+    </div>
+}
+else // part of 0.01m fixing huge prosents, a GrowthP can be removed if avrg price is 0.01m
+{
+    <div class="col">
+        <div class="row">
+            <span style="color:black">@(RRTotalHold.McGrowthAmount + UiF.Curr(MarketCurrency))</span>
+        </div> <div class="row">
+            @if (HomeCurrency != MarketCurrency)
+            {
+                <span style="color:black">@(RRTotalHold.HcGrowthAmount + UiF.Curr(HomeCurrency))</span>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public RCGrowth RRTotalHold { get; set; }
+
+    [Parameter] public CurrencyId MarketCurrency { get; set; }
+
+    [Parameter] public CurrencyId HomeCurrency { get; set; }
+
+    protected string GrowthColor(int growthP)
+    {
+        if (growthP >= 500)
+            return "color:goldenrod";
+
+        if (growthP >= 200)
+            return "color:blue";
+
+        if (growthP >= 75)
+            return "color:green";
+
+        return "color:black";
+    }
+}

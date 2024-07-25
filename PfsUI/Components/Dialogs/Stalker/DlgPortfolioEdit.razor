@@ -1,0 +1,34 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudDialog>
+    <TitleContent>
+
+        <MudToggleIconButton Toggled="@_fullscreen" ToggledChanged="OnFullScreenChanged"
+                        Icon="@Icons.Material.Filled.Fullscreen" Color="@Color.Error" 
+                        ToggledIcon="@Icons.Material.Filled.Fullscreen" ToggledColor="@Color.Success" />
+
+        Portfolio:
+
+    </TitleContent>
+
+    <DialogContent>
+
+        <MudTextField  @bind-Value="_editPfName" Label="Name" Variant="Variant.Outlined" />
+
+    </DialogContent>
+
+    <DialogActions>
+
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+
+        @if ( string.IsNullOrEmpty(EditCurrPfName) == false )
+        {
+        <MudButton Color="Color.Primary" OnClick="OnBtnEditAsync">Save</MudButton>
+        }
+        else
+        {
+        <MudButton Color="Color.Primary" OnClick="OnBtnAddAsync">Add</MudButton>
+        }
+    </DialogActions>
+</MudDialog>

@@ -1,0 +1,138 @@
+﻿@using PfsUI.Components
+@using Pfs.Types
+
+<MudAppBar Color="Color.Info" Fixed="false" Dense="true" >
+
+    <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">       @* ICON FOR SAVE & NAVIGATION *@
+
+        @if (_unsavedDataStatus && _accountTypeID != AccountTypeId.Demo)
+        {
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Warning" OnClick="DoSaveData" />
+        }
+
+        @if ( string.IsNullOrEmpty(_popupNavMenuLoc) == false)
+        {
+            <MudIconButton Icon="@Icons.Material.Filled.Home" Color="Color.Primary" OnClick="NavigateToHome" />
+        }
+
+    </MudButtonGroup>
+
+    @* POPUP NAVIGATION MENU *@
+
+    <MudPopover Open="@_popupNavMenuVisible" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopCenter">
+		<div class="d-flex flex-column pa-1">
+			<WidgMenu @ref="_childWidgMenu"  EvNavLocChanged="OnEvNavLocChanged" />
+		</div>
+	</MudPopover>
+
+    @if (_popupNavMenuLoc == string.Empty)
+    {
+        <MudFab StartIcon="@Icons.Material.Filled.MenuOpen" Color="Color.Default" IconColor="Color.Primary" Size="Size.Medium" Label="@($"PFS v{Pfs.PfsClientVersionNumber}")" OnClick="OnBtnPopupNavMenu" />
+    }
+    else
+    {
+        <MudFab StartIcon="@Icons.Material.Filled.MenuOpen" Color="Color.Default" IconColor="Color.Primary" Size="Size.Medium" Label="@_popupNavMenuLoc" OnClick="OnBtnPopupNavMenu" />
+    }
+
+    @* Speed Operation (mainly 'Add Stock') *@
+
+    @if (string.IsNullOrWhiteSpace(_btnLabelSpeedOperation) == false )
+    {
+        <MudSpacer />
+        <MudFab StartIcon="@Icons.Material.Filled.Add" Color="Color.Default" IconColor="Color.Primary" Size="Size.Medium" Label="@_btnLabelSpeedOperation" OnClick="OnBtnSpeedOperationAsync" />
+    }
+
+    @* Stocks update status, and way to lanch refetch latest EODs *@
+
+    <MudSpacer />
+    <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+        @if (_stockStatusBusy)
+        {
+            <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
+        }
+        @if ( _accountTypeID != AccountTypeId.Demo )
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" Disabled="_stockStatusDisable" OnClick="OnBtnUpdateStocks">@_stockStatusText</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="OnBtnExitDemo">Exit Demo</MudButton>
+        }
+    </MudButtonGroup>
+
+    @* User Events *@
+
+    @if (_userEvAmounts.Total > 0)
+    {
+        <MudBadge Content="@_userEvAmounts.Total" Color="@GetColorUserEvAmount()" Overlap="true" Class="mx-6 my-4" Origin="Origin.TopRight">
+            <MudIconButton Icon="@Icons.Material.Filled.Event" Color="Color.Primary" OnClick="OnOpenDlgPendingEventsAsync" />
+        </MudBadge>
+    }
+
+    <MudSpacer />
+
+    @if (_reportId != ReportId.Unknown) @* REPORT FILTERS *@
+    {
+        <MudMenu Icon="@Icons.Custom.Uncategorized.ColorPalette" Color="Color.Primary" TransformOrigin="Origin.BottomLeft">
+            <MudMenuItem OnClick="@(() => OnReportFilterSelAsync(ReportFilters.DefaultTag))">Default</MudMenuItem>
+            <MudMenuItem OnClick="@(() => OnReportFilterSelAsync(ReportFilters.CurrentTag))">Custom</MudMenuItem>
+            @foreach (string item in _customReportFilters)
+            {
+                <MudMenuItem OnClick="@(() => OnReportFilterSelAsync(item))">@item</MudMenuItem>
+            }
+        </MudMenu>
+    }
+
+    @if (_accountTypeID == AccountTypeId.Demo)
+    {
+        <MudButton Variant="Variant.Outlined" Disabled="true">
+            @($"[Demo] {Pfs.Platform().GetCurrentLocalDate().ToYMD()}")
+        </MudButton>
+    }
+    else if (string.IsNullOrEmpty(Username) == true )
+    {
+        <MudButton Variant="Variant.Outlined" Color="Color.Default" OnClick="OnUsernameClickedAsync" >
+        -not logged in-
+        </MudButton>
+    }
+    else
+    {
+        <MudButton Variant="Variant.Outlined" Disabled="true"   >
+            @Username
+        </MudButton>
+    }
+
+    <MudMenu Icon="@Icons.Material.Filled.Menu">
+        @if (_customSettMenuItems != null)
+        {
+            @foreach (MenuItem item in _customSettMenuItems)
+            {
+                <MudMenuItem OnClick="@(() => OnCustomSettMenuSelAsync(@item.ID))">@item.Text</MudMenuItem>
+            }
+        }
+
+        <MudMenuItem OnClick="OnOpenSettingsAsync">Settings</MudMenuItem>
+
+        @if (_accountTypeID != AccountTypeId.Demo)
+        {
+            <MudMenuItem OnClick="OnExportAccountBackupZipFile">Export Backup</MudMenuItem>
+        }
+
+        @if (_popupNavMenuLoc == string.Empty)
+        {
+            <MudMenuItem OnClick="OnAboutAsync">About</MudMenuItem>
+        }
+
+    </MudMenu>
+
+</MudAppBar>
+
+@code {
+
+    Color GetColorUserEvAmount()
+    {
+        if ( _userEvAmounts.UnreadImp > 0 || _userEvAmounts.Starred > 0)
+            return Color.Error;
+        return Color.Primary;
+    }
+}

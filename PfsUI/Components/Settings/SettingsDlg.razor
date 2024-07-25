@@ -1,0 +1,40 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudDialog>
+    <TitleContent>
+        <MudStack Row="true">
+            <MudIconButton Icon="@Icons.Material.Filled.Terminal" Color="Color.Primary" Size="Size.Small"  OnClick="OnOpenDlgTerminalAsync" />
+            <h4>Settings</h4>
+        </MudStack>
+    </TitleContent>
+
+    <DialogContent>
+        <MudPaper Height="550px" Width="100%">
+
+        <MudTabs Elevation="1" Rounded="true" PanelClass="pa-6">
+
+            <MudTabPanel Text="Settings" >
+                <SettMainTab />
+            </MudTabPanel>
+
+            <MudTabPanel Text="Sectors" >
+                <SettSectors />
+            </MudTabPanel>
+
+            <MudTabPanel Text="Markets">
+                <SettMarkets />
+            </MudTabPanel>
+
+            <MudTabPanel Text="Providers">
+                <SettProviders />
+            </MudTabPanel>
+
+            <MudTabPanel Text="Fetch">
+                <SettFetch />
+            </MudTabPanel>
+
+        </MudTabs>
+        </MudPaper>
+    </DialogContent>
+</MudDialog>

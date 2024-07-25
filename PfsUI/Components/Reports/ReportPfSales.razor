@@ -1,0 +1,138 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+@if ( _noContent )
+{
+    <p><em>No sales found</em></p>
+}
+else if (_viewReport == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable T="ViewSaleEntry" Items="@_viewReport" Hover="true" Dense="true" SortLabel="Sort By" FixedHeader="true" Height="600px" OnRowClick="@(args => OnRowClicked(args))" >
+        <ColGroup>
+            <col style="width: 5%;" />  @* Date *@
+            <col style="width: 4%;" />  @* Symbol *@
+            <col style="width: 20%;" /> @* Company *@
+            <col style="width: 15%;" /> @* Buy / Sell *@
+            <col style="width: 5%;" />  @* Units *@
+            <col style="width: 5%;" />  @* Invested *@
+            <col style="width: 12%;" />  @* % + Total Divident *@
+            <col style="width: 15%;" /> @* % + Profit ala Growth *@
+            <col style="width: 5%;" />  @* Oper *@
+        </ColGroup>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewSaleEntry, object>(x=>x.d.SaleDate)">Sold
+                @if ( _speedFilterYears.Count() > 0 )
+                {
+                    <MudMenu Icon="@Icons.Material.Filled.Menu">
+                        @foreach (int year in _speedFilterYears)
+                        {
+                            <MudMenuItem @onclick="@(() => OnSpeedFilterChanged(@year))">@year</MudMenuItem>
+                        }
+                    </MudMenu>
+                }
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewSaleEntry, object>(x=>x.d.StockMeta.symbol)">Symbol</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewSaleEntry, object>(x=>x.d.StockMeta.name)">Company</MudTableSortLabel></MudTh>
+            <MudTh>Buy / Sell</MudTh>       @* Buy / Sell (unit prices) *@
+            <MudTh>Units</MudTh>
+            <MudTh>Invested</MudTh>         @* Invested *@
+            <MudTh>                         @* % + Total Divident *@
+                @($"Total div {_totalHcDiv.ToString("0")}{_HC}")
+            </MudTh>        
+            <MudTh>                         @* % + Profit from Growth *@
+                @($"Growth profit {_totalHcGrowth.ToString("0")}{_HC}")
+            </MudTh>           
+            <MudTh>Note/Del</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.d.SaleDate.ToString("yyyy-MM-dd")</MudTd>
+            <MudTd><MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta))" >$@context.d.StockMeta.symbol</MudButton></MudTd>
+            <MudTd>@context.d.StockMeta.name</MudTd>
+
+            <MudTd>                         @* Buy / Sell (unit prices) *@
+                <RCellAvrgBuySell RRTotalGrowth="@context.d.TotalGrowth" HomeCurrency="@_homeCurrency" MarketCurrency="context.d.StockMeta.marketCurrency" />
+            </MudTd>
+
+            <MudTd>@context.d.SoldTotalUnits.ToString("0")</MudTd>
+
+            <MudTd>                         @* Invested *@
+                <RCellInvested RRTotalHold="@context.d.TotalGrowth" HomeCurrency="@_homeCurrency" MarketCurrency="context.d.StockMeta.marketCurrency" />
+            </MudTd>
+
+            <MudTd>                         @* % + Total Divident *@
+                <RCellDivident RRDivident="context.d.TotalDivident" HomeCurrency="@_homeCurrency" OptHideMcAlways="true" />
+            </MudTd>
+
+                <MudTd>
+                    @* % + Profit from Growth *@
+                <RCellTotalGrowth RRTotalHold="@context.d.TotalGrowth" HomeCurrency="@_homeCurrency" MarketCurrency="context.d.StockMeta.marketCurrency" />
+            </MudTd>
+
+            <MudTd>
+                <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                    <MudTooltip Text="@context.d.TradeNote" Inline="false">
+                    <MudIconButton Icon="@Icons.Material.Filled.EditNote" aria-label="edit" @onclick="@(() => OnBtnEditTradeNoteAsync(@context))" />
+                    </MudTooltip>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="remove" @onclick="@(() => OnBtnRemoveTradeAsync(@context))" />
+                </MudButtonGroup>
+            </MudTd>
+
+        </RowTemplate>
+
+        <ChildRowContent>
+        @if (context.ShowDetails == true)
+        {
+            <MudTr>
+            <td colspan="10"> <!-- !!!NOTE!!! <= This is amount of columns on table that popdown extens to -->
+
+            <MudTable T="ViewSaleHolding" Items="@context.ViewHoldings" Hover="true" FixedHeader="true">
+                <HeaderContent>
+                    <MudTh>Purhaced</MudTh>
+                    <MudTh>Months</MudTh>
+                    <MudTh>Buy</MudTh>                  @* Buy (unit price) *@
+                    <MudTh>Units Sold</MudTh>
+                    <MudTh>Invested</MudTh>             @* Invested *@
+                    <MudTh>Total Div</MudTh>            @* % + Total Divident *@
+                    <MudTh>Sale Growth</MudTh>          @* % + Sale Growth (per holding) *@
+                    <MudTh>Note</MudTh>
+                </HeaderContent>
+                <RowTemplate Context="dropdown" >
+                    <MudTd>@dropdown.d.Holding.PurhaceDate.ToString("yyyy-MM-dd")</MudTd>
+                    <MudTd>@dropdown.Months</MudTd>
+                    <MudTd>                             @* Buy (unit price) *@
+                        <RCellAvrgPrice McAvrgPrice="@(dropdown.d.Holding.McPriceWithFeePerUnit)" MarketCurrency="context.d.StockMeta.marketCurrency" />
+                    </MudTd>
+                    <MudTd>
+                        <RCellUnits Units="dropdown.d.Holding.Units" OrigUnits="dropdown.d.Holding.OriginalUnits" />
+                    </MudTd>
+                    <MudTd>                             @* Invested *@
+                        <RCellInvested RRTotalHold="@dropdown.d.Growth" HomeCurrency="@_homeCurrency" MarketCurrency="context.d.StockMeta.marketCurrency" />
+                    </MudTd>
+                    <MudTd>                             @* % + Total Divident *@
+                        <RCellDivident RRDivident="dropdown.d.Divident" HomeCurrency="@_homeCurrency" OptHideMcAlways="true" />
+                    </MudTd>
+                    <MudTd>                             @* % + Sale Growth (per holding) *@
+                        <RCellTotalGrowth RRTotalHold="@dropdown.d.Growth" HomeCurrency="@_homeCurrency" MarketCurrency="context.d.StockMeta.marketCurrency" />
+                    </MudTd>
+                    <MudTd>
+                        @if (context.d.StockMeta?.marketId != MarketId.CLOSED)
+                        {
+                        <MudTooltip Text="@dropdown.d.Holding.PurhaceNote" Inline="false">
+                            <MudIconButton Icon="@Icons.Material.Filled.EditNote" aria-label="edit" @onclick="@(() => OnBtnEditHoldingNoteAsync(@dropdown))" />
+                        </MudTooltip>
+                        }
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+            </td>
+            </MudTr>
+        }
+        </ChildRowContent>
+
+    </MudTable>
+}

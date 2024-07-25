@@ -1,0 +1,13 @@
+﻿@page "/Portfolio/{PfName}"
+
+<MudTabs Elevation="1" Rounded="true" PanelClass="pa-6" @ref="_tabs" ActivePanelIndexChanged="OnTabChanged">
+
+    <MudTabPanel Text="All Stocks">
+        <ReportPfStocks @ref="_reportPfStocks" PfName="@PfName" />
+    </MudTabPanel>
+
+    <MudTabPanel Text="Sales History" >
+        <ReportPfSales @ref="_reportPfSales" PfName="@PfName" />
+    </MudTabPanel>
+
+</MudTabs>

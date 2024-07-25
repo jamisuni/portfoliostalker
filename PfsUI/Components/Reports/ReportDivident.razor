@@ -1,0 +1,54 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+@if ( string.IsNullOrWhiteSpace(_missingDataError) == false )
+{
+    <b>Report loading failed!: @_missingDataError</b>
+}
+else
+{
+    <MudGrid Spacing="2" Justify="Justify.Center">
+        <MudItem  md="5">
+            <MudTable T="ViewYear" Items="@_yearly" Dense="true" FixedHeader="true" Height="300px" >
+                <HeaderContent>
+                    <MudTh>Year</MudTh>
+                    <MudTh>1Q</MudTh>
+                    <MudTh>2Q</MudTh>
+                    <MudTh>3Q</MudTh>
+                    <MudTh>4Q</MudTh>
+                    <MudTh>Total</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Year</MudTd>
+                    <MudTd>@context.Quarterly[0].To()@_HC</MudTd>
+                    <MudTd>@context.Quarterly[1].To()@_HC</MudTd>
+                    <MudTd>@context.Quarterly[2].To()@_HC</MudTd>
+                    <MudTd>@context.Quarterly[3].To()@_HC</MudTd>
+                    <MudTd>@context.Total.To()@_HC</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudItem>
+        <MudItem  md="5">
+            <MudChart ChartType="ChartType.Bar" ChartSeries="@_monthlyChart" LegendPosition="Position.Right" XAxisLabels="@_monthlyChartXLab" Width="100%" Height="300px"></MudChart>
+        </MudItem>
+    </MudGrid>
+
+    <MudTable T="ViewPayment" Items="@_paymentsView" Hover="true" SortLabel="Sort By" Dense="true" FixedHeader="true" Height="240px" OnRowClick="@(args => OnDivyRowClicked(args))" >
+        <HeaderContent>
+            <MudTh>Payment Date</MudTh>
+            <MudTh>Ticker</MudTh>
+            <MudTh>Company</MudTh>
+            <MudTh>Per Unit</MudTh>
+            <MudTh>Total Units</MudTh>
+            <MudTh>Payment</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.d.PaymentDate.ToString("yyyy-MMM-dd")</MudTd>
+            <MudTd>@context.d.StockMeta.symbol</MudTd>
+            <MudTd>@context.d.StockMeta.name</MudTd>
+            <MudTd>@(context.d.PayPerUnit.To000() + UiF.Curr(context.d.Currency) + " / " + context.d.HcPayPerUnit.To000() + _HC)</MudTd>
+            <MudTd>@context.d.Units.To()</MudTd>
+            <MudTd>@((context.d.HcPayPerUnit * context.d.Units).To0() + _HC)</MudTd>
+        </RowTemplate>
+    </MudTable>
+}

@@ -1,0 +1,49 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudDialog>
+    <TitleContent>
+
+        <MudToggleIconButton Toggled="@_fullscreen" ToggledChanged="OnFullScreenChanged"
+                        Icon="@Icons.Material.Filled.Fullscreen" Color="@Color.Error" 
+                        ToggledIcon="@Icons.Material.Filled.Fullscreen" ToggledColor="@Color.Success" />
+
+        Select Stock:
+
+    </TitleContent>
+
+    <DialogContent>
+        <MudSelect T="MarketMeta" Label="Market" Strict="true" Variant="Variant.Outlined" Format="F2" ValueChanged="MarketSelectionChanged" >
+            @{
+                foreach (MarketMeta market in _markets)
+                {
+                    <MudSelectItem  T="MarketMeta" Value="@market">@market.ID [@market.Name]</MudSelectItem>
+                }
+            }
+        </MudSelect>
+
+        <MudTextField @bind-Value="_search" Label="Search" Variant="Variant.Outlined" Adornment="Adornment.End" 
+                      AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Secondary" 
+                      DebounceInterval="500" OnDebounceIntervalElapsed="OnSearchChanged" />
+
+        @if (_viewedStocks != null)
+        {
+            <MudContainer Style="max-height: 300px; overflow-y: scroll">
+                <MudList Clickable="true" @bind-SelectedValue="@_selStock">
+                    @{
+                        foreach (StockMeta stock in _viewedStocks)
+                        {
+                            <MudListItem Value="@stock"> @stock.symbol @stock.name </MudListItem>
+                        }
+                    }
+                </MudList>
+            </MudContainer>
+        }
+    </DialogContent>
+
+    <DialogActions>
+
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="DlgSelectStock">Select</MudButton>
+    </DialogActions>
+</MudDialog>

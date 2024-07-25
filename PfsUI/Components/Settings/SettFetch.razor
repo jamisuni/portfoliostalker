@@ -1,0 +1,47 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudTable T="ViewRule" Items="@_view" FixedHeader="true" Height="350px" Dense="true">
+    <ColGroup>
+        <col style="width: 10%;" />     @* Market *@
+        <col style="width: 25%;" />     @* Stocks *@
+        <col style="width: 25%;" />     @* Providers *@
+        <col style="width: 10%;" />     @* Buttons *@
+    </ColGroup>
+    <HeaderContent>
+        <MudTh>Market</MudTh>
+        <MudTh>Stocks</MudTh>
+        <MudTh>Providers</MudTh>
+        <MudTh>Test/Edit/Del</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Market</MudTd>
+        <MudTd>
+            @if ( context.Stocks != null )
+            {
+                <MudSelect T="string" Margin="Margin.Dense" Text="@context.StocksHeader">
+                    @foreach (string stock in context.Stocks)
+                    {
+                        <MudSelectItem T="string" Value="@stock">@stock</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+        </MudTd>
+        <MudTd>
+            @context.ProvidersHeader
+        </MudTd>
+        <MudTd>
+        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small">
+            <MudIconButton Icon="@Icons.Material.Filled._360" aria-label="edit" @onclick="@(() => DoTestFetchEodAsync(context.Cfg))" Size="Size.Small" />
+            <MudIconButton Icon="@Icons.Material.Filled.EditNote" aria-label="edit" @onclick="@(() => DoEditAsync(context.Cfg))" Size="Size.Small" />
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="edit" @onclick="@(() => DoDeleteAsync(context.Cfg))" Size="Size.Small" />
+        </MudButtonGroup>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+<MudStack Row="true">
+<MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled._360" Color="Color.Primary" OnClick="OnTestFetchBtnAsync">Test Fetch</MudButton>
+<MudSpacer />
+    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add"  Color="Color.Primary" OnClick="OnBtnAddNewRuleAsync">Add Rule</MudButton>
+</MudStack>

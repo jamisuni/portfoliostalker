@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PfsConfig\PfsConfig.csproj" />
+    <ProjectReference Include="..\PfsExtFetch\PfsExtFetch.csproj" />
+    <ProjectReference Include="..\PfsReports\PfsReports.csproj" />
+    <ProjectReference Include="..\PfsShared\PfsShared.csproj" />
+    <ProjectReference Include="..\PfsTypes\PfsTypes.csproj" />
+  </ItemGroup>
+
+</Project>

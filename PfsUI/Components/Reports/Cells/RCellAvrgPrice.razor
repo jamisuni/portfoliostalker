@@ -1,0 +1,10 @@
+﻿@namespace PfsUI.Components
+
+@using Pfs.Types
+
+@(UiF.AvrgPrice(McAvrgPrice) + UiF.Curr(MarketCurrency))
+
+@code {
+    [Parameter] public decimal McAvrgPrice { get; set; }
+    [Parameter] public CurrencyId MarketCurrency { get; set; }
+}

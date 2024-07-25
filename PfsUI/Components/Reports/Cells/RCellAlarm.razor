@@ -1,0 +1,43 @@
+﻿@namespace PfsUI.Components
+
+@using Pfs.Types
+
+@if (RRAlarm != null && Over && RRAlarm.OverP.HasValue)
+{
+    <MudTooltip Text="@RRAlarm.OverNote" Inline="false">
+    @if (RRAlarm.OverP >= 1)
+    {
+        <span style="color:red">@(RRAlarm.OverP.Value.ToString("0") + "%^")</span>
+    }
+    else if (RRAlarm.OverP.Value >= -5 )
+    {
+        <span style="color:orange">@(RRAlarm.OverP.Value.ToString("0") + "%^")</span>
+    }
+    else
+    {
+        @(RRAlarm.OverP.Value.ToString("0") + "%^")
+    }
+    </MudTooltip>
+}
+else if (RRAlarm != null && Over == false && RRAlarm.UnderP.HasValue)
+{
+    <MudTooltip Text="@RRAlarm.UnderNote" Inline="false">
+    @if (RRAlarm.UnderP >= 0)
+    {
+        <span style="color:red">@RRAlarm.UnderP.Value.ToString("0")%</span>
+    }
+    else if (RRAlarm.UnderP >= 5)
+    {
+        <span style="color:orange">@RRAlarm.UnderP.Value.ToString("0")%</span>
+    }
+    else 
+    {
+        @(RRAlarm.UnderP.Value.ToString("0") + "%")
+    }
+    </MudTooltip>
+}
+
+@code {
+    [Parameter] public RRAlarm RRAlarm { get; set; } = null;
+    [Parameter] public bool Over { get; set; }          // true == Over alarm, false == Under alarm
+}

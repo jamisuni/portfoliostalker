@@ -1,0 +1,19 @@
+﻿@inherits LayoutComponentBase
+
+
+<CascadingValue Value="this">
+
+    <div class="page">
+        <div class="main">
+            <MudPaper Width="1200px" >
+                <PageHeader @ref="_childPageHeader" EvFromPageHeaderAsync="OnEvFromPageHeaderAsync" />
+                @Body
+            </MudPaper>
+        </div>
+    </div>
+
+</CascadingValue>
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />

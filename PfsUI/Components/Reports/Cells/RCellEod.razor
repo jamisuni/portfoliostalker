@@ -1,0 +1,76 @@
+﻿@namespace PfsUI.Components
+@inject NavigationManager Navigation
+@using Pfs.Types
+
+@if ( RCEod == null )
+{
+}
+else if (RCEod.IsLatestEOD )
+{
+    <MudStack Row="true" >
+    @if (RCEod.ChangeP <= -1)
+    {
+        <span style="color:red"><b>@RCEod.ChangeP.ToP()</b></span>
+    }
+    else
+    {
+        <b>@RCEod.ChangeP.ToP()</b>
+    }
+    <MudLink Href="@URL()" Target="_blank" Underline="Underline.Hover">@RCEod.fullEOD.Close.To00()@UiF.Curr(RCEod.MarketCurrency)</MudLink>
+    </MudStack>
+}
+else 
+{
+    <MudTooltip Text="@ExpiredTooltip()">
+        <MudAlert Severity="@ExpiredColor()">@RCEod.fullEOD.Close.To00()@UiF.Curr(RCEod.MarketCurrency)</MudAlert>
+    </MudTooltip>
+}
+
+@code {
+    [Parameter] public RCEod RCEod { get; set; }
+    [Parameter] public StockMeta StockMeta { get; set; }
+
+    protected string URL()
+    {
+        string url = @"https://www.tradingview.com/chart/?symbol=";
+
+        switch (StockMeta.marketId)
+        {
+            case MarketId.TSX:
+            case MarketId.NYSE:
+            case MarketId.NASDAQ:
+            case MarketId.AMEX:
+                return url + StockMeta.marketId.ToString() + "%3A" + StockMeta.symbol;
+
+            case MarketId.OMXH:
+                return url + "OMXHEX%3A" + StockMeta.symbol;
+        }
+        return string.Empty;
+    }
+
+    protected Severity ExpiredColor()
+    {
+        int days = (RCEod.LastMarkerClosing.Value.DayNumber - RCEod.fullEOD.Date.DayNumber);
+
+        if ( days > 7 )
+            return Severity.Error;
+
+        if (days >= 2)
+            return Severity.Warning;
+
+        return Severity.Info;
+    }
+
+    protected string ExpiredTooltip()
+    {
+        if (RCEod == null)
+            return "Data is missing";
+
+        string ret = $"Data from {RCEod.fullEOD.Date.ToString("MMM-dd (ddd)")}";
+
+        if (RCEod.LastMarkerClosing.HasValue)
+            ret += $" latest market close is {RCEod.LastMarkerClosing.Value.ToString("MMM-dd (ddd)")}";
+
+        return ret;
+    }
+}

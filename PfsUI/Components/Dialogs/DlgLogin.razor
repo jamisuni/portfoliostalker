@@ -1,0 +1,44 @@
+﻿@using Pfs.Client
+@using Pfs.Types
+@namespace PfsUI.Components
+
+<MudDialog>
+    <TitleContent>
+        Login is not yet supported on this version of PFS. Going to be added later
+        as optional for backup etc, but atm focusing to build browser only version.
+    </TitleContent>
+
+    <DialogContent>
+        @if ( _showBusySignal == true )
+        {
+            <MudProgressCircular Indeterminate="true"></MudProgressCircular>        
+        }
+
+        <MudTextField  @bind-Value="_userinfo.Username" Label="Username" Variant="Variant.Outlined" 
+                       DebounceInterval="500" OnDebounceIntervalElapsed="OnUsernameChanged" Disabled="true" />
+        @if (string.IsNullOrEmpty(_defUsername) == true)
+        {
+            <MudTextField @bind-Value="_userinfo.Password" Label="Password" Variant="Variant.Outlined" InputType="InputType.Password" Disabled="true" />
+            <MudSwitch Color="Color.Primary" @bind-Value=@(_remember) Label="Remember Me" Disabled="true" />
+        }
+    </DialogContent>
+
+    <DialogActions>
+
+        <MudButton @onclick="@(() => DlgLaunchDemoAsync(0))">Demo1</MudButton>
+
+        @if (string.IsNullOrEmpty(_defUsername) == true && false)
+        {
+        <MudButton OnClick="OnSwapRegister"
+                   Variant="Variant.Outlined"
+                   EndIcon="@Icons.Material.Filled.CloudQueue"
+                   Color="Color.Tertiary" 
+                   Disabled="@_showBusySignal">
+            Go Registeration
+        </MudButton>
+        }
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+
+        <MudButton Color="Color.Primary" Disabled="@_showBusySignal" OnClick="DlgOkAsync">Login</MudButton>
+    </DialogActions>
+</MudDialog>

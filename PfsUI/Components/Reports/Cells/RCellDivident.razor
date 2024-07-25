@@ -1,0 +1,31 @@
+﻿@namespace PfsUI.Components
+
+@using Pfs.Types
+
+<!-- Implementation: RCellDivident -->
+
+@if (RRDivident == null)
+{
+}
+else if (DividentCurrency != HomeCurrency && OptHideMcAlways == false)
+{
+    <div class="col">
+        <div class="row">
+            @(RRDivident.ViewMcDiv + UiF.Curr(DividentCurrency))
+        </div>
+        <div class="row">
+            @(RRDivident.ViewHcDiv + UiF.Curr(HomeCurrency) + " " + RRDivident.ViewHcDivP + "%")
+        </div>
+    </div>
+}
+else
+{
+    @(RRDivident.ViewHcDiv + UiF.Curr(HomeCurrency) + " " + RRDivident.ViewHcDivP + "%")
+}
+
+@code {
+    [Parameter] public RRDivident RRDivident { get; set; }
+    [Parameter] public CurrencyId HomeCurrency { get; set; }
+    [Parameter] public CurrencyId DividentCurrency { get; set; }
+    [Parameter] public bool OptHideMcAlways { get; set; } = false;
+}

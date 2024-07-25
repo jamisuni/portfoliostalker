@@ -1,0 +1,117 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+@if (_viewReport == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (string.IsNullOrEmpty(_errMsg) == false)
+{
+    <p><em>@_errMsg</em></p>
+}
+else
+{
+    <MudTable T="ViewReportHoldingsData" Items="@_viewReport" Hover="true" SortLabel="Sort By" FixedHeader="true" Height="480px" OnRowClick="@(args => OnRowClicked(args))" >
+        <ColGroup>
+            <col style="width: 6%;" /> @* Portfolio *@
+            <col style="width: 7%;" /> @* Purhaced *@
+            <col style="width: 4%;" /> @* Shares *@
+            <col style="width: 5%;" /> @* Avrg.Price *@
+            <col style="width: 6%;" />  @* Invested *@
+            <col style="width: 15%;" /> @* Growth *@
+            @if (_viewDividentColumn == true)
+            {
+                <col style="width: 15%;" />  @* Total Div *@
+            }
+            <col style="width: 8%;" />  @* Oper *@
+        </ColGroup>
+        <HeaderContent>
+            <MudTh>Portfolio</MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportHoldingsData, object>(x=>x.d.Holding.PurhaceDate)">Purhaced</MudTableSortLabel></MudTh>
+            <MudTh>Shares</MudTh>
+            <MudTh>Avrg</MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportHoldingsData, object>(x=>x.SortOnInvested)">Invested</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportHoldingsData, object>(x=>x.d.RRTotalHold?.McGrowthP)">Growth</MudTableSortLabel></MudTh>
+            @if ( _viewDividentColumn == true )
+            {
+            <MudTh>Total Div</MudTh>
+            }
+            <MudTh>Edit/Div/Sale</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.d.PfName</MudTd>
+            <MudTd>@context.d.Holding.PurhaceDate.ToString("yyyy-MM-dd")</MudTd>
+            <MudTd>@context.Units</MudTd>
+            <MudTd>
+                <RCellAvrgPrice McAvrgPrice="context.d.RRTotalHold.McAvrgPrice" MarketCurrency="@context.d.RCEod.MarketCurrency" />
+            </MudTd>
+            <MudTd>
+                 <RCellInvested RRTotalHold="context.d.RRTotalHold" MarketCurrency="@context.d.RCEod.MarketCurrency" HomeCurrency="@_homeCurrency" />
+            </MudTd>
+
+            <MudTd>
+                <RCellTotalGrowth RRTotalHold="@context.d.RRTotalHold" MarketCurrency="@context.d.RCEod.MarketCurrency" HomeCurrency="@_homeCurrency" />
+            </MudTd>
+
+            @if ( _viewDividentColumn == true )
+            {   @* Total Div *@
+                <MudTd>
+                    <RCellDivident HomeCurrency="@_homeCurrency" RRDivident="@context.d.TotalHoldingDivident" OptHideMcAlways="true" />
+                </MudTd>
+            }
+
+            <MudTd>
+                <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small">
+                    <MudTooltip Text="Edit Note"><MudIconButton Icon="@Icons.Material.Filled.EditNote" Size="Size.Small" aria-label="edit note" @onclick="@(() => OnBtnEditNoteAsync(@context))" /></MudTooltip>
+                    @if (context.AllowEditing)
+                    {
+                        <MudTooltip Text="Edit Holding"><MudIconButton Icon="@Icons.Material.Filled.ModeEdit" Size="Size.Small" aria-label="edit hldn" @onclick="@(() => OnBtnEditHoldingAsync(@context))" /></MudTooltip>
+                    }
+                    else
+                    {
+                        <MudTooltip Text="Cant edit/delete as partially sold already.">
+                            <MudIconButton Icon="@Icons.Material.Filled.ModeEdit" Size="Size.Small" aria-label="edit hldn" Disabled="true" />
+                        </MudTooltip>
+                    }
+                    <MudTooltip Text="Divident"><MudIconButton Icon="@Icons.Material.Filled.Percent" Size="Size.Small" aria-label="adddiv" @onclick="@(() => OnBtnAddDividentAsync(@context))" /></MudTooltip>
+                    <MudTooltip Text="Sale"> <MudIconButton Icon="@Icons.Material.Filled.AttachMoney" Size="Size.Small" aria-label="sale hnld" @onclick="@(() => OnBtnSaleHoldingAsync(@context))" /></MudTooltip>
+                </MudButtonGroup>
+            </MudTd>
+        </RowTemplate>
+        <ChildRowContent>
+            @if (context.ShowDetails)
+            {
+                <td colspan="10"> <!-- !!!NOTE!!! <= This is amount of columns on table that popdown extens to -->
+
+                <MudTable T="RRHoldingDivident" Items="@context.d.Divident" Context="dividents">
+                    <HeaderContent>
+                        <MudTh>Ex Div Date</MudTh>
+                        <MudTh>Payment Date</MudTh>
+                        <MudTh>Per Share</MudTh>
+                        <MudTh>Divident</MudTh>
+                        <MudTh>Del</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd >@dividents.ExDivDate.ToYMD()</MudTd>
+                        <MudTd>@dividents.PaymentDate.ToYMD()</MudTd>
+                        <MudTd >
+                            @(dividents.PaymentPerUnit.To000() + context.DC + " " + dividents.HcPaymentPerUnit.To000() + context.HC)
+                        </MudTd>
+                        <MudTd>
+                            <RCellDivident HomeCurrency="@_homeCurrency" DividentCurrency="@context.d.DividentCurrency" RRDivident="@dividents" />
+                        </MudTd>
+                        <MudTd>
+                            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                                <MudTooltip Text="Deletes this specific divident, but also from potential sold parts of this holding!'">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" @onclick="@(() => OnBtnDeleteDividentAsync(@context, @dividents))" />
+                                </MudTooltip>
+                            </MudButtonGroup>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+
+                </td>
+            }
+        </ChildRowContent>
+    </MudTable>
+}

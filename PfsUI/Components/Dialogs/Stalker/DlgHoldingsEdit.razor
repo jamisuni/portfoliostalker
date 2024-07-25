@@ -1,0 +1,67 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudDialog>
+    <TitleContent>
+
+        <MudToggleIconButton Toggled="@_fullscreen" ToggledChanged="OnFullScreenChanged"
+                        Icon="@Icons.Material.Filled.Fullscreen" Color="@Color.Error" 
+                        ToggledIcon="@Icons.Material.Filled.Fullscreen" ToggledColor="@Color.Success" />
+
+        Holding of [<b>$@Symbol</b>]
+
+    </TitleContent>
+
+    <DialogContent>
+
+        @if (string.IsNullOrEmpty(_lockedPfName) == false )
+        {
+            <MudTextField @bind-Value="_lockedPfName" ReadOnly="true" Variant="Variant.Text" />
+        }
+        else
+        {
+            <MudSelect T="string" Label="Portfolio" Strict="true" Variant="Variant.Outlined" Format="F2" @bind-Value="PfName" >
+                @foreach (string pf in _pfNames)
+                {
+                    <MudSelectItem T="string" Value="@pf">@pf</MudSelectItem>
+                }
+            </MudSelect>
+        }
+        <MudNumericField @bind-Value="_units" Label="Purhaces Units" Variant="Variant.Outlined" HideSpinButtons="true" ReadOnly="_allowEditUnits" />
+        <MudNumericField @bind-Value="_pricePerUnit" Label="Price per Unit" Variant="Variant.Outlined" Min="0" HideSpinButtons="true" AdornmentText="@UiF.Curr(_marketCurrency)" Adornment="Adornment.End" />
+        <MudNumericField @bind-Value="_totalFee" Label="Fee" Variant="Variant.Outlined" Min="0" HideSpinButtons="true" AdornmentText="@UiF.Curr(_marketCurrency)" Adornment="Adornment.End" />
+        <MudTextField  @bind-Value="_purhaceId" Label="Custom Holding ID" ReadOnly="@Edit" Variant="Variant.Outlined" />
+        
+        @if (_viewCurrencyRate == true)
+        {
+        <div class="container">
+            <div class="row">
+                <div class="col-md-9">
+                    <MudNumericField @bind-Value="_currencyRate" Label="@_conversionLabel" Variant="Variant.Outlined" />
+                </div>
+                <div class="col-md-1">
+                    <MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Error" OnClick="OnBtnGetCurrencyAsync" />
+                </div>
+            </div>
+        </div>
+        }
+
+        <MudDatePicker Label="Purhace Day" @bind-Date="_purhaceDate" MaxDate="@(DateTime.Now)" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
+
+        <MudTextField @bind-Value="_purhaceNote" Label="Custom notes" Variant="Variant.Outlined" />
+
+    </DialogContent>
+
+    <DialogActions>
+        @if (_allowDelete) {
+        <MudButton Color="Color.Primary" OnClick="OnBtnDeleteAsync">Delete</MudButton>
+        }
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+        @if (Edit) {
+            <MudButton Color="Color.Primary" OnClick="OnBtnEditAsync">Save</MudButton>
+        }
+        else {
+            <MudButton Color="Color.Primary" OnClick="OnBtnAddAsync">Add</MudButton>
+        }
+    </DialogActions>
+</MudDialog>

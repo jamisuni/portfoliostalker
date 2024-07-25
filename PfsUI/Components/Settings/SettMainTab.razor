@@ -1,0 +1,128 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudPaper Width="800px" Outlined="true" >
+<MudTabs Elevation="1" Rounded="true" PanelClass="pa-6">
+    <MudTabPanel Text="General" >
+        <MudSimpleTable Style="overflow-x: auto;">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Account Type</td>
+                    <td></td>
+                    <td>@(_accountTypeId.ToString())</td>
+                </tr>
+
+                <tr>
+                    <td>Home Currency</td>
+                    <td></td>
+                    <td>
+                        @if (_homeCurrency != CurrencyId.Unknown )
+                        {
+                            @(_homeCurrency.ToString())
+                        }
+                        else
+                        {
+                            <MudSelect T="CurrencyId" Label="Home Currency?" Required ValueChanged="OnHomeCurrencySelected">
+                                @foreach (CurrencyId curId in  Enum.GetValues(typeof(CurrencyId)))
+                                {
+                                    @if (curId == CurrencyId.Unknown)
+                                        continue;
+
+                                    <MudSelectItem T="CurrencyId" Value="@curId">@curId</MudSelectItem>
+                                }
+                            </MudSelect>
+                        }
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Currency Provider</td>
+                    <td>
+                        @if (_currencyDate == DateOnly.MinValue)
+                        {
+                            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="OnBtnUpdateCurrencyConversionRatesAsync" Disabled="_currencyFetchOnGoing" >-missing-</MudButton>
+                        }
+                        else
+                        {
+                            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="OnBtnUpdateCurrencyConversionRatesAsync" Disabled="_currencyFetchOnGoing">@_currencyDate.ToString("MMM-dd")</MudButton>
+
+                            @if (_currencyRates.Count() > 0)
+                            {
+                                <MudMenu Icon="@Icons.Material.Filled.Menu" >
+                                    @foreach (CurrencyRate currRate in _currencyRates)
+                                    {
+                                        @if (currRate.currency == _homeCurrency)
+                                            continue;
+
+                                        @if (currRate.rate > 0) {
+                                            <MudMenuItem>@($"{currRate.currency} {currRate.rate.To000()}")</MudMenuItem>
+                                        }
+                                        else {
+                                            <MudMenuItem>@($"{currRate.currency} -missing-")</MudMenuItem>
+                                        }
+                                    }
+                                </MudMenu>
+                            }
+                        }
+                    </td>
+                    <td>
+                        <MudMenu Label="@_selCurrencyProvider.ToString()" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Secondary" >
+			                @foreach (ExtProviderId value in _currencyProviders)
+			                {
+                                <MudMenuItem @onclick="@(() => OnSetCurrencyProviderAsync(@value))">@value</MudMenuItem>
+			                }
+                        </MudMenu>
+                    </td>
+                </tr>
+            </tbody>
+        </MudSimpleTable>
+    </MudTabPanel>
+
+    <MudTabPanel Text="Data">
+        <MudSimpleTable Style="overflow-x: auto;">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Broker - Import Transactions</td>
+                    <td></td>
+                    <td><MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="OnBtnImportTransactionsDlgAsync">Import Broker</MudButton></td>
+                </tr>
+
+                @if (_accountTypeId != AccountTypeId.Demo)
+                {
+                    <tr>
+                        <td>Import - Files</td>
+                        <td></td>
+                        <td>
+                            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="OnBtnImportDlgAsync">Import Menu</MudButton>
+                        </td>
+                    </tr>
+                }
+
+                <tr>
+                    <td>Remove ALL local data</td>
+                    <td></td>
+                    <td>
+                        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="OnBtnClearAllAsync">Clear</MudButton>
+                    </td>
+                </tr>
+
+            </tbody>
+        </MudSimpleTable>
+    </MudTabPanel>
+
+</MudTabs>
+</MudPaper>

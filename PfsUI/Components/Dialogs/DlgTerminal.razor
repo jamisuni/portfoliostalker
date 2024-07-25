@@ -1,0 +1,40 @@
+﻿@using Pfs.Client
+@namespace PfsUI.Components
+
+<MudDialog>
+    <TitleContent>
+
+        Command Terminal
+
+    </TitleContent>
+
+    <DialogContent>
+
+        <MudPaper Class=" pa-4 align-start d-flex" Outlined="true">
+            <MudTextField @bind-Value="_cmdLine" Label="Enter Command" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.QuestionMark"
+                          OnAdornmentClick="OnHelpMeAsync" Immediate="true" OnKeyDown="OnCmdKeyDownAsync" />
+            <MudSpacer />
+        </MudPaper>
+
+            <MudPaper Class=" pa-4 align-start d-flex" Outlined="true">
+                <MudTextField @bind-Value="_helpMsg" Variant="Variant.Outlined" ReadOnly="true" Disabled="true" />
+                @if (_helpSel != null)
+            {
+                <MudSpacer />
+                <MudSelect T="string" Label="@_helpSel[0]" MultiSelection="@_helpSelMulti" ValueChanged="OnHelpSelChanged">
+                    @foreach (var sel in _helpSel)
+                    {
+                        <MudSelectItem T="string" Value="@sel">@sel</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+        </MudPaper>
+
+
+        <MudPaper Class="pa-4 ma-2" Outlined="true">
+            <MudTextField @bind-Value="_logText" Label="Body Text" Variant="Variant.Outlined" ReadOnly="true" Lines="20" Clearable="true" />
+        </MudPaper>
+
+
+    </DialogContent>
+</MudDialog>

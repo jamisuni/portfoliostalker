@@ -1,0 +1,37 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<WidgStockSectors @ref="_widgStockSectors" Market="@Market" Symbol="@Symbol" />
+
+<MudStack Row="true">
+    @if (_urlGoogle != "")
+    {
+        <MudFab StartIcon="@Icons.Custom.Brands.Google"
+                Label="Google Finances"
+                Href="@_urlGoogle"
+                Target="_blank" />
+    }
+    @if (_urlTradingView != "")
+    {
+        <MudFab StartIcon="@Icons.Material.Filled.Navigation"
+                Label="Trading View"
+                Href="@_urlTradingView"
+                Target="_blank" />
+    }
+    @if (_urlYahoo != "")
+    {
+        <MudFab StartIcon="@Icons.Material.Filled.Navigation"
+                Label="Yahoo Finances"
+                Href="@_urlYahoo"
+                Target="_blank" />
+    }
+    @if (_urlStockTwits != "")
+    {
+        <MudFab StartIcon="@Icons.Material.Filled.Navigation"
+                Label="Stock Twitch"
+                Href="@_urlStockTwits"
+                Target="_blank" />
+    }
+</MudStack>
+
+<MudTextField T="string" Label="Custom notes" ReadOnly="@(!_editingMode)" Variant="Variant.Outlined" @bind-Value="@_editingText" Lines="16" MaxLength="3000" />

@@ -1,0 +1,25 @@
+﻿@namespace PfsUI.Components
+
+@using Pfs.Types
+
+
+<div class="col"> <div class="row">
+    @(UiF.AvrgPrice(RRTotalGrowth.McAvrgPrice) + " / " + UiF.AvrgPrice(RRTotalGrowth.McClosePrice) + UiF.Curr(MarketCurrency))
+</div>
+
+@if (MarketCurrency != HomeCurrency)
+{
+<div class="row">
+    @(UiF.AvrgPrice(RRTotalGrowth.HcAvrgPrice) + " / " + UiF.AvrgPrice(RRTotalGrowth.HcClosePrice) + UiF.Curr(HomeCurrency))
+</div>		      
+}
+</div>
+
+
+@code {
+    [Parameter] public RCGrowth RRTotalGrowth { get; set; }
+
+    [Parameter] public CurrencyId MarketCurrency { get; set; }
+
+    [Parameter] public CurrencyId HomeCurrency { get; set; }
+}

@@ -1,0 +1,13 @@
+﻿@namespace PfsUI.Components
+
+@using Pfs.Types
+
+@if (OrigUnits.HasValue && Units != OrigUnits.Value)
+    @($"{Units.ToString("0")} / {OrigUnits.Value.ToString("0")}")
+else
+    @($"{Units.ToString("0")}")
+
+@code {
+    [Parameter] public decimal Units { get; set; }
+    [Parameter] public decimal? OrigUnits { get; set; } = null;
+}

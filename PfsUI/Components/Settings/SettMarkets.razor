@@ -1,0 +1,59 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudCard Outlined="true">
+    <MudContainer >
+        <MudTable T="ViewMarket" Items="@_view" FixedHeader="true" Height="350px" Dense="true" OnRowClick="@(args => OnRowClickedAsync(args))">
+            <ColGroup>
+                <col style="width: 5%;" />      @* Active *@
+                <col style="width: 10%;" />     @* MarketId *@
+                <col style="width: 25%;" />     @* Name *@
+                <col style="width: 10%;" />     @* Close *@
+                <col style="width: 5%;" />      @* Currency *@
+            </ColGroup>
+            <HeaderContent>
+
+                <MudTh><MudSwitch Color="Color.Success" UnCheckedColor="Color.Info" Checked="@_listActivesOnly" T="bool" CheckedChanged="OnChangedBetwAllAndActive"></MudSwitch></MudTh>
+                <MudTh>ID</MudTh>
+                <MudTh>Name</MudTh>
+                <MudTh>Close</MudTh>
+                <MudTh>Cur.</MudTh>
+
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd><MudAvatar Size="Size.Small" Color="@GetActiveColor(@context.Active)">@context.Active</MudAvatar></MudTd>
+                <MudTd>@context.Meta.ID</MudTd>
+                <MudTd>@context.Meta.Name</MudTd>
+                <MudTd>@context.Closing</MudTd>
+                <MudTd>@(UiF.Curr(context.Meta.Currency))</MudTd>
+        </RowTemplate>
+        </MudTable>
+    </MudContainer>
+
+    <MudCardActions>
+        @if (_editing != MarketId.Unknown)
+        {
+            <MudSwitch Color="Color.Success" UnCheckedColor="Color.Info" Checked="@_editActive" T="bool" CheckedChanged="OnChangeEditActive">Use @(_editing)?</MudSwitch>
+
+            <MudNumericField @bind-Value="_editMinFetchMins" Label="Min Fetch Mins" Variant="Variant.Outlined" Min="1" Max="360" HideSpinButtons="true" />
+
+            <MudTooltip Text="2024:Jan,6,9:Apr,17:Jun,4,5,6:Dec,24,25,26" Inline="false">
+                <MudTextField T="string" @bind-Value="_editHolidays" Label="Holidays" Variant="Variant.Outlined" />
+            </MudTooltip>
+
+            <MudButton OnClick="EditCancel">Cancel</MudButton>
+            <MudButton OnClick="EditSaveAsync">Save</MudButton>
+        }
+    </MudCardActions>
+</MudCard>
+
+@code {
+
+    Color GetActiveColor(char active)
+    {
+        if (active == '+')
+            return Color.Success;
+
+        return Color.Info;
+    }
+}

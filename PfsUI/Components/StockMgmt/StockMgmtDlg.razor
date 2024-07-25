@@ -1,0 +1,35 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudDialog>
+    <DialogContent>
+        <MudPaper Height="570px" Width="100%">
+        <MudTabs Elevation="1" Rounded="true" PanelClass="pa-6" @ref="_tabs" ActivePanelIndexChanged="OnTabChanged">
+
+            <MudTabPanel Text="@($"{Market}: ${Symbol}")" >
+                <StockMgmtNote @ref="_childStockMgmtNote"  Market="@Market" Symbol="@Symbol" />
+            </MudTabPanel>
+            <MudTabPanel Text="History">
+                <StockMgmtHistory @ref="_childStockMgmtHistory" Market="@Market" Symbol="@Symbol" />
+            </MudTabPanel>
+            <MudTabPanel Text="Alarms" >
+                <StockMgmtAlarms @ref="_childStockMgmtAlarms" Market="@Market" Symbol="@Symbol" />
+            </MudTabPanel>
+            <MudTabPanel Text="Orders" >
+                <StockMgmtOrders @ref="_childStockMgmtOrders" Market="@Market" Symbol="@Symbol" />
+            </MudTabPanel>
+            <MudTabPanel Text="Holdings & Divs" >
+                <StockMgmtHoldings @ref="@_childStockMgmtHoldings" Market="@Market" Symbol="@Symbol" />
+            </MudTabPanel>
+        </MudTabs>
+        </MudPaper>
+    </DialogContent>
+
+    <DialogActions>
+        @if ( string.IsNullOrWhiteSpace(_primBtnText) == false)
+        {
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary"  OnClick="OnBtnPrimAsync">@_primBtnText</MudButton>
+        }
+        <MudButton OnClick="DlgClose">Close</MudButton>
+    </DialogActions>
+</MudDialog>

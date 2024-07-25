@@ -1,0 +1,27 @@
+﻿@namespace PfsUI.Components
+
+@using Pfs.Types
+
+@if (RRTotalHold == null)
+{
+}
+else
+{
+    <div class="col">
+        @if (MarketCurrency != HomeCurrency)
+        {
+        <div class="row">
+            @RRTotalHold.McInvested.ToString("0")@UiF.Curr(MarketCurrency)
+        </div> 
+        }
+        <div class="row">
+            @RRTotalHold.HcInvested.ToString("0")@UiF.Curr(HomeCurrency)
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public RCGrowth RRTotalHold { get; set; }
+    [Parameter] public CurrencyId HomeCurrency { get; set; }
+    [Parameter] public CurrencyId MarketCurrency { get; set; }
+}

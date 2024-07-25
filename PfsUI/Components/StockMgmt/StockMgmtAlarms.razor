@@ -1,0 +1,31 @@
+﻿@using Pfs.Types
+
+@namespace PfsUI.Components
+
+@if (string.IsNullOrEmpty(_errMsg) == false)
+{
+<p><em>@_errMsg</em></p>
+}
+else if (_viewAlarms == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable T="SAlarm" Items="@_viewAlarms" @bind-SelectedItem="_selectedAlarm" OnRowClick="@(args => OnRowClickedAsync(args))">
+        <ColGroup>
+            <col style="width: 15%;" />
+            <col style="width: 15%;" />
+            <col style="width: 50%;" />
+            <col style="width: 15%;" />
+        </ColGroup>
+        <RowTemplate>
+            <MudTd DataLabel="Type">@context.AlarmType</MudTd>
+            <MudTd DataLabel="Value">@context.Level@UiF.Curr(_marketMeta.Currency)</MudTd>
+            <MudTd DataLabel="Type">@context.Note</MudTd>
+            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                <MudIconButton Icon="@Icons.Material.Filled.ModeEdit" aria-label="edit" @onclick="@(() => OnEditAlarmAsync(@context))" />
+            </MudButtonGroup>
+        </RowTemplate>
+    </MudTable>
+}

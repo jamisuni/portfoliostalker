@@ -1,0 +1,54 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudDialog>
+    <TitleContent>
+
+        <MudToggleIconButton Toggled="@_fullscreen" ToggledChanged="OnFullScreenChanged"
+                        Icon="@Icons.Material.Filled.Fullscreen" Color="@Color.Error" 
+                        ToggledIcon="@Icons.Material.Filled.Fullscreen" ToggledColor="@Color.Success" />
+
+        Divident to <b>@PfName</b>: [<b>$@Symbol</b>] @_extraHeader
+
+    </TitleContent>
+
+    <DialogContent>
+
+        <MudNumericField  @bind-Value="_paymentPerUnit" Label="Payment per unit" Variant="Variant.Outlined" Min="0" HideSpinButtons="true" />
+
+        <MudNumericField @bind-Value="_units" Label="Units" Variant="Variant.Outlined" Min="1" HideSpinButtons="true" ReadOnly="@_lockedUnits" />
+        
+        @if (_currency != _homeCurrency)
+        {
+        <div class="container">
+            <div class="row">
+                <div class="col-md-9">
+                    <MudTextField @bind-Value="_currencyRate" Label="@_currencyLabel" Variant="Variant.Outlined" AdornmentText="@UiF.Curr(_currency)" Adornment="Adornment.End"  />
+                </div>
+                <div class="col-md-1">
+                    <MudMenu Icon="@Icons.Material.Filled.Menu">
+                        @foreach (CurrencyId cr in _allCurrencies)
+                        {
+                            <MudMenuItem OnClick="@(() => OnCurrencyChanged(@cr))">@UiF.Curr(cr)</MudMenuItem>
+                        }
+                    </MudMenu>
+                </div>
+                <div class="col-md-1">
+                    <MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Error" OnClick="OnBtnGetCurrencyAsync" />
+                </div>
+            </div>
+        </div>
+        }
+
+        <MudDatePicker Label="Ex Div Date" @bind-Date="_exDivDate" MaxDate="@(DateTime.Now)" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
+        <MudDatePicker Label="Payment Date" @bind-Date="_paymentDate" MaxDate="@(DateTime.Now)" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
+
+    </DialogContent>
+
+    <DialogActions>
+
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="OnBtnAddAsync">Add</MudButton>
+
+    </DialogActions>
+</MudDialog>

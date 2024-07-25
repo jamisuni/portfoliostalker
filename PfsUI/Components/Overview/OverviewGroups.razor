@@ -1,0 +1,28 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudCarousel Class="mud-width-full" @ref="_carousel" ItemsSource="@_groups" Style="height:150px;" ShowArrows="true" ShowBullets="false" EnableSwipeGesture="true" SelectedIndexChanged="OnSpinnerChanged" TData="CarouselPages" AutoCycle="false" >
+    <ItemTemplate>
+
+        <MudPaper Class=" pa-4 align-start d-flex"   Outlined="true">
+            <MudSpacer />
+
+            <MudSimpleTable Style="overflow-x: auto;">
+                <tbody>
+                    <tr> <b> @(context.d.Name) </b> </tr>
+                    @if (context.d.HcTotalInvested > 0)
+                    {
+                    <tr> Invested:  <b>@(context.d.HcTotalInvested + _HC) </b></tr>
+                    <tr> Valuation: <b>@($"{context.d.HcPrevValP}% {context.d.HcTotalValuation}{_HC}") </b></tr>
+                    <tr> Growth:    <b>@($"{context.d.HcGrowthP}% {context.d.HcTotalValuation - context.d.HcTotalInvested}{_HC}") </b></tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
+
+            <MudSpacer />
+            <MudPaper Class="pa-3" Elevation="6">Hmm.. what else wants to show?</MudPaper>
+        </MudPaper>
+
+
+    </ItemTemplate>
+</MudCarousel>

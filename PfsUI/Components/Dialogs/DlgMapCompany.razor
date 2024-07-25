@@ -1,0 +1,169 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<MudDialog>
+    <TitleContent>
+
+    </TitleContent>
+
+    <DialogContent>
+            <MudTable T="ViewCompanies" Items="@_viewCompanies"  Hover="true" FixedHeader="true" Height="530px" >
+                <ColGroup>
+                    <col style="width: 15%;" />
+                    <col style="width: 15%;" />()
+                    <col style="width: 20%;" />
+                    <col style="width: 25%;" />
+                    <col style="width: 10%;" />
+                </ColGroup>
+                <HeaderContent>
+                    <MudTh>Brokers Symbol</MudTh>
+                    @if (_allowAddISINs)
+                    {
+                        <MudTh>
+                            <MudTooltip Text="Save all ISIN's below to my meta" Inline="false">
+                                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Warning" OnClick="AddAllISIN">all ISINs</MudButton>
+                            </MudTooltip>
+                        </MudTh>
+                    }
+                    else
+                    {
+                        <MudTh>Broker ISIN</MudTh>
+                    }
+                    <MudTh>PFS Market</MudTh>
+                    <MudTh>PFS Company</MudTh>
+                    <MudTh>
+                        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                            <MudTooltip Text="Save all *new* companies below to my tracked stocks" Inline="false">
+                                <MudIconButton Icon="@Icons.Material.Filled.Save" aria-label="save" OnClick="OnBtnSaveAllNewCompanies" />
+                            </MudTooltip>
+                            <MudTooltip Text="Automatical search online for companies" Inline="false">
+                                <MudIconButton Icon="@Icons.Material.Filled.Search" aria-label="search" OnClick="OnBtnOnlineSearchAllAsync" />
+                            </MudTooltip>
+                            <MudTooltip Text="Reset all per my existing local stocks" Inline="false">
+                                <MudIconButton Icon="@Icons.Material.Filled.UTurnLeft" aria-label="search" OnClick="OnBtnLocalResetAll" />
+                            </MudTooltip>
+                        </MudButtonGroup>
+                        State
+                    </MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd >
+                        @if ( context.Company.StockMeta != null && context.Company.StockMeta.symbol != context.Company.ExtSymbol )
+                        {
+                            @if ( context.ManualSearch)
+                            {
+                                <MudTooltip Text="@($"Permanent mapping from this symbol to refer existing stock")" Inline="false">
+                                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Warning" @onclick="@(() => AddMapping(context))">@(context.Company.ExtSymbol + "->" + context.Company.StockMeta.symbol)</MudButton>
+                                </MudTooltip>
+                            }
+                            else
+                            {
+                                @(context.Company.ExtSymbol + " == " + context.Company.StockMeta.symbol)
+                            }
+                        }
+                        else
+                        {
+                            @context.Company.ExtSymbol
+                        }
+                    </MudTd>
+                    <MudTd>
+                        @if (string.IsNullOrEmpty(context.Company.ExtISIN))
+                        {
+                        }
+                        else if ( string.IsNullOrEmpty(context.Company.StockMeta?.ISIN) == false )
+                        {
+                            @if (context.Company.IsMatchingISIN())
+                            {
+                                <span style="color:green">@context.Company.StockMeta.ISIN</span>
+                            }
+                            else if (context.Company.StockMeta != null && context.Company.StockMeta.symbol == context.Company.ExtSymbol)
+                            {
+                                <MudTooltip Text="@($"Existing {context.Company.StockMeta.ISIN}")" Inline="false">
+                                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Error" @onclick="@(() => AddISIN(context))">@($"Replace with {@context.Company.ExtISIN}")</MudButton>
+                                </MudTooltip>
+                            }
+                            else 
+                            {
+                                <span style="color:red">@context.Company.ExtISIN</span>
+                            }
+                        }
+                        else if (context.Company.StockMeta != null && context.Company.IsMatchingISIN() == false)
+                        {
+                            <MudTooltip Text="Save this brokers ISIN to my meta" Inline="false">
+                                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Warning" @onclick="@(() => AddISIN(context))">@context.Company.ExtISIN</MudButton>
+                            </MudTooltip>
+                        }
+                        else
+                        {
+                            <span style="color:red">@context.Company.ExtISIN</span>
+                        }
+                    </MudTd>
+                    @if (context.Company.StockMeta != null)
+                    {
+                        <MudTd >@context.Company.StockMeta.marketId.ToString()</MudTd>
+                        <MudTd >@context.Company.StockMeta.name</MudTd>
+                    }
+                    else
+                    {
+                        <MudTd>
+                            <MudSelect T="MarketId" Label="Select" Strict="true" Variant="Variant.Outlined" Format="F2" @bind-Value="context.ManualMarket">
+                            @{
+                                foreach (MarketId marketId in _allActiveMarketsId)
+                                {
+                                    <MudSelectItem T="MarketId" Value="@marketId">@marketId.ToString()</MudSelectItem>
+                                }
+                            }
+                            </MudSelect>
+                        </MudTd>
+
+                        <MudTd><MudTextField @bind-Value="context.ManualCompany" Variant="Variant.Outlined" MaxLength="30" ReadOnly="@(context.ManualMarket == MarketId.Unknown)" /></MudTd>
+                    }
+
+                    <MudTd>
+                        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                            <MudTooltip Text="View broker given company info" Inline="false">
+                                <MudIconButton Icon="@Icons.Material.Filled.Factory" aria-label="remove" @onclick="@(() => OnBtnCompanyBTAAsync(@context))" />
+                            </MudTooltip>
+                            @if (context.Company.StockMeta != null)
+                            {
+                                <MudTooltip Text="Nope, not this, I wanna remap company" Inline="false">
+                                    <MudIconButton Icon="@Icons.Material.Filled.AltRoute" aria-label="remove" @onclick="@(() => OnBtnAutomOffAsync(@context))" />
+                                </MudTooltip>
+                            }
+                            else
+                            {
+                                @if (context.ManualMarket.IsReal() == true && string.IsNullOrWhiteSpace(context.ManualCompany) == false)
+                                {
+                                <MudTooltip Text="Save this as new company to my tracked stocks, now!" Inline="false">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Save" aria-label="save" @onclick="@(() => OnBtnAddInstantlyAsync(@context))" />
+                                </MudTooltip>
+                                }
+                                <MudTooltip Text="Mapping, allow manually map this symbol permanently to one of existing stocks." Inline="false">
+                                    <MudIconButton Icon="@Icons.Material.Filled.DragHandle" aria-label="map" @onclick="@(() => OnBtnEnforceManualMatchAsync(@context))" />
+                                </MudTooltip>
+                                <MudTooltip Text="Use online services to try find this company per my markets" Inline="false">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Search" aria-label="search" @onclick="@(() => OnBtnOnlineSearchAsync(@context))" />
+                                </MudTooltip>
+                            }
+                        </MudButtonGroup>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+
+        <MudOverlay Visible="_isBusy" Absolute="true" LightBackground="true">
+            <MudProgressCircular Indeterminate="true" Size="Size.Medium" Color="Color.Secondary" />
+        </MudOverlay>
+
+    </DialogContent>
+
+    <DialogActions>
+
+        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled._360" Color="Color.Primary" OnClick="OnTestFetchBtnAsync">TEST FETCH</MudButton>
+
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+        @if (_isBusy == false)
+        {
+            <MudButton Color="Color.Primary" OnClick="DlgDoneAsync">Accept</MudButton>
+        }
+    </DialogActions>
+</MudDialog>

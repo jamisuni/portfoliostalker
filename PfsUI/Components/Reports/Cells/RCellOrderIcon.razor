@@ -1,0 +1,38 @@
+﻿@namespace PfsUI.Components
+
+@using Pfs.Types
+
+@if ( Order == null )
+{
+    
+}
+else
+{
+
+<MudTooltip Text="@Tooltip" Inline="false">
+
+@if (Order.Type == SOrder.OrderType.Buy && Order.FillDate.HasValue == false)
+{
+    <MudAvatar Size="Size.Small" Color="Color.Primary">B</MudAvatar>
+}
+else if (Order.Type == SOrder.OrderType.Buy)
+{
+    <MudAvatar Size="Size.Small" Color="Color.Success">B</MudAvatar>
+}
+
+@if (Order.Type == SOrder.OrderType.Sell && Order.FillDate.HasValue == false)
+{
+        <MudAvatar Size="Size.Small" Color="Color.Primary">S</MudAvatar>
+}
+else if (Order.Type == SOrder.OrderType.Sell)
+{
+        <MudAvatar Size="Size.Small" Color="Color.Success">S</MudAvatar>
+}
+</MudTooltip>
+
+}
+
+@code {
+    [Parameter] public SOrder Order { get; set; } = null;
+    [Parameter] public string Tooltip { get; set; } = string.Empty;
+}

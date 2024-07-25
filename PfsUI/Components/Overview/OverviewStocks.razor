@@ -1,0 +1,86 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+@if (_viewTop15 == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable T="View" Items="@_viewTop15" FixedHeader="true" Height="400px" Dense="true" >
+        <ColGroup>
+            <col style="width: 4%;" />  @* Symbol *@
+            <col style="width: 14%;" /> @* Company *@
+            @if (_viewHoldingsColumn)
+            {
+                <col style="width: 8%;" /> @* AvrgHolding *@
+            }
+            <col style="width: 8%;" /> @* Latest *@
+            <col style="width: 4%;" />  @* Alarm *@
+            @if (_viewOrdersColumn)
+            {
+            <col style="width: 4%;" />  @* Orders *@
+            }
+            @if (_exColHdr[0] != null) { <col style="width: 8%;" /> }
+            @if (_exColHdr[1] != null) { <col style="width: 8%;" /> }
+            @if (_exColHdr[2] != null) { <col style="width: 8%;" /> }
+            @if (_exColHdr[3] != null) { <col style="width: 8%;" /> }
+        </ColGroup>
+        <HeaderContent>
+            <MudTh>Symbol</MudTh>
+            <MudTh>Company</MudTh>
+            @if (_viewHoldingsColumn)
+            {
+                <MudTh>Avrg</MudTh>
+            }
+            <MudTh><MudButton Color="_BTN[BTN.Latest]" @onclick="@(() => DoSort(BTN.Latest))">Latest</MudButton></MudTh>
+            <MudTh><MudButton Color="_BTN[BTN.Alarm]"       @onclick="@(() => DoSort(BTN.Alarm))" >Alarm</MudButton></MudTh>
+            @if (_viewOrdersColumn)
+            {
+            <MudTh><MudButton Color="_BTN[BTN.Order]" @onclick="@(() => DoSort(BTN.Order))">Orders</MudButton></MudTh>
+            }
+            @if (_exColHdr[0] != null) { <MudTh> <MudButton Color="_BTN[BTN.ExCol0]" @onclick="@(() => DoSort(BTN.ExCol0))">@(_exColHdr[0])</MudButton>  </MudTh> }
+            @if (_exColHdr[1] != null) { <MudTh> <MudButton Color="_BTN[BTN.ExCol1]" @onclick="@(() => DoSort(BTN.ExCol1))">@(_exColHdr[1])</MudButton>  </MudTh> }
+            @if (_exColHdr[2] != null) { <MudTh> <MudButton Color="_BTN[BTN.ExCol2]" @onclick="@(() => DoSort(BTN.ExCol2))">@(_exColHdr[2])</MudButton>  </MudTh> }
+            @if (_exColHdr[3] != null) { <MudTh> <MudButton Color="_BTN[BTN.ExCol3]" @onclick="@(() => DoSort(BTN.ExCol3))">@(_exColHdr[3])</MudButton>  </MudTh> }
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd><MudLink Underline="Underline.Hover" @onclick="@(() => OnBtnStockMgmtLaunchAsync(@context.d.StockMeta))">@context.d.StockMeta.symbol</MudLink></MudTd>
+            <MudTd>@context.CompanyName</MudTd>
+            @if (_viewHoldingsColumn)
+            {
+                <MudTd>
+                    @if (context.d.RCTotalHold != null)
+                    {
+                        @context.d.RCTotalHold.McAvrgPrice.ToString("0.00")@UiF.Curr(context.d.StockMeta.marketCurrency)
+                    }
+                </MudTd>
+            }
+            <MudTd>
+                <RCellEod RCEod="context.d.RCEod" StockMeta="context.d.StockMeta" />
+            </MudTd>
+
+            <MudTd>
+            @if (_BTN[BTN.Alarm] == _btnPositive || _BTN[BTN.Order] == _btnPositive) {
+                <RCellAlarm RRAlarm="context.d.RRAlarm" Over="true" />
+            }
+            else {
+                <RCellAlarm RRAlarm="context.d.RRAlarm" Over="false" />
+            }
+            </MudTd>
+
+            @if (_viewOrdersColumn)
+            {
+                <MudTd>
+                <RCellOrderIcon Order="context.Order?.SO" Tooltip="@context.OrderTT" />
+                </MudTd>
+            }
+
+            @if ( _exColHdr[0] != null ) { <MudTd> <RCellExtraColumn RCExCol="@context.d.ExCol[0]" /> </MudTd> }
+            @if ( _exColHdr[1] != null ) { <MudTd> <RCellExtraColumn RCExCol="@context.d.ExCol[1]" /> </MudTd> }
+            @if ( _exColHdr[2] != null ) { <MudTd> <RCellExtraColumn RCExCol="@context.d.ExCol[2]" /> </MudTd> }
+            @if ( _exColHdr[3] != null ) { <MudTd> <RCellExtraColumn RCExCol="@context.d.ExCol[3]" /> </MudTd> }
+
+        </RowTemplate>
+    </MudTable>
+}

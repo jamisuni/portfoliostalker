@@ -1,0 +1,57 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+ @if (_selectedProvider == ExtProviderId.Unknown)
+{
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.body2">
+                To get market data, YOU NEED TO ENTER YOUR OWN KEYS and then on Market Provider settings use that Provider for selected markets.
+                Good news is, those keys are easily available for personal use from stock market data providers. 
+                All providers require only email address for creating free accounts. Additionally operating multiple
+                market those uses different currencies required conversion rates to be fetched. These conversion rates are available 
+                for some of providers. 
+            </MudText>
+        </MudCardContent>
+    </MudCard>
+}
+
+<MudCard Outlined="true">
+    <MudCardContent>
+        <MudContainer Style="max-height: 260px; overflow-y: scroll">
+            <MudList Clickable="true" SelectedValueChanged="@OnProviderChanged" >
+                @foreach (ExtProviderId provider in _providerKeys.Keys.ToList())
+                {
+                    <MudListItem Value="@provider" Text="@_description[provider].Name" />
+                }
+            </MudList>
+        </MudContainer>
+
+        @if (_selectedProvider != ExtProviderId.Unknown)
+        {
+            <MudText Typo="Typo.body2">Registeration: </MudText>
+            <MudLink Href="@_description[_selectedProvider].Addr" Target=_blank Underline="Underline.Always">@_description[_selectedProvider].Addr</MudLink>
+
+            <MudCardContent>
+                <MudTextField T="string" FullWidth="true" ReadOnly="true" Lines="5" @bind-Value="@_providerDesc" />
+            </MudCardContent>
+
+            <MudTextField T="string" @bind-Value="_providerKeys[_selectedProvider]" Label="3th Party Personal Access Key" Variant="Variant.Outlined" />
+        }
+    </MudCardContent>
+    <MudCardActions>
+        @if (_selectedProvider != ExtProviderId.Unknown )
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="OnKeySaveAsync">Save</MudButton>
+
+            @if (string.IsNullOrWhiteSpace(_providerKeys[_selectedProvider]) == false  )
+            {
+                @if (_providerTestSupport == TestSupport.StockMSFT)
+                {
+                    <MudSpacer />
+                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled._360" Color="Color.Primary" OnClick="OnBtnManualTestAsync">TEST $MSFT</MudButton>
+                }
+            }
+        }
+    </MudCardActions>
+</MudCard>

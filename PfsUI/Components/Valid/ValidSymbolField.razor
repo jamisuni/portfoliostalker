@@ -1,0 +1,20 @@
+﻿@using Pfs.Types
+@namespace PfsUI.Components
+
+@inherits MudTextField<string>
+
+<MudTextField @bind-Value="Value" Label="Symbol" Variant="Variant.Outlined" MaxLength="@Limit.Symbol" Validation="@(new Func<string, IEnumerable<string>>(ValidateSymbol))">
+</MudTextField>
+
+@code {
+    // !!!TODO!!! 2024-Jul: Used to be like ""<ValidSymbolField @bind-Value="_symbol" />"" but stopped working so not used atm... retry after getting Mud 7.0 working
+
+
+    private IEnumerable<string> ValidateSymbol(string value)
+    {
+        Result res = Pfs.Types.Validate.Str(ValidateId.Symbol, value);
+
+        if (res.Fail)
+            yield return (res as FailResult).Message;
+    }
+}

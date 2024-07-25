@@ -1,0 +1,114 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+@if (_report == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable T="ViewReportEntry" Items="@_report" Dense="true" Hover="true" SortLabel="Sort By" FixedHeader="true" Height="610px" >
+        <ColGroup>
+            <col style="width: 5%;" />  @* Symbol *@
+            <col style="width: 25%;" /> @* Company *@
+            <col style="width: 10%;" /> @* Latest *@
+            <col style="width: 5%;" />  @* Alarm Under *@
+            @if (_showAlarmOverColumn == true)
+            {
+                <col style="width: 5%;" />  @* Alarm Over *@
+            }
+            @if (_showGrowthColumn == true)
+            {
+            <col style="width: 15%;" /> @* Growth *@
+            }
+            <col style="width: 10%;" /> @* Oper *@
+        </ColGroup>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportEntry, object>(x=>x.d.StockMeta.symbol)">Symbol</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportEntry, object>(x=>x.d.StockMeta.name)">Name</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportEntry, object>(x=>x.d.RCEod?.ChangeP)">Latest</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportEntry, object>(x=>x.d.RRAlarm?.UnderP)">Under%</MudTableSortLabel></MudTh>
+            @if (_showAlarmOverColumn == true)
+            {
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportEntry, object>(x=>x.d.RRAlarm?.OverP)">Over%</MudTableSortLabel></MudTh>
+            }
+            @if (_showGrowthColumn == true)
+            {
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportEntry, object>(x=>x.d.RRTotalHold?.McGrowthP)">Growth %</MudTableSortLabel></MudTh>
+            }
+            <MudTh>Oper</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd><MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta.GetSRef()))" >$@context.d.StockMeta.symbol</MudButton></MudTd>
+                <MudTd> @* Company *@
+                @if ( string.IsNullOrWhiteSpace(context.d.FailedMsg) == false)
+                {
+                    @($"Failed: {context.d.FailedMsg}")
+                }
+                else if ( string.IsNullOrEmpty(context.OrderDetails) == true )
+                {
+                    @context.d.StockMeta.name
+                }
+                else
+                {
+		            <div class="col"> <div class="row">
+                            @context.d.StockMeta.name
+		            </div>			  <div class="row">
+			            <span style="color:blue"><b>@context.OrderDetails</b></span>
+		            </div>		      </div>
+                }
+            </MudTd>
+
+            <MudTd> @* LatestEOD + ChangeP *@
+                <RCellEod RCEod="@context.d.RCEod" StockMeta="context.d.StockMeta" />
+            </MudTd>
+
+            <MudTd> @* Alarm Under *@
+                <RCellAlarm RRAlarm="@context.d.RRAlarm" Over="false" />
+            </MudTd>
+
+            @if (_showAlarmOverColumn == true)
+            {
+                <MudTd> @* Alarm Over *@
+                    <RCellAlarm RRAlarm="@context.d.RRAlarm" Over="true" />
+                </MudTd>
+            }
+
+            @if (_showGrowthColumn == true)
+            {
+                <MudTd> @* Growth *@
+                    @if (context.d.RRTotalHold != null)
+                    {
+                        <RCellTotalGrowth RRTotalHold="@context.d.RRTotalHold" MarketCurrency="@context.d.StockMeta.marketCurrency" HomeCurrency="@_homeCurrency" />
+                    }
+                    else if ( context.d.HasTrades)
+                    {
+                        @("Oldie");
+                    }
+                </MudTd>
+            }
+
+            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small">
+
+                @if (context.d.StockMeta?.marketId != MarketId.CLOSED)
+                {
+                <MudTooltip Text="Add order"> <MudIconButton Icon="@Icons.Material.Filled.BookmarkAdd" Size="Size.Small" aria-label="Order" @onclick="@(() => DoAddOrderAsync(context))" /> </MudTooltip>
+                <MudTooltip Text="Purhace"> <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Size="Size.Small" aria-label="Add Holding" @onclick="@(() => DoAddHoldinAsync(context))" /> </MudTooltip>
+                }
+
+                @if (context.d.RRTotalHold != null)
+                {
+                <MudTooltip Text="Divident"> <MudIconButton Icon="@Icons.Material.Filled.Percent" Size="Size.Small" aria-label="Divident" @onclick="@(() => DoAddDividentAsync(context))" /></MudTooltip>
+                <MudTooltip Text="Sale"> <MudIconButton Icon="@Icons.Material.Filled.AttachMoney" Size="Size.Small" aria-label="Sale Holding" @onclick="@(() => DoSaleHoldingAsync(context))" /></MudTooltip>
+                }
+                
+                @if ( context.AllowRemove  )
+                {
+                <MudTooltip Text="Untrack from PF"> <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline" Size="Size.Small" aria-label="Untrack" @onclick="@(() => DoRemoveStockTrackingAsync(context))" /></MudTooltip>
+                }
+
+            </MudButtonGroup>
+
+        </RowTemplate>
+    </MudTable>
+}

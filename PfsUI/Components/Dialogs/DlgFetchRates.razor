@@ -1,0 +1,39 @@
+﻿@using Pfs.Client
+@using Pfs.Types
+
+@namespace PfsUI.Components
+
+<MudDialog>
+    <TitleContent>
+
+    </TitleContent>
+
+    <DialogContent>
+        <MudSimpleTable Style="overflow-x: auto;">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Curr</th>
+                    <th>Rate</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Fetch m in Missing)
+                {
+                    <tr>
+                        <td>@m.Date.ToYMD()</td>
+                        <td>@m.Currency</td>
+                        <td><MudNumericField @bind-Value="@m.Rate" Variant="Variant.Text" Min="0.0001m" HideSpinButtons="true" /></td>
+                        <td><MudIconButton Icon="@Icons.Material.Outlined.Search" @onclick="@(() => OnBtnSearchOnlineAsync(m))" /></td>
+                    </tr>
+                }
+            </tbody>
+        </MudSimpleTable>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="OnAccept">Accept</MudButton>
+    </DialogActions>
+</MudDialog>

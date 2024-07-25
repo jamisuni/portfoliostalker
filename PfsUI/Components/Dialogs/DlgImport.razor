@@ -1,0 +1,49 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+@using Microsoft.AspNetCore.Components.Forms
+
+<MudDialog>
+    <TitleContent>
+        Import:
+    </TitleContent>
+
+    <DialogContent>
+
+        @if ( _showBusySignal == true )
+        {
+            <MudProgressCircular Indeterminate="true"></MudProgressCircular>        
+        }
+
+        <MudSelect T="ImportType" Label="Select Type" Required ValueChanged="OnImportTypeChanged"  >
+            @foreach (ImportType item in _supportedImports)
+            {
+                <MudSelectItem Value="@item">@item</MudSelectItem>
+            }
+        </MudSelect>
+
+        @if (_importType != ImportType.Unknown)
+        {
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField T="string" ReadOnly Lines="6" Text="@_configs[_importType].ImportNote" />
+                    @if (string.IsNullOrWhiteSpace(@_configs[_importType].ImportWarning) == false)
+                    {
+                    <MudTextField T="string" ReadOnly Lines="2" Text="@_configs[_importType].ImportWarning" />
+                    }
+                </MudCardContent>
+            </MudCard>
+            <br />
+
+            <InputFile OnChange="@OnInputFileChange"></InputFile>
+        }
+
+    </DialogContent>
+
+    <DialogActions>
+
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+
+        <MudButton Color="Color.Primary" Disabled="@_showBusySignal"  OnClick="DlgOkAsync">Import</MudButton>
+
+    </DialogActions>
+</MudDialog>

@@ -1,0 +1,106 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+@if (_edit == false)
+{
+    <MudSimpleTable Style="overflow-x: auto;">
+    <tbody>
+        <tr>
+            @for (int sectorId = 0; sectorId < SSector.MaxSectors; sectorId++)
+            {
+            <td>
+                @if ( string.IsNullOrWhiteSpace(_sectorNames[sectorId]))
+                {
+                    @("Group N/A")
+                }
+                else if (string.IsNullOrWhiteSpace(_stockFields[sectorId]))
+                {
+                    @(_sectorNames[sectorId] + ": ") <b>@Unselected</b>
+                }
+                else
+                {
+                    @(_sectorNames[sectorId] + ": ") <b>@(_stockFields[sectorId])</b>
+                }
+            </td>
+            }
+            <td>
+                <MudIconButton Icon="@Icons.Material.Filled.LockOpen" Color="Color.Warning" OnClick="OnStartEditing" />
+            </td>
+        </tr>
+    </tbody>
+    </MudSimpleTable>
+}
+else
+{
+    <MudSimpleTable Style="overflow-x: auto;">
+        <tbody>
+            <tr>
+                <!-- just keep these separate/manual, did try foreach and it just keep giving null crashes, doesnt like to do arrays[gr] -->
+
+                <td>
+                    @if (string.IsNullOrWhiteSpace(_sectorNames[0]))
+                    {
+                        @("Group N/A")
+                    }
+                    else
+                    {
+                        <MudSelect T="string" Label="@_sectorNames[0]" @bind-Value="_stockSelections[0]">
+                            <MudSelectItem T="string" Value="@Unselected">@Unselected</MudSelectItem>
+                            @foreach (string value in _sectorFields[0])
+                            {
+                                @if (string.IsNullOrWhiteSpace(value))
+                                    continue;
+
+                                <MudSelectItem T="string" Value="@value">@value</MudSelectItem>
+                            }
+                        </MudSelect>
+                    }
+                </td>
+
+                <td>
+                    @if (string.IsNullOrWhiteSpace(_sectorNames[1]))
+                    {
+                        @("Group N/A")
+                    }
+                    else
+                    {
+                        <MudSelect T="string" Label="@_sectorNames[1]" @bind-Value="_stockSelections[1]">
+                            <MudSelectItem T="string" Value="@Unselected">@Unselected</MudSelectItem>
+                            @foreach (string value in _sectorFields[1])
+                            {
+                                @if (string.IsNullOrWhiteSpace(value))
+                                    continue;
+
+                                <MudSelectItem T="string" Value="@value">@value</MudSelectItem>
+                            }
+                        </MudSelect>
+                    }
+                </td>
+
+                <td>
+                    @if (string.IsNullOrWhiteSpace(_sectorNames[2]))
+                    {
+                        @("Group N/A")
+                    }
+                    else
+                    {
+                        <MudSelect T="string" Label="@_sectorNames[2]" @bind-Value="_stockSelections[2]">
+                            <MudSelectItem T="string" Value="@Unselected">@Unselected</MudSelectItem>
+                            @foreach (string value in _sectorFields[2])
+                            {
+                                @if (string.IsNullOrWhiteSpace(value))
+                                    continue;
+
+                                <MudSelectItem T="string" Value="@value">@value</MudSelectItem>
+                            }
+                        </MudSelect>
+                    }
+                </td>
+                <td>
+                    <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Warning" OnClick="OnSave" />
+                </td>
+            </tr>
+
+        </tbody>
+    </MudSimpleTable>
+}

@@ -1,0 +1,111 @@
+﻿@using Pfs.Types
+
+@namespace PfsUI.Components
+
+@if (_viewReport == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if ( _viewReport.Count == 0)
+{
+    <p><em>Nothing found!</em></p>
+}
+else
+{
+    <MudTable T="ViewReportInvestedData" Items="@_viewReport" Hover="true" SortLabel="Sort By" FixedHeader="true" Height="580px" OnRowClick="@(args => OnRowClicked(args))" >
+        <ColGroup>
+            <col style="width: 5%;" />      @* Symbol *@
+            <col style="width: 20%;" />     @* Company *@
+            <col style="width: 5%;" />      @* AvrgPrice *@
+            <col style="width: 10%;" />     @* LatestEOD *@
+            <col style="width: 10%;" />     @* Invested *@
+            <col style="width: 10%;" />     @* Valuation *@ 
+            <col style="width: 8%;" />      @* % of Total Valuation *@ 
+            <col style="width: 8%;" />      @* Total Div *@ 
+            <col style="width: 13%;" />     @* Total Gain *@ 
+        </ColGroup>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportInvestedData, object>(x=>x.d.StockMeta.symbol)">Stock</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportInvestedData, object>(x=>x.d.StockMeta.name)">@_headerTextCompany</MudTableSortLabel></MudTh>
+            <MudTh>Avrg.Price</MudTh>
+
+            @* % LatestEOD *@
+            <MudTh>Latest</MudTh>
+
+            @* "Invested nnnE", on home currency, and if all properly setup then shows total home currency invested amount on header *@
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportInvestedData, object>(x=>x.d.RCTotalHold.HcInvested)">@_headerTextInvested</MudTableSortLabel></MudTh>            
+
+            @* "Valuation +3% nnnE", on home currency, shows todays total valuation of all investments, with colored growth % if all set properly  *@
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportInvestedData, object>(x=>x.d.RCTotalHold.McGrowthP)">@_headerTextValuation</MudTableSortLabel></MudTh>
+
+            @* % Total Valuation *@ 
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportInvestedData, object>(x=>x.d.HcValuationOfTotalP)">% of Total Val</MudTableSortLabel></MudTh>
+
+            @* Total Div *@
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportInvestedData, object>(x=>x.d.RRTotalDivident?.ViewHcDivP)">@_headerTextDivident</MudTableSortLabel></MudTh>
+
+            @* Total Gain *@ 
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportInvestedData, object>(x=>x.d.HcGain)">@_headerTextGain</MudTableSortLabel></MudTh>
+
+        </HeaderContent>
+        <RowTemplate>
+            @* Ticker *@
+            <MudTd><MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta.GetSRef()))" >$@context.d.StockMeta.symbol</MudButton></MudTd>
+            @* Company *@
+            <MudTd>@context.d.StockMeta.name</MudTd>
+            @* AvrgPrice *@ 
+            <MudTd>@context.d.RCTotalHold.McAvrgPrice.To00()@context.MC</MudTd>
+            @* LatestEOD *@
+            <MudTd> @context.d.RCEod.fullEOD.Close.To00()@UiF.Curr(context.d.RCEod.MarketCurrency) </MudTd>
+
+            @* Invested (nnnE 1.8%) *@
+            <MudTd>@context.d.RCTotalHold.HcInvested.To()@_HC @context.d.HcInvestedOfTotalP.ToP()</MudTd>
+
+            @* Valuation (+/-X% nnnE) *@ 
+            <MudTd>
+            @if ( context.d.RCTotalHold.HcGrowthP < 0 )
+            {
+                <span style="color:red"><b>@context.d.RCTotalHold.HcGrowthP%&nbsp;</b></span>
+            }
+            else
+            {
+                <b>+@context.d.RCTotalHold.HcGrowthP%&nbsp;</b>
+            }
+            @context.d.RCTotalHold.HcValuation@_HC &nbsp;
+            </MudTd>
+
+            @* % of Total Valuation *@
+            <MudTd>@context.d.HcValuationOfTotalP.ToP()</MudTd>
+
+            @* Total Div *@
+            <MudTd>
+                <RCellDivident HomeCurrency="@_homeCurrency" OptHideMcAlways="true" RRDivident="@context.d.RRTotalDivident" />
+            </MudTd>
+
+            @* Total Gain *@ 
+            @if (@context.d.HcGain >= 0) 
+            {
+                @if (context.d.HcGainP >= 100 && context.d.RCTotalHold.McAvrgPrice > 0.01m)
+                {
+                <MudTd><span style="color:blue">@context.d.HcGain.To()@_HC &nbsp;@context.d.HcGainP%</span></MudTd>
+                }
+                else if (context.d.HcGainP > 0.01m && context.d.RCTotalHold.McAvrgPrice > 0.01m)
+                {
+                <MudTd>@context.d.HcGain.ToString("0")@_HC &nbsp;@context.d.HcGainP%</MudTd>
+                }
+                else
+                {
+                <MudTd>@context.d.HcGain.ToString("0")@_HC</MudTd>
+                }
+            }
+            else if (context.d.HcGainP < 0.01m)
+            {
+                <MudTd><span style="color:red">@context.d.HcGain.To()@_HC &nbsp;@context.d.HcGainP%</span></MudTd>
+            }
+            else 
+            {
+                <MudTd><span style="color:red">@context.d.HcGain.To()@_HC</span></MudTd>
+            }
+        </RowTemplate>
+    </MudTable>
+}

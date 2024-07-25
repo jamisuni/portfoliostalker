@@ -1,0 +1,64 @@
+﻿@using Pfs.Types
+
+@namespace PfsUI.Components
+
+<MudDialog>
+
+    <DialogContent>
+
+        <MudSelect T="MarketId" Label="Market" Strict="true" Variant="Variant.Outlined" Format="F2" @bind-Value="_selMarketTrigger" ReadOnly="@(Market != MarketId.Unknown)">
+            @foreach (MarketMeta market in _markets)
+            {
+                @if (market.ID.IsReal() == false)
+                    continue;
+
+                <MudSelectItem T="MarketId" Value="@market.ID">@market.ID [@market.Name]</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudTextField @bind-Value="Symbol" Label="Symbol" Variant="Variant.Outlined" ReadOnly="@_lockSymbol" />
+
+        @if (_availableProviders != null)
+        {
+            <MudTable Items="@_availableProviders" Dense="true">
+                <RowTemplate>
+                    <MudTd> <MudCheckBox @bind-Value="@context.Use" Color="Color.Primary" ReadOnly="context.State != FetchProvider.StateId.selection" /> </MudTd>
+                    <MudTd> @context.ProvId </MudTd>
+
+                    <MudTd>
+                        @if (context.State == FetchProvider.StateId.fetching)
+                        {
+                            <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+                        }
+                        else if (context.State == FetchProvider.StateId.failed)
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.ThumbDown" Color="Color.Warning" @onclick="@(() => ShowErrorMsgAsync(context.ErrorMsg))" />
+                        }
+                        else if (context.State == FetchProvider.StateId.result)
+                        {
+                            <MudButton Color="Color.Success" @onclick="@(() => AcceptResult(context))">@($"{context.Result.Close.To00()} {FormatDate(context.Result.Date)}")</MudButton>
+                        }
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </DialogContent>
+
+    <DialogActions>
+        @if (_availableProviders != null )
+        {
+            <MudButton OnClick="OnTestStockFetchAsync" Disabled="@_lockFetchBtn">Test</MudButton>
+        }
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    string FormatDate(DateOnly date)
+    {
+        if ( date <= Pfs.Platform().GetCurrentLocalDate().AddYears(-1))
+            return date.ToString("yyyy-MMM");
+
+        return date.ToString("MMM-dd");
+    }
+}

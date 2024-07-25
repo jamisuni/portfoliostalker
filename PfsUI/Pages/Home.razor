@@ -1,0 +1,30 @@
+﻿@page "/"
+@using PfsUI.Components
+
+<MudTabs Elevation="1" Rounded="true" PanelClass="pa-6" @ref="_tabs" ActivePanelIndexChanged="OnTabChanged">
+    <MudTabPanel Text="Overview" >
+        <Overview @ref="_reportOverview" />
+    </MudTabPanel>
+    <MudTabPanel Text="Invested" >
+        <ReportInvested @ref="_reportInvested" />
+    </MudTabPanel>
+    <MudTabPanel Text="Dividents" >
+        <ReportDivident @ref="_reportDivident" />
+    </MudTabPanel>
+    <MudTabPanel Text="Export" >
+        <MudTabs Elevation="1" Rounded="true" PanelClass="pa-6" @ref="_tabsExp" ActivePanelIndexChanged="OnTabExpChanged">
+            <MudTabPanel Text="Holdings">
+                <ReportExpHoldings @ref="_reportExpHoldings" />
+            </MudTabPanel>
+            <MudTabPanel Text="Sales">
+                <ReportExpSales @ref="_reportExpSales" />
+            </MudTabPanel>
+            <MudTabPanel Text="Dividents">
+                <ReportExpDividents @ref="_reportExpDividents" />
+            </MudTabPanel>
+        </MudTabs>
+    </MudTabPanel>
+    <MudTabPanel Text="Tracking" >
+        <ReportTracking @ref="_reportTrackedStocks" />
+    </MudTabPanel>
+</MudTabs>

@@ -1,0 +1,63 @@
+﻿@namespace PfsUI.Components
+
+@if ( _noContent )
+{
+    <p><em>No holdings found</em></p>
+}
+else if ( string.IsNullOrWhiteSpace(_rawHtmlTable) == true )
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudGrid Spacing="1" Justify="Justify.Center">
+        <MudItem md="1">
+            <MudMenu>
+                <ActivatorContent>
+                    <MudChip Icon="@Icons.Material.Filled.Menu" Color="Color.Primary">@(_filterYear.HasValue ? _filterYear.ToString() : "")</MudChip>
+                </ActivatorContent>
+                <ChildContent>
+                    @foreach (int year in _speedFilterYears.OrderDescending())
+                    {
+                        <MudMenuItem @onclick="@(() => OnSpeedFilterChanged(@year))">@year</MudMenuItem>
+                    }
+                    <MudMenuItem @onclick="@(() => OnSpeedFilterChanged(0))">all</MudMenuItem>
+                </ChildContent>
+            </MudMenu>
+        </MudItem>
+        <MudItem  md="2">
+            <MudSelect T="string" Label="SortBy" Variant="Variant.Outlined"  @bind-Value="@SortBy" >
+                @foreach (RepColumn col in Enum.GetValues(typeof(RepColumn)))
+                {
+                    <MudSelectItem T="string" Value="@col.ToString()">@col.ToString()</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem  md="3">
+            <MudSelect T="string" Label="Columns" Variant="Variant.Outlined" MultiSelection="true" @bind-SelectedValues="SelColumnDef" MultiSelectionTextFunc="SelColumns" >
+                @foreach (RepColumn col in Enum.GetValues(typeof(RepColumn)))
+                {
+                    <MudSelectItem T="string" Value="@col.ToString()">@col.ToString()</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem  md="3">
+            <MudSelect T="string" Label="Settings" Variant="Variant.Outlined" MultiSelection="true" @bind-SelectedValues="SelSettingsDef" MultiSelectionTextFunc="SelSettings" >
+                @foreach (RepSettings sett in Enum.GetValues(typeof(RepSettings)))
+                {
+                    <MudSelectItem T="string" Value="@sett.ToString()">@sett.ToString()</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem  md="1">
+            <MudMenu Label="Export" Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Secondary" >
+			    @foreach (RepExport value in Enum.GetValues(typeof(RepExport)))
+			    {
+                    <MudMenuItem @onclick="@(() => OnExportAsync(@value))">@value</MudMenuItem>
+                }
+            </MudMenu>
+        </MudItem>
+    </MudGrid>
+
+    @((MarkupString)_rawHtmlTable)
+}
