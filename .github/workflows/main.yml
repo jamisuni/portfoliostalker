@@ -30,7 +30,7 @@ jobs:
 
       # Commits wwwroot to GitHub Pages (https://github.com/marketplace/actions/deploy-to-github-pages)
       - name: Commit wwwroot to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.6
+        uses: JamesIves/github-pages-deploy-action@4.5.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
