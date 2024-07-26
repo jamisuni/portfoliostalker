@@ -84,6 +84,27 @@ public partial class DlgSetupWizard
         _tabDisabled[0] = false;
     }
 
+    protected async Task DlgLaunchDemoAsync(int demoRef)
+    {
+        if (Pfs.Account().AccountType != AccountTypeId.Offline)
+            return;
+
+        var demo = BlazorPlatform.SetDemo(demoRef);
+
+        if (demo.demoZip == null)
+            return;
+
+        Result res = Pfs.Account().LoadDemo(demo.demoZip);
+
+        if (res.Fail)
+        {
+            await Dialog.ShowMessageBox("Failed!", "Hmm.. plz report, maybe expired formats..", yesText: "Ok");
+            return;
+        }
+
+        MudDialog.Close(DialogResult.Ok(DlgLoginRespTypes.DEMO));
+    }
+
     #region MARKETS
 
     protected string _selMarkets = string.Empty;
@@ -411,7 +432,7 @@ public partial class DlgSetupWizard
                 {
                     await RunWizardSetupAsync();
 
-                    MudDialog.Close();
+                    MudDialog.Close(DialogResult.Ok(DlgLoginRespTypes.OK));
                 }
                 break;
         }

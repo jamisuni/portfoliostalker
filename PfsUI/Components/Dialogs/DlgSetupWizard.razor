@@ -190,6 +190,10 @@
     </DialogContent>
 
     <DialogActions>
+        @if ( (ProgressID)_tabActivePanel== ProgressID.Markets)
+        {
+            <MudButton @onclick="@(() => DlgLaunchDemoAsync(0))">Demo1</MudButton>
+        }
         <MudButton OnClick="DlgCancel" Disabled="@_isSetupBusy" >Cancel</MudButton>
         <MudButton Color="Color.Primary" OnClick="OnBtnNext" Disabled="@_isSetupBusy">@_nextButton</MudButton>
     </DialogActions>

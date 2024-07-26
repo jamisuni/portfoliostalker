@@ -21,6 +21,7 @@ using MudBlazor;
 using Pfs.Types;
 using PfsUI.Components;
 using PfsUI.Layout;
+using System.Web;
 
 namespace PfsUI.Pages;
 
@@ -29,6 +30,7 @@ public partial class Home
     [Inject] PfsClientAccess Pfs { get; set; }
     [Inject] PfsUiState PfsUiState { get; set; }                    // !!!TODO!!! See if this can be removed and do same w existing alternatives!
     [Inject] IDialogService Dialog { get; set; }
+    [Inject] NavigationManager NavigationManager { get; set; }
     [CascadingParameter] public MainLayout Layout { get; set; }
 
     protected Overview _reportOverview;
@@ -56,6 +58,32 @@ public partial class Home
     protected override void OnInitialized()
     {
         Layout.EvFromPageHeaderAsync += OnEvFromPageHeaderAsync;
+
+        System.Collections.Specialized.NameValueCollection queryParams = HttpUtility.ParseQueryString(new Uri(NavigationManager.Uri).Query);
+
+        if (queryParams != null)
+        {
+            string demo = queryParams.AllKeys
+                                   .Where(key => string.Equals(key, "demo", StringComparison.OrdinalIgnoreCase))
+                                   .SelectMany(key => queryParams.GetValues(key))
+                                   .FirstOrDefault();
+
+            if (string.IsNullOrWhiteSpace(demo) == false && int.TryParse(demo, out int demoId) == true && demoId > 0)
+                LaunchDemo(demoId-1);
+        }
+        return;
+    }
+
+    protected void LaunchDemo(int demoId)
+    {
+        var demo = BlazorPlatform.SetDemo(demoId);
+
+        if (demo.demoZip == null)
+            return;
+
+        Result res = Pfs.Account().LoadDemo(demo.demoZip);
+
+        Layout.NavigateToHome();
     }
 
     protected override void OnParametersSet()
