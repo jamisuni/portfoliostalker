@@ -129,7 +129,7 @@ public partial class SettMainTab
 
         Pfs.Account().ClearLocally();
         PfsUiState.UpdateNavMenu();
-        NavigationManager.NavigateTo("/", true);        // <= enforcing reload application and jump to idle + all components reload as empty
+        NavigationManager.NavigateTo(NavigationManager.BaseUri, true);        // <= enforcing reload application and jump to idle + all components reload as empty
         StateHasChanged();
     }
 

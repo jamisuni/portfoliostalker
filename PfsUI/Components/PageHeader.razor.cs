@@ -231,7 +231,7 @@ public partial class PageHeader
     {
         _popupNavMenuVisible = false;
         _popupNavMenuLoc = string.Empty;
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo(NavigationManager.BaseUri);
     }
 
     //******************************** REPORT & REPORT FILTERS
@@ -375,7 +375,7 @@ public partial class PageHeader
     protected void OnBtnExitDemo()
     {
         PfsUiState.UpdateNavMenu();
-        NavigationManager.NavigateTo("/", true);        // <= enforcing reload application and jump to idle + all components reload as empty
+        NavigationManager.NavigateTo(NavigationManager.BaseUri, true);        // <= enforcing reload application and jump to idle + all components reload as empty
         StateHasChanged();
     }
 

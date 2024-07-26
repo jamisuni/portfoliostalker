@@ -127,7 +127,7 @@ public partial class WidgMenu
                 _currSel.Parent = String.Empty;
                 _currSel.Type = MenuEntryType.Home;
 
-                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo(NavigationManager.BaseUri);
                 break;
 
             case MenuEntryType.Portfolio:
@@ -136,7 +136,7 @@ public partial class WidgMenu
                 _currSel.Parent = d.Parent;
                 _currSel.Type = MenuEntryType.Portfolio;
 
-                NavigationManager.NavigateTo("/Portfolio/" + d.Name);
+                NavigationManager.NavigateTo(NavigationManager.BaseUri + "Portfolio/" + d.Name);
                 break;
         }
 
