@@ -29,7 +29,7 @@ public partial class DlgSetupWizard
 {
     [Inject] PfsClientAccess Pfs { get; set; }
     [Inject] private IDialogService Dialog { get; set; }
-
+    [Inject] NavigationManager NavigationManager { get; set; }
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
 
     protected bool _fullscreen { get; set; } = false;
@@ -89,20 +89,7 @@ public partial class DlgSetupWizard
         if (Pfs.Account().AccountType != AccountTypeId.Offline)
             return;
 
-        var demo = BlazorPlatform.SetDemo(demoRef);
-
-        if (demo.demoZip == null)
-            return;
-
-        Result res = Pfs.Account().LoadDemo(demo.demoZip);
-
-        if (res.Fail)
-        {
-            await Dialog.ShowMessageBox("Failed!", "Hmm.. plz report, maybe expired formats..", yesText: "Ok");
-            return;
-        }
-
-        MudDialog.Close(DialogResult.Ok(DlgLoginRespTypes.DEMO));
+        NavigationManager.NavigateTo(NavigationManager.BaseUri + $"?demo={demoRef + 1}", true);
     }
 
     #region MARKETS
@@ -432,7 +419,7 @@ public partial class DlgSetupWizard
                 {
                     await RunWizardSetupAsync();
 
-                    MudDialog.Close(DialogResult.Ok(DlgLoginRespTypes.OK));
+                    MudDialog.Close();
                 }
                 break;
         }

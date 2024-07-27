@@ -26,7 +26,7 @@ namespace PfsUI.Components;
 public partial class DlgLogin
 {
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-
+    [Inject] NavigationManager NavigationManager { get; set; }
     [Inject] private IDialogService Dialog { get; set; }
     [Inject] PfsUiState PfsUiState { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
@@ -52,7 +52,7 @@ public partial class DlgLogin
 
     protected void OnSwapRegister()
     {
-        MudDialog.Close(DialogResult.Ok(DlgLoginRespTypes.REGISTER));
+        MudDialog.Close();
     }
 
     protected void OnUsernameChanged(string username)
@@ -71,20 +71,7 @@ public partial class DlgLogin
         if (Pfs.Account().AccountType != AccountTypeId.Offline)
             return;
 
-        var demo = BlazorPlatform.SetDemo(demoRef);
-
-        if (demo.demoZip == null)
-            return;
-
-        Result res = Pfs.Account().LoadDemo(demo.demoZip);
-
-        if ( res.Fail)
-        {
-            await Dialog.ShowMessageBox("Failed!", "Hmm.. plz report, maybe expired formats..", yesText: "Ok");
-            return;
-        }
-
-        MudDialog.Close(DialogResult.Ok(DlgLoginRespTypes.DEMO));
+        NavigationManager.NavigateTo(NavigationManager.BaseUri + $"?demo={demoRef+1}", true);
     }
 
     private void DlgCancel()
@@ -123,7 +110,7 @@ public partial class DlgLogin
         if (string.IsNullOrEmpty(errorMsg) == true)
         {
             // close dialog and let caller know 'OK'
-            MudDialog.Close(DialogResult.Ok(DlgLoginRespTypes.OK));
+            MudDialog.Close();
         }
         else
         {
@@ -132,16 +119,6 @@ public partial class DlgLogin
         }
     }
 
-}
-
-internal enum DlgLoginRespTypes // Response from this dialog to caller
-{
-    UNKNOWN = 0,
-    OK,
-    REGISTER,
-
-    DEMO,                       // Demo is loaded w new data, refresh screen
-    FAILURE,                    // Failed, reload all again to get normal situation
 }
 
 public class DlgLoginFormData

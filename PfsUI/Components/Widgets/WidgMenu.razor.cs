@@ -25,7 +25,7 @@ public partial class WidgMenu
 {
     [Inject] PfsUiState PfsUiState { get; set; }
     [Inject] PfsClientAccess PfsClientAccess { get; set; }
-    [Inject] NavigationManager NavigationManager { get; set; } // https://blazor-university.com/routing/navigating-our-app-via-code/
+    [Inject] NavigationManager NavigationManager { get; set; }
 
     [Parameter] public EventCallback<EvNavLocArgs> EvNavLocChanged { get; set; }    // Sent owner anytime user wants to move new NavLoc on PFS
 

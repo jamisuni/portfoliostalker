@@ -331,59 +331,34 @@ public partial class PageHeader
 
         if (!result.Canceled)
         {
-            switch ((DlgLoginRespTypes)Enum.Parse(typeof(DlgLoginRespTypes), result.Data.ToString()))
+            PfsUiState.UpdateNavMenu();
+            StateHasChanged();
+
+            bool? msgRes = await Dialog.ShowMessageBox("Wanna import your transactions?", "Has support for very limited amount of brokers/banks atm, but " +
+                                                        "happy to add more if yours is missing. Want try import your own actions from banks CSV export file?", yesText: "Ok", cancelText: "Cancel");
+
+            if (msgRes.HasValue == false || msgRes.Value == false)
+                return;
+
+            var options2 = new DialogOptions { FullScreen = true, CloseButton = true, DisableBackdropClick = true };
+            var parameters2 = new DialogParameters();
+
+            var dialog2 = Dialog.Show<ImportTransactions>("Import Transactions", parameters2, options2);
+            var result2 = await dialog.Result;
+
+            if (!result2.Canceled)
             {
-                case DlgLoginRespTypes.DEMO:
-                    // Has demo content loaded, but need refresh so lets do jump to initial page
-                    NavigateToHome();
-                    await EvFromPageHeaderAsync.InvokeAsync(new EvArgs(EvId.ReportRefresh, null));
-                    StateHasChanged();
-                    break;
-
-                case DlgLoginRespTypes.OK:
-                    {
-                        PfsUiState.UpdateNavMenu();
-                        StateHasChanged();
-
-                        bool? msgRes = await Dialog.ShowMessageBox("Wanna import your transactions?", "Has support for very limited amount of brokers/banks atm, but " +
-                                                                   "happy to add more if yours is missing. Want try import your own actions from banks CSV export file?", yesText: "Ok", cancelText: "Cancel");
-
-                        if (msgRes.HasValue == false || msgRes.Value == false)
-                            return;
-
-                        var options2 = new DialogOptions { FullScreen = true, CloseButton = true, DisableBackdropClick = true };
-                        var parameters2 = new DialogParameters();
-
-                        var dialog2 = Dialog.Show<ImportTransactions>("Import Transactions", parameters2, options2);
-                        var result2 = await dialog.Result;
-
-                        if (!result2.Canceled)
-                        {
-                        }
-                    }
-                    break;
             }
         }
     }
 
     protected async Task OnUsernameClickedAsync()
     {
-
         var dialog = Dialog.Show<DlgLogin>();
         var result = await dialog.Result;
 
         if (result.Canceled)
             return;
-
-        switch ((DlgLoginRespTypes)Enum.Parse(typeof(DlgLoginRespTypes), result.Data.ToString()) )
-        {
-            case DlgLoginRespTypes.DEMO:
-                // Has demo content loaded, but need refresh so lets do jump to initial page
-                NavigateToHome();
-                await EvFromPageHeaderAsync.InvokeAsync(new EvArgs(EvId.ReportRefresh, null));
-                StateHasChanged();
-                break;
-        }
     }
 
     protected void OnBtnExitDemo()
