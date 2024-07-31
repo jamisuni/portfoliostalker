@@ -8,6 +8,7 @@
     <Version>2.0.0.2</Version>
     <UserSecretsId>b32f4308-1db8-4eaf-be0f-e7a6c8ebcc48</UserSecretsId>
 	<BlazorCacheBootResources>false</BlazorCacheBootResources>
+	<DisableIntegrityCheck>true</DisableIntegrityCheck>
   </PropertyGroup>
 
   <ItemGroup>
