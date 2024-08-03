@@ -113,7 +113,7 @@
 
         <MudMenuItem OnClick="OnOpenSettingsAsync">Settings</MudMenuItem>
 
-        @if (_accountTypeID != AccountTypeId.Demo)
+        @if (_accountTypeID != AccountTypeId.Demo || true) @* TEMP HACK TO ALLOW EXPORT DEMO !!!TODO!!! REMOVE ME! *@
         {
             <MudMenuItem OnClick="OnExportAccountBackupZipFile">Export Backup</MudMenuItem>
         }

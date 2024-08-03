@@ -69,7 +69,7 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
         "status",
         "latest",                   // ok/not for all providers shows last 30 fetch results
         "failed",
-        "reset"
+        "resetcredits"
     ];
 
     // !!!THINK!!! There is big open issue w restore backups what should happen here.. but not worth of over stressing atm.. as reload fixes all issues
@@ -445,6 +445,15 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
                     return new OkResult<string>(sb.ToString());
                 }
 #endif
+
+            case "resetcredits":
+                {   // Keeper - if something goes wrong counters then allows to do full reset mid month
+                    foreach (var task in _fetchTask)
+                        task.ResetCreditCounters();
+
+                    EventNewUnsavedContent?.Invoke(this, _componentName);
+                    return new OkResult<string>("Values resetted, use *status* to see new limits!");
+                }
 
             case "status":
                 {

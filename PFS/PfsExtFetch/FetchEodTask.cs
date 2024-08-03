@@ -15,7 +15,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.en.html>.
  */
 
+using Microsoft.Extensions.Primitives;
 using Pfs.Types;
+using Serilog;
 using System.Text;
 
 namespace Pfs.ExtFetch;
@@ -43,6 +45,13 @@ internal class FetchEodTask
         // Test Fetch by user manual request
         Testing,        // Run paraller but waited so just one state
     };
+
+    public static string PrintDayCredits(ProvPermInfo permInfo, int dailyLimit) =>
+        $"D{permInfo.DaysCreditLeft}/{dailyLimit} [{permInfo.CreditDateUtc.ToString("yyyy-MMM-dd")}]";
+
+    public static string PrintMonthCredits(ProvPermInfo permInfo, int monthlyLimit) =>
+        $"D{permInfo.DaysCreditLeft} M{permInfo.MonthsCreditLeft}/{monthlyLimit} [{permInfo.CreditDateUtc.ToString("yyyy-MMM-dd")}]";
+
 
     protected readonly IPfsStatus _pfsStatus;
 
@@ -136,10 +145,14 @@ internal class FetchEodTask
 
         var limits = GetProvCreditLimits();
 
-        if (limits.monthly > 0 && PermInfo.CreditDateUtc.Month != DateTime.UtcNow.Month ||
-            limits.monthly == 0 && limits.daily > 0 && PermInfo.CreditDateUtc.Day != DateTime.UtcNow.Day)
+        if (limits.monthly > 0 && PermInfo.CreditDateUtc.Month != DateTime.UtcNow.Month )
         {
-            // Month change, and day only case day change are full resets to maxes
+            Log.Information($"{_provider} CheckCreditCounters new Month causes reset to credit's");
+            ResetCreditCounters();
+        }
+        else if (limits.monthly == 0 && limits.daily > 0 && PermInfo.CreditDateUtc.Day != DateTime.UtcNow.Day)
+        {
+            Log.Information($"{_provider} CheckCreditCounters new Day causes reset to credit's");
             ResetCreditCounters();
         }
         else if (limits.monthly > 0 && PermInfo.CreditDateUtc.Day != DateTime.UtcNow.Day && PermInfo.MonthsCreditLeft > 0)
@@ -147,10 +160,11 @@ internal class FetchEodTask
             // For monthly credit case, still need to reallocate remaining monthly credits share for new day
             PermInfo.CreditDateUtc = DateOnly.FromDateTime(DateTime.UtcNow);
             PermInfo.DaysCreditLeft = PermInfo.MonthsCreditLeft / Math.Max(MonthsRemainingWorkDays(), 1);
+            Log.Information($"{_provider} CheckCreditCounters is month credited, and new date has {PermInfo.DaysCreditLeft} credits for today");
         }
     }
 
-    protected void ResetCreditCounters()
+    public void ResetCreditCounters()
     {
         var limits = GetProvCreditLimits();
 
@@ -162,6 +176,7 @@ internal class FetchEodTask
                 DaysCreditLeft = limits.daily,
                 MonthsCreditLeft = null,
             };
+            Log.Information($"{_provider} ResetCreditCounters DAILY to {PrintDayCredits(PermInfo, limits.daily)}");
             return;
         }
 
@@ -173,6 +188,7 @@ internal class FetchEodTask
                 DaysCreditLeft = limits.monthly / Math.Max(MonthsRemainingWorkDays(), 1),
                 MonthsCreditLeft = limits.monthly,
             };
+            Log.Information($"{_provider} ResetCreditCounters MONTHLY to {PrintMonthCredits(PermInfo, limits.monthly)}");
             return;
         }
 
@@ -186,7 +202,7 @@ internal class FetchEodTask
 
         if (PermInfo != null && price > 0)
         {
-            CheckCreditCounters();
+//            CheckCreditCounters(); Why this is need?
 
             if (PermInfo.DaysCreditLeft.HasValue)
                 PermInfo.DaysCreditLeft = PermInfo.DaysCreditLeft.Value - price;
@@ -274,7 +290,7 @@ internal class FetchEodTask
         return ret;
     }
 
-    public string GetStatusInfo() // STATUS, Credit: D12/100 or D12 M900/1000, NYSE F1 OK100 NASDAQ...
+    public string GetStatusInfo() // STATUS, Credit: D12/100 [yyyy-mmm-dd]or D12 M900/1000, NYSE F1 OK100 NASDAQ...
     {
         StringBuilder sb = new();
 
@@ -284,11 +300,11 @@ internal class FetchEodTask
         {
             var limits = GetProvCreditLimits();
 
-            if ( PermInfo.MonthsCreditLeft.HasValue == false)
-                sb.Append($",D{PermInfo.DaysCreditLeft}/{limits.daily}");
+            if (PermInfo.MonthsCreditLeft.HasValue == false)
+                sb.Append(",Credits: " + PrintDayCredits(PermInfo, limits.daily));
 
             else
-                sb.Append($",D{PermInfo.DaysCreditLeft} M{PermInfo.MonthsCreditLeft}/{limits.monthly}");
+                sb.Append(",Credits: " + PrintMonthCredits(PermInfo, limits.monthly));
         }
 
         foreach ( MarketId marketId in Enum.GetValues(typeof(MarketId)))
