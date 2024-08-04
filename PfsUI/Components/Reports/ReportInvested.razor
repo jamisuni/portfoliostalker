@@ -118,25 +118,28 @@ else
                         <MudTable T="RepDataInvestedSub" Items="@context.d.SubHoldings" Hover="true" FixedHeader="true">
                             <ColGroup>
                                 <col style="width: 6%;" />      @* PfName *@
-                                <col style="width: 10%;" />     @* Purhaced *@
+                                <col style="width: 10%;" />     @* Purhace Date *@
+                                <col style="width: 7%;" />      @* Owning Months *@
                                 <col style="width: 7%;" />      @* Units *@
                                 <col style="width: 7%;" />      @* Avrg.Price *@
                                 <col style="width: 7%;" />      @* Invested *@
-                                <col style="width: 10%;" />     @* Profit *@
-                                <col style="width: 20%;" />     @* Div Gained L/%/T/% *@
+                                <col style="width: 10%;" />     @* Growth *@
+                                <col style="width: 15%;" />     @* Div Gained L/%/T/% *@
                             </ColGroup>
                             <HeaderContent>
                                 <MudTh>Portfolio</MudTh>
                                 <MudTh>Purhaced</MudTh>
+                                <MudTh>Owned</MudTh>
                                 <MudTh>Units</MudTh>
                                 <MudTh>Avrg.Price</MudTh>
                                 <MudTh>Invested</MudTh>
-                                <MudTh>Profit</MudTh>
+                                <MudTh>Growth</MudTh>
                                 <MudTh>Div L% T%</MudTh>
                             </HeaderContent>
                             <RowTemplate Context="dropdown">
                                 <MudTd>@dropdown.RCHolding.PfName</MudTd>
                                 <MudTd>@dropdown.RCHolding.SH.PurhaceDate.ToYMD()</MudTd>
+                                <MudTd><RCellPeriod From="@dropdown.RCHolding.SH.PurhaceDate" To="@DateOnly.FromDateTime(DateTime.Now)" /></MudTd>
                                 <MudTd>
                                     @if (dropdown.RCHolding.SH.Units != dropdown.RCHolding.SH.OriginalUnits)
                                     {

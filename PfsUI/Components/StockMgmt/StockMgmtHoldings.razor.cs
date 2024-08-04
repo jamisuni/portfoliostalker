@@ -100,7 +100,7 @@ public partial class StockMgmtHoldings
 
     private void OnRowClicked(TableRowClickEventArgs<ViewReportHoldingsData> data)
     {
-        if (data.Item.d.Divident == null || data.Item.d.Divident.Count == 0)
+        if (data == null || data.Item == null || data.Item.d.Divident == null || data.Item.d.Divident.Count == 0)
             return;
 
         data.Item.ShowDetails = !data.Item.ShowDetails;

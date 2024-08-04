@@ -44,6 +44,4 @@ public class ReportTradeHoldings
     public RCGrowth Growth { get; set; } = null;    // Sale Profit, so value-invested
 
     public RRDivident Divident { get; set; } = null;
-
-    public int HoldingMonths { get; set; } = 0;
 }

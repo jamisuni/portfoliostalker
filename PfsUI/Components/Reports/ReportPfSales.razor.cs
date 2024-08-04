@@ -101,11 +101,7 @@ public partial class ReportPfSales
                 ViewSaleHolding outHoldings = new()
                 {
                     d = inHoldings,
-                    Months = "0",
                 };
-
-                if (inHoldings.HoldingMonths > 0)
-                    outHoldings.Months = Local_FormatAvrgTime(inHoldings.HoldingMonths);
 
                 outData.ViewHoldings.Add(outHoldings);
             }
@@ -113,21 +109,12 @@ public partial class ReportPfSales
 
             _viewReport.Add(outData);
         }
-
-        string Local_FormatAvrgTime(int months)
-        {
-            if (months < 12)
-                return months.ToString() + "m";
-
-            if (months < 36)
-                return (months / 12).ToString() + "y" + (months % 12 != 0 ? (months % 12).ToString() + "m" : "");
-
-            return (months / 12).ToString() + "y";
-        }
     }
 
     private void OnRowClicked(TableRowClickEventArgs<ViewSaleEntry> data)
     {
+        if (data == null || data.Item == null) return;
+
         data.Item.ShowDetails = !data.Item.ShowDetails;
     }
 
@@ -252,7 +239,5 @@ public partial class ReportPfSales
     protected class ViewSaleHolding
     {
         public ReportTradeHoldings d;
-
-        public string Months;
     }
 }

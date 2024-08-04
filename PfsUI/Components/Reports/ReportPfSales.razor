@@ -103,7 +103,7 @@ else
                 </HeaderContent>
                 <RowTemplate Context="dropdown" >
                     <MudTd>@dropdown.d.Holding.PurhaceDate.ToString("yyyy-MM-dd")</MudTd>
-                    <MudTd>@dropdown.Months</MudTd>
+                    <MudTd><RCellPeriod From="@dropdown.d.Holding.PurhaceDate" To="@dropdown.d.Holding.Sold.SaleDate" /> </MudTd>
                     <MudTd>                             @* Buy (unit price) *@
                         <RCellAvrgPrice McAvrgPrice="@(dropdown.d.Holding.McPriceWithFeePerUnit)" MarketCurrency="context.d.StockMeta.marketCurrency" />
                     </MudTd>
