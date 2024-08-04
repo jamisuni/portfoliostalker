@@ -784,7 +784,7 @@ public class StalkerDoCmd : StalkerData
             // Trades needs to be rolled back first if wants to delete
             return new FailResult($"Partially sold! Trades needs to be removed first before holding can be removed");
 
-        if ( holding.Dividents.Count > 0 )
+        if ( holding.AnyDividents())
             // Dividents needs to be removed first if wants to delete
             return new FailResult($"Dividents needs to be removed first before holding can be removed");
 

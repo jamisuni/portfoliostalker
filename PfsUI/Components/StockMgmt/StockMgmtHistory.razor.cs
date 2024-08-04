@@ -122,7 +122,7 @@ public partial class StockMgmtHistory
             else
                 entry.Hdr += $" growth {(entry.d.Own.HcGrowth / entry.d.Own.HcInv * 100).ToP()} {entry.d.Own.HcGrowth.To()}{entry.HC} ";
 
-            if (entry.d.Own.Holding.Dividents.Count() > 0)
+            if (entry.d.Own.Holding.AnyDividents())
             {
                 entry.Divident = RRHoldingDivident.Create(entry.d.Own.Holding);
 
@@ -180,7 +180,7 @@ public partial class StockMgmtHistory
 
             entry.Hdr += $"sold {entry.d.Sold.Holding.Sold.McPriceWithFeePerUnit.To00()}{entry.MC} ";
 
-            if (entry.d.Sold.Holding.Dividents.Count() > 0)
+            if (entry.d.Sold.Holding.AnyDividents())
             {
                 entry.Divident = RRHoldingDivident.Create(entry.d.Sold.Holding);
 

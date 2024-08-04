@@ -5,44 +5,56 @@
 @if (RRTotalHold == null)
 {
 }
-else if (RRTotalHold.McGrowthP < 0)
+else if (RRTotalHold.HcGrowthP < 0.1m)
 {
-    <div class="col">
-        <div class="row">
-            <span style="color:red">@(RRTotalHold.McGrowthP + "% " + RRTotalHold.McGrowthAmount + UiF.Curr(MarketCurrency))</span>
-        </div> <div class="row">
-            @if (HomeCurrency != MarketCurrency)
-            {
+    @if (HomeCurrency == MarketCurrency)
+    {
+        <span style="color:red">@(RRTotalHold.HcGrowthP + "% " + RRTotalHold.HcGrowthAmount + UiF.Curr(HomeCurrency))</span>
+    }
+    else
+    {
+        <div class="col">
+            <div class="row">
+                <span style="color:red">@(RRTotalHold.McGrowthP + "% " + RRTotalHold.McGrowthAmount + UiF.Curr(MarketCurrency))</span>
+            </div> <div class="row">
                 <span style="color:red">@(RRTotalHold.HcGrowthP + "% " + RRTotalHold.HcGrowthAmount + UiF.Curr(HomeCurrency))</span>
-            }
+            </div>
         </div>
-    </div>
+    }
 }
-else if (RRTotalHold.McGrowthP > 0)
+else if (RRTotalHold.HcGrowthP > 0.1m)
 {
-    <div class="col">
-        <div class="row">
-            <span style="@GrowthColor(RRTotalHold.McGrowthP)">@(RRTotalHold.McGrowthP + "% " + RRTotalHold.McGrowthAmount + UiF.Curr(MarketCurrency))</span>
-        </div> <div class="row">
-            @if (HomeCurrency != MarketCurrency)
-            {
+    @if (HomeCurrency == MarketCurrency)
+    {
+        <span style="@GrowthColor(RRTotalHold.HcGrowthP)">@(RRTotalHold.HcGrowthP + "% " + RRTotalHold.HcGrowthAmount + UiF.Curr(HomeCurrency))</span>
+    }
+    else
+    {
+        <div class="col">
+            <div class="row">
+                <span style="@GrowthColor(RRTotalHold.McGrowthP)">@(RRTotalHold.McGrowthP + "% " + RRTotalHold.McGrowthAmount + UiF.Curr(MarketCurrency))</span>
+            </div> <div class="row">
                 <span style="@GrowthColor(RRTotalHold.HcGrowthP)">@(RRTotalHold.HcGrowthP + "% " + RRTotalHold.HcGrowthAmount + UiF.Curr(HomeCurrency))</span>
-            }
+            </div>
         </div>
-    </div>
+    }
 }
-else // part of 0.01m fixing huge prosents, a GrowthP can be removed if avrg price is 0.01m
+else
 {
-    <div class="col">
-        <div class="row">
-            <span style="color:black">@(RRTotalHold.McGrowthAmount + UiF.Curr(MarketCurrency))</span>
-        </div> <div class="row">
-            @if (HomeCurrency != MarketCurrency)
-            {
+    @if (HomeCurrency == MarketCurrency)
+    {
+        <span style="color:black">@(RRTotalHold.HcGrowthAmount + UiF.Curr(HomeCurrency))</span>
+    }
+    else
+    {
+        <div class="col">
+            <div class="row">
+                <span style="color:black">@(RRTotalHold.McGrowthAmount + UiF.Curr(MarketCurrency))</span>
+            </div> <div class="row">
                 <span style="color:black">@(RRTotalHold.HcGrowthAmount + UiF.Curr(HomeCurrency))</span>
-            }
+            </div>
         </div>
-    </div>
+    }
 }
 
 @code {

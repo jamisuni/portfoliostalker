@@ -53,7 +53,7 @@ public class RepGenStMgHoldings
                     DividentCurrency = stockMeta.marketCurrency,
                 };
 
-                if ( holding.Dividents != null && holding.Dividents.Count > 0 )
+                if (holding.AnyDividents())
                 {
                     hldn.Divident = RRHoldingDivident.Create(holding); // list of all
                     hldn.TotalHoldingDivident = new RRTotalDivident(holding); // total

@@ -33,6 +33,17 @@ public class RepDataInvested
 
     public decimal HcGain { get; set; }
     public int HcGainP { get; set; }
+
+    public List<RepDataInvestedSub> SubHoldings { get; set; }
+}
+
+public class RepDataInvestedSub
+{
+    public RCHolding RCHolding { get; set; } = null;
+
+    public RCGrowth RCTotalHold { get; set; } = null;
+
+    public RRTotalDivident RRHoldingsTotalDiv { get; set; } = null;
 }
 
 public class RepDataInvestedHeader

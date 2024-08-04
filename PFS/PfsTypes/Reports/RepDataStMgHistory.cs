@@ -63,7 +63,7 @@ public class RepDataStMgHistory
             RCEod = rcEod,
         };
 
-        if ( holding.Dividents.Count > 0 )
+        if ( holding.AnyDividents())
             ret.TotalDivident = new RRTotalDivident(holding);
 
         ret.Own = new()

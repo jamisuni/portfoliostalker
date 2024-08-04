@@ -166,7 +166,12 @@ public class Client : IDisposable, IFEWaiting
     {
         try
         {
-            foreach (SAlarm alarm in _clientStalker.StockRef(sRef)?.Alarms)
+            SStock stock = _clientStalker.StockRef(sRef);
+
+            if (stock == null || stock.Alarms == null || stock.Alarms.Count == 0)
+                return;
+
+            foreach (SAlarm alarm in stock.Alarms)
             {
                 if (alarm.AlarmType.IsUnderType() && alarm.GetAlarmDistance(eod.GetSafeLow()).procent >= 0 ||
                      alarm.AlarmType.IsOverType() && alarm.GetAlarmDistance(eod.GetSafeHigh()).procent >= 0)

@@ -5,7 +5,7 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-    <Version>2.0.0.3</Version>
+    <Version>2.0.0.4</Version>
     <UserSecretsId>b32f4308-1db8-4eaf-be0f-e7a6c8ebcc48</UserSecretsId>
   </PropertyGroup>
 
@@ -36,6 +36,9 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
     <Content Update="Components\Dialogs\DlgAbout.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Update="Components\Reports\Cells\RCellDividentDual.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
   </ItemGroup>

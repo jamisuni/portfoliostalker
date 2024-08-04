@@ -17,7 +17,7 @@
 
 namespace Pfs.Types;
 
-public class RCDivident // Each PaymentDate is own 'RCDivident'
+public class RCDivident // Each PaymentDate is own 'RCDivident' (Note! Only RCStock use cases, general one is RRHoldingDivident)
 {
     //  These are main fields those are expected to be identical for same divident
 
@@ -35,20 +35,20 @@ public class RCDivident // Each PaymentDate is own 'RCDivident'
 
     public decimal HoldingUnits = 0;
 
-    public decimal TradesUnits = 0;
+    public decimal TradesUnits = 0;         // !!!TODO!!! 'RCDivident' seams too targeted to one use case, RECHECK -> rename? move as sub of RCStock?
 
     public decimal HcTotalDiv { get { return PaymentPerUnit * (HoldingUnits + TradesUnits) * CurrencyRate; } }
 
     protected RCDivident() { }
 
-    public RCDivident(SHolding.Divident divident)
+    public RCDivident(SHolding.Divident divident)   
     {
         PaymentDate = divident.PaymentDate;
         PaymentPerUnit = divident.PaymentPerUnit;
         ExDivDate = divident.ExDivDate;
         CurrencyRate = divident.CurrencyRate;
-        Currency = divident.Currency;
+        Currency = divident.Currency;               // !!!TODO!!! plus missing here 'HoldingUnits' so cant do general use
     }
 }
 
-public record RCTotalHcDivident(decimal HcDiv, decimal HcInvested);
+public record RCTotalHcDivident(decimal HcDiv, decimal HcInvested); // !!!TODO!!! move also under RCStock and rename RCStockTotalHcDiv

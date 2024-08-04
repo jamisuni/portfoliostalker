@@ -44,11 +44,14 @@ public class SHolding
     public Sale Sold { get; set; } = null;
 
     // Decision! Holding tracks each divident that is payed for it, there is no more any generic divident structure!
-    public List<Divident> Dividents { get; set; }   // Each and every divident payed toward these shares
+    public List<Divident> Dividents { get; set; } = new();  // Each and every divident payed toward these shares
+
+    public bool AnyDividents() => Dividents.Count > 0;
+
+    public CurrencyId DivCurrency() => AnyDividents() == true ? Dividents.Last().Currency : CurrencyId.Unknown;
 
     public SHolding()
     {
-        Dividents = new();
     }
 
     public decimal McInvested { get { return McPriceWithFeePerUnit * Units; } }

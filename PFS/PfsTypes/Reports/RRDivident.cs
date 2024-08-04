@@ -63,6 +63,11 @@ public class RRHoldingDivident : RRDivident
         HcHoldingInvested = holding.HcInvested;
     }
 
+    public static RRHoldingDivident CreateLatest(SHolding holding)
+    {
+        return new RRHoldingDivident(holding, holding.Dividents.Last());
+    }
+
     public static List<RRHoldingDivident> Create(SHolding holding)
     {
         List<RRHoldingDivident> ret = new();

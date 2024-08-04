@@ -90,6 +90,8 @@ public partial class ReportInvested
 
     private void OnRowClicked(TableRowClickEventArgs<ViewReportInvestedData> data)
     {
+        if (data == null || data.Item == null) return;
+
         data.Item.ShowDetails = !data.Item.ShowDetails;
     }
 

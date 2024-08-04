@@ -76,10 +76,10 @@ public partial class DlgHoldingsEdit
             _currencyRate = Defaults.CurrencyRate;
             _purhaceNote = Defaults.PurhaceNote;
 
-            if ( Edit && Defaults.Units == Defaults.OriginalUnits && Defaults.Dividents.Count == 0 )
+            if ( Edit && Defaults.Units == Defaults.OriginalUnits && Defaults.AnyDividents() == false)
                 _allowDelete = true;    // Only allowed if nothing is done for holding, or all trades/dividents deleted before
 
-            if (Defaults.Dividents.Count > 0)
+            if (Defaults.AnyDividents())
                 _allowEditUnits = true; // If has dividents then no more changing unit amounts
         }
 

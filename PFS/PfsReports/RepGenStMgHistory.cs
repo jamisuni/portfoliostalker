@@ -105,7 +105,7 @@ public class RepGenStMgHistory
 
             if ( entry.Sold != null )
             {
-                if (entry.Sold.Holding.Dividents.Count > 0)
+                if (entry.Sold.Holding.AnyDividents())
                     entry.TotalDivident = new RRTotalDivident(entry.Sold.Holding);
             }
         }

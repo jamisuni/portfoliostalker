@@ -70,7 +70,7 @@ public class RepGenPfSales
                 {
                     Holding = rcTrade.ST,
                     Growth = new RCGrowth(rcTrade.ST.Units, rcTrade.ST.McInvested, rcTrade.ST.HcInvested, rcTrade.ST.Sold.McPriceWithFeePerUnit, rcTrade.ST.Sold.HcPriceWithFeePerUnit),
-                    Divident = rcTrade.ST.Dividents.Count > 0 ? new RRTotalDivident(rcTrade.ST) : null,
+                    Divident = rcTrade.ST.AnyDividents() ? new RRTotalDivident(rcTrade.ST) : null,
                     HoldingMonths = (int)((rcTrade.ST.Sold.SaleDate.DayNumber - rcTrade.ST.PurhaceDate.DayNumber) / 30.437),
                 };
 

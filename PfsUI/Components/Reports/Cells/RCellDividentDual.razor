@@ -1,0 +1,37 @@
+﻿@namespace PfsUI.Components
+
+@using Pfs.Types
+
+<!-- Implementation: RCellDividentDual w Latest & Total -->
+
+@if (RRDivTotal == null)
+{
+}
+else
+{
+    <div class="col">
+        <div class="row">
+            @FormatHcLatest()
+        </div>
+        <div class="row">
+            @FormatHcTotal()
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public RRDivident RRDivTotal { get; set; }
+    [Parameter] public RRDivident RRDivLatest { get; set; }
+    [Parameter] public CurrencyId HomeCurrency { get; set; }
+    [Parameter] public CurrencyId DividentCurrency { get; set; }
+
+    string FormatHcLatest()
+    {
+        return $"{RRDivLatest.HcDiv.ToVR()}{UiF.Curr(HomeCurrency)} {RRDivLatest.ViewHcDivP}%";
+    }
+
+    string FormatHcTotal()
+    {
+        return $"{RRDivTotal.ViewHcDiv}{UiF.Curr(HomeCurrency)} {RRDivTotal.ViewHcDivP}%";
+    }
+}

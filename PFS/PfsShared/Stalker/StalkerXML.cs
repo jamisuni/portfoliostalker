@@ -106,7 +106,7 @@ public class StalkerXML
                         if (holding.CurrencyRate != 1)
                             myPfShElem.SetAttributeValue("PRate", holding.CurrencyRate);
 
-                        if (holding.Dividents.Count > 0)
+                        if (holding.AnyDividents())
                         {
                             foreach (SHolding.Divident divident in holding.Dividents)
                             {
@@ -159,7 +159,7 @@ public class StalkerXML
                         if (trade.Sold.CurrencyRate != 1)
                             myPfStElem.SetAttributeValue("SRate", trade.CurrencyRate);
 
-                        if (trade.Dividents.Count > 0)
+                        if (trade.AnyDividents())
                         {
                             foreach (SHolding.Divident divident in trade.Dividents)
                             {

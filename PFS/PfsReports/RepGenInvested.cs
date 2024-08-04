@@ -23,7 +23,7 @@ namespace Pfs.Reports;
 public class RepGenInvested
 {
     static public (RepDataInvestedHeader header, List<RepDataInvested> stocks) GenerateReport(
-                                IReportFilters reportParams, IReportPreCalc collector, IStockMeta stockMetaProv, StalkerData stalkerData)
+           IReportFilters reportParams, IReportPreCalc collector, IStockMeta stockMetaProv, StalkerData stalkerData)
     {
         List<RepDataInvested> ret = new();
         RepDataInvestedHeader header = new();
@@ -53,6 +53,7 @@ public class RepGenInvested
                 StockMeta = sm,
                 RCEod = stock.RCEod,
                 RCTotalHold = stock.RCTotalHold,
+                SubHoldings = new(),
             };
 
             if (stock.RCHoldingsTotalDivident != null)
@@ -75,6 +76,21 @@ public class RepGenInvested
             header.HcTotalValuation += stock.RCTotalHold.HcValuation;
 
             hcTotalDiv += stock.RCHoldingsTotalDivident.HcDiv;
+
+            // DropDown with row for each separate holding
+            foreach (RCHolding rch in stock.Holdings)
+            {
+                RepDataInvestedSub sub = new()
+                {
+                    RCHolding = rch,
+                    RCTotalHold = new RCGrowth(rch.SH, stock.RCEod.fullEOD.Close, stock.RCEod.LatestConversionRate),
+                };
+
+                if (rch.SH.AnyDividents())
+                    sub.RRHoldingsTotalDiv = new RRTotalDivident(rch.SH);
+
+                entry.SubHoldings.Add(sub);
+            }
         }
 
         if ( ret.Count == 0 )
