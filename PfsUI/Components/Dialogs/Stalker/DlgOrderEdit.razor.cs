@@ -117,31 +117,50 @@ public partial class DlgOrderEdit
 
     private async Task DlgConvertOrderSync()
     {
-        SHolding holding = new()
+        if (Defaults.Type == SOrder.OrderType.Buy)
         {
-            PricePerUnit = Defaults.PricePerUnit,
-            Units = Defaults.Units,
-            PurhaceDate = Pfs.Platform().GetCurrentLocalDate().AddDays(-1),
-        };
+            SHolding holding = new()
+            {
+                PricePerUnit = Defaults.PricePerUnit,
+                Units = Defaults.Units,
+                PurhaceDate = Pfs.Platform().GetCurrentLocalDate().AddDays(-1),
+            };
 
-        var parameters = new DialogParameters
+            var parameters = new DialogParameters {
+                { "Market", Market },
+                { "Symbol", Symbol },
+                { "PfName", PfName },
+                { "Defaults", holding },
+                { "Edit", false }
+            };
+
+            var dialog = Dialog.Show<DlgHoldingsEdit>("", parameters);
+            var result = await dialog.Result;
+
+            if (!result.Canceled)
+            {   // Looks like this was Converted to new Holding, so delete Order itself
+                DlgDeleteOrder();
+            }
+        }
+        else if (Defaults.Type == SOrder.OrderType.Sell)
         {
-            { "Market", Market },
-            { "Symbol", Symbol },
-            { "PfName", PfName },
-            { "Defaults", holding },
-            { "Edit", false }
-        };
+            var parameters = new DialogParameters {
+                { "Market", Market },
+                { "Symbol", Symbol },
+                { "PfName", PfName },
+                { "TargetHolding", null },
+                { "Defaults", new DlgSale.DefValues(Units: Defaults.Units, PricePerUnit: Defaults.PricePerUnit, Date: Defaults.FillDate ) },
+            };
 
-        var dialog = Dialog.Show<DlgHoldingsEdit>("", parameters);
-        var result = await dialog.Result;
+            // Ala Sale Holding operation == finishing trade of buy holding, and now sell holding(s)
+            var dialog = Dialog.Show<DlgSale>("", parameters);
+            var result = await dialog.Result;
 
-        if (!result.Canceled)
-        {
-            // Looks like this was Converted to new Holding, so delete Order itself
-            DlgDeleteOrder();
+            if (!result.Canceled)
+                DlgDeleteOrder();
         }
     }
+
     protected async Task<bool> Verify()
     {
         if (_order.Type == SOrder.OrderType.Unknown || _order.PricePerUnit <= 0.01M || _order.Units <= 0.01M)

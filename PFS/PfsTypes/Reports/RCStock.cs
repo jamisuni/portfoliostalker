@@ -21,12 +21,14 @@ namespace Pfs.Types;
 public class RCStock
 {
     public StockMeta StockMeta { get; internal set; }
+    // [MarketId marketId, string symbol, string name, CurrencyId marketCurrency, string ISIN]
 
     public SStock Stock { get; internal set; }
 
     // Note! Alarms atm dont feel need to do anything, they under Stock above
 
     public RCEod RCEod { get; set; } = null;
+    // [FullEOD fullEOD, CurrencyId MarketCurrency, decimal LatestConversionRate]
 
     public RCGrowth RCTotalHold { get; internal set; } = null; // All 'Holdings' total sum of invested/valuation
 

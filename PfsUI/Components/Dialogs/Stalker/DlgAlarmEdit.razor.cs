@@ -44,6 +44,13 @@ public partial class DlgAlarmEdit
     protected string _editNote = string.Empty;
     protected SAlarmType _editType = SAlarmType.Unknown;
 
+    protected record AlarmItem(SAlarmType Type, string Desc);
+
+    protected AlarmItem[] _alarmTypeSel = [         // !!!CODE!!! Init [] table with records
+        new AlarmItem(SAlarmType.Over,  "Sell"),
+        new AlarmItem(SAlarmType.Under, "Buy"),
+        ]; // Later add "Cut", "Profit" for tracking type alarms
+
     public SAlarmType EditType              
     { 
         get => _editType; 

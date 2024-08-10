@@ -38,6 +38,15 @@ public partial class DlgImport
 
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 
+    public enum ImportType : int
+    {
+        Unknown = 0,
+        AccountBackupZip,
+        CompaniesTxt,
+//        StockNotesTxt,
+        WaveAlarms,
+    }
+
     protected static readonly ReadOnlyDictionary<ImportType, DlgImportCfg> _configs = new ReadOnlyDictionary<ImportType, DlgImportCfg>(new Dictionary<ImportType, DlgImportCfg>
     {
         [ImportType.AccountBackupZip] = new DlgImportCfg()

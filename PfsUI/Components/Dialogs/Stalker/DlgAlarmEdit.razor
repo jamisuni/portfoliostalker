@@ -10,12 +10,9 @@
     <DialogContent>
 
         <MudSelect T="SAlarmType" @bind-Value="@EditType" Label="Select Type" Required ReadOnly=@(EditType != SAlarmType.Unknown ? true : false)>
-             @foreach (SAlarmType item in Enum.GetValues(typeof(SAlarmType)))
+            @foreach (AlarmItem item in _alarmTypeSel)
             {
-                if (item == SAlarmType.Unknown)
-                    continue;
-
-                <MudSelectItem Value="@item">@item</MudSelectItem>
+                <MudSelectItem Value="@item.Type">@($"{item.Type} ({item.Desc})")</MudSelectItem>
             }
         </MudSelect>
         <br />

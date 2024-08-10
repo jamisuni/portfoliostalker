@@ -1,6 +1,6 @@
 ﻿@namespace PfsUI.Components
 
-<MudDrawer @bind-Open="@_visible" DisableOverlay="true" Elevation="0" Variant="@DrawerVariant.Persistent" Color="Color.Info" Height="790px">
+<MudDrawer @bind-Open="@_visible" DisableOverlay="true" Elevation="0" Variant="@DrawerVariant.Persistent" Color="Color.Info" Height="660px">
     <MudTreeView Items="TreeItems" Hover="true" T="WidgMenuElem" SelectedValueChanged="TreeActivationChanged"  >
         <ItemTemplate>
             <MudTreeViewItem @bind-Expanded="@context.IsExpanded" Items="@context.TreeItems" Value="@context"

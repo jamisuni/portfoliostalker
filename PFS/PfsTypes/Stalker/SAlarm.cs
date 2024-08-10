@@ -178,8 +178,8 @@ public class SAlarmOver : SAlarm
 public enum SAlarmType : int
 {
     Unknown = 0,
-    Under,          // AAUP
-    Over,           // AAOP
+    Under,
+    Over,
     TrailingSellP,
 }
 

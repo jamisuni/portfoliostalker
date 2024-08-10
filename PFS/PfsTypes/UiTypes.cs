@@ -15,6 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.en.html>.
  */
 
+using System.Reflection.Metadata.Ecma335;
+
 namespace Pfs.Types;
 
 // GetMarketStatus() - Settings - Markets 'status report'
@@ -46,4 +48,6 @@ public class FetchProgress
         // !!!TODO!!! Add when figuring out something important, a second table to view...
         //            but amount of pendings per market is NOT important
     }
+
+    public bool IsBusy() => TotalLeft > 0;
 }

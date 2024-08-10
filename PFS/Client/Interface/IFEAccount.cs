@@ -55,6 +55,8 @@ public interface IFEAccount
 
     (int fetchAmount, int pendingAmount) FetchExpiredStocks();
 
+    void FetchStock(MarketId marketId, string symbol);
+
     Task<Dictionary<ExtProviderId, Result<ClosingEOD>>> TestStockFetchingAsync(MarketId marketId, string symbol, ExtProviderId[] providers);
 
 

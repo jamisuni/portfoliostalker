@@ -18,6 +18,7 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Pfs.Types;
+using System.Reflection;
 
 namespace PfsUI.Components;
 
@@ -76,7 +77,9 @@ public partial class DlgAddNewStockMeta
             return;
         }
 
+        _symbol = extSm[0].symbol;
         _company = extSm[0].name;
+        _market = extSm[0].marketId;
 
         if (string.IsNullOrEmpty(_ISIN) && string.IsNullOrWhiteSpace(extSm[0].ISIN))
             _ISIN = extSm[0].ISIN;
@@ -99,7 +102,7 @@ public partial class DlgAddNewStockMeta
         StockMeta sm = Pfs.Stalker().AddNewStockMeta(_market, _symbol.ToUpper(), _company, _ISIN);
 
         if (sm != null)
-            MudDialog.Close();
+            MudDialog.Close(DialogResult.Ok(sm));
         else
             await Dialog.ShowMessageBox("Failed!", "duplicate?", yesText: "Dang");
     }

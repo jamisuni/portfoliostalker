@@ -205,6 +205,18 @@ public class FEAccount : IFEAccount
         return (fetch.Values.Sum(list => list.Count), pendingAmount);
     }
 
+    public void FetchStock(MarketId marketId, string symbol)
+    {
+        FetchProgress progr = _fetchEod.GetFetchProgress();
+
+        if (progr.IsBusy())
+            return;
+
+        Dictionary<MarketId, List<string>> fetch = new();
+        fetch.Add(marketId, new List<string>() { symbol });
+        _fetchEod.Fetch(fetch);
+    }
+
     public async Task<Dictionary<ExtProviderId, Result<ClosingEOD>>> TestStockFetchingAsync(MarketId marketId, string symbol, ExtProviderId[] providers)
     {
         return await _fetchEod.TestStockFetchingAsync(marketId, symbol, providers);

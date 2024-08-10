@@ -239,7 +239,11 @@ public partial class Home
         var result = await dialog.Result;
 
         if (!result.Canceled)
+        {
+            StockMeta sm = result.Data as StockMeta;
+            Pfs.Account().FetchStock(sm.marketId, sm.symbol);
             _reportTrackedStocks.ReloadReport();
+        }
     }
 
     protected enum HomePageMenuID

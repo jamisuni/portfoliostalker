@@ -7,7 +7,7 @@
 }
 else
 {
-    <MudTable T="View" Items="@_viewTop15" FixedHeader="true" Height="400px" Dense="true" >
+    <MudTable T="View" Items="@_viewTop15" FixedHeader="true" Height="418px" Dense="true" >
         <ColGroup>
             <col style="width: 4%;" />  @* Symbol *@
             <col style="width: 14%;" /> @* Company *@
@@ -45,7 +45,7 @@ else
             @if (_exColHdr[3] != null) { <MudTh> <MudButton Color="_BTN[BTN.ExCol3]" @onclick="@(() => DoSort(BTN.ExCol3))">@(_exColHdr[3])</MudButton>  </MudTh> }
         </HeaderContent>
         <RowTemplate>
-            <MudTd><MudLink Underline="Underline.Hover" @onclick="@(() => OnBtnStockMgmtLaunchAsync(@context.d.StockMeta))">@context.d.StockMeta.symbol</MudLink></MudTd>
+            <MudTd><MudLink Underline="Underline.Hover" @onclick="@(() => OnBtnStockMgmtLaunchAsync(@context.d.StockMeta))">$@context.d.StockMeta.symbol</MudLink></MudTd>
             <MudTd>@context.CompanyName</MudTd>
             @if (_viewHoldingsColumn)
             {
