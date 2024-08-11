@@ -22,7 +22,8 @@ namespace Pfs.Reports;
 
 public class ReportOverviewStocks
 {
-    public static List<OverviewStocksData> GenerateReport(IReportFilters reportParams, IReportPreCalc collector, IPfsStatus pfsStatus, StalkerData stalkerData, IStockMeta stockMetaProv, IMarketMeta marketMetaProv, IExtraColumns extraColumns)
+    public static List<OverviewStocksData> GenerateReport(IReportFilters reportParams, IReportPreCalc collector, IPfsStatus pfsStatus, StalkerData stalkerData, IStockMeta stockMetaProv, 
+                                                          IMarketMeta marketMetaProv, IExtraColumns extraColumns, IStockNotes stockNotes)
     {
         List<OverviewStocksData> ret = new();
 
@@ -56,6 +57,7 @@ public class ReportOverviewStocks
                 StockMeta = sm,
                 RCEod = stock.RCEod,
                 RCTotalHold = stock.RCTotalHold,
+                NoteHeader = stockNotes.GetHeader(stock.Stock.SRef),
             };
 
             if (stock.Stock.Alarms.Count > 0)

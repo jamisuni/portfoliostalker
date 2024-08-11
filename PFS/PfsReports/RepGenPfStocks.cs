@@ -23,7 +23,7 @@ namespace Pfs.Reports;
 // Main view under Portfolio's is to list all stocks that user has added specific portfolio 
 public class RepGenPfStocks
 {
-    static public List<RepDataPfStocks> GenerateReport(IReportFilters reportParams, IReportPreCalc collector, StalkerData stalkerData)
+    static public List<RepDataPfStocks> GenerateReport(IReportFilters reportParams, IReportPreCalc collector, StalkerData stalkerData, IStockNotes stockNotes)
     {
         List<RepDataPfStocks> ret = new();
 
@@ -37,6 +37,7 @@ public class RepGenPfStocks
                     RRTotalHold = stock.RCTotalHold,
                     HasTrades = stock.Trades.FirstOrDefault() != null,
                     StockMeta = stock.StockMeta,
+                    NoteHeader = stockNotes.GetHeader(stock.Stock.SRef),
                     FailedMsg = stock.StockMeta?.marketId == MarketId.CLOSED 
                                 ? "Stock Closed (see history)"
                                 : "No market data! (RCEod==null)"
@@ -47,6 +48,7 @@ public class RepGenPfStocks
             RepDataPfStocks entry = new()
             {
                 StockMeta = stock.StockMeta,
+                NoteHeader = stockNotes.GetHeader(stock.Stock.SRef),
                 RCEod = stock.RCEod,
                 RRTotalHold = stock.RCTotalHold,
                 Order = stock.Orders.FirstOrDefault()?.SO,

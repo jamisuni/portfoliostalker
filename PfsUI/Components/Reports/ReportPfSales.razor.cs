@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Components;
 
 using MudBlazor;
 using Pfs.Types;
+using static PfsUI.Components.OverviewStocks;
 
 namespace PfsUI.Components;
 
@@ -34,6 +35,7 @@ public partial class ReportPfSales
     protected decimal _totalHcGrowth = 0;
     protected decimal _totalHcDiv = 0;
 
+    protected bool _viewCompanyNameColumn = true;
     protected CurrencyId _homeCurrency = CurrencyId.Unknown;
     protected string _HC = string.Empty;
 
@@ -50,6 +52,7 @@ public partial class ReportPfSales
 
         _homeCurrency = Pfs.Config().HomeCurrency;
         _HC = UiF.Curr(_homeCurrency);
+        _viewCompanyNameColumn = Pfs.Account().GetAppCfg(AppCfgId.HideCompanyName) == 0;
 
         ReloadReport();
     }
@@ -87,7 +90,18 @@ public partial class ReportPfSales
             {
                 d = inData,
                 MC = UiF.Curr(inData.StockMeta.marketCurrency),
+                SymbolToolTip = string.Empty,
             };
+
+            if (_viewCompanyNameColumn == false)
+                outData.SymbolToolTip += $"{inData.StockMeta.name}";
+
+            if (string.IsNullOrEmpty(inData.NoteHeader) == false)
+            {
+                if (_viewCompanyNameColumn == false)
+                    outData.SymbolToolTip += ": ";
+                outData.SymbolToolTip += $"{inData.NoteHeader}";
+            }
 
             _totalHcGrowth += inData.TotalGrowth.HcGrowthAmount;
             if ( inData.TotalDivident != null)
@@ -234,6 +248,8 @@ public partial class ReportPfSales
         public string MC;
 
         public List<ViewSaleHolding> ViewHoldings;
+
+        public string SymbolToolTip;
     }
 
     protected class ViewSaleHolding

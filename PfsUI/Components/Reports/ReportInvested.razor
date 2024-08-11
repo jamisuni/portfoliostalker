@@ -15,7 +15,10 @@ else
     <MudTable T="ViewReportInvestedData" Items="@_viewReport" Hover="true" SortLabel="Sort By" FixedHeader="true" Height="580px" OnRowClick="@(args => OnRowClicked(args))" >
         <ColGroup>
             <col style="width: 5%;" />      @* Symbol *@
+            @if (_viewCompanyNameColumn)
+            {
             <col style="width: 20%;" />     @* Company *@
+            }
             <col style="width: 5%;" />      @* AvrgPrice *@
             <col style="width: 10%;" />     @* LatestEOD *@
             <col style="width: 10%;" />     @* Invested *@
@@ -26,7 +29,10 @@ else
         </ColGroup>
         <HeaderContent>
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportInvestedData, object>(x=>x.d.StockMeta.symbol)">Symbol</MudTableSortLabel></MudTh>
+            @if (_viewCompanyNameColumn)
+            {
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportInvestedData, object>(x=>x.d.StockMeta.name)">@_headerTextCompany</MudTableSortLabel></MudTh>
+            }
             <MudTh>Avrg.Price</MudTh>
 
             @* % LatestEOD *@
@@ -49,10 +55,17 @@ else
 
         </HeaderContent>
         <RowTemplate>
-            @* Ticker *@
-            <MudTd><MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta.GetSRef()))" >$@context.d.StockMeta.symbol</MudButton></MudTd>
+            @* Symbol *@
+            <MudTd>
+                <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Left">
+                <MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta.GetSRef()))" >$@context.d.StockMeta.symbol</MudButton>
+                </MudTooltip>    
+            </MudTd>
+            @if (_viewCompanyNameColumn)
+            {
             @* Company *@
             <MudTd>@context.d.StockMeta.name</MudTd>
+            }
             @* AvrgPrice *@ 
             <MudTd>@context.d.RCTotalHold.McAvrgPrice.To00()@context.MC</MudTd>
             @* LatestEOD *@

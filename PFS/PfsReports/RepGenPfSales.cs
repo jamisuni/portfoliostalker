@@ -22,7 +22,7 @@ namespace Pfs.Reports;
 
 public class RepGenPfSales
 {
-    static public List<RepDataPfSales> GenerateReport(IReportFilters reportParams, IReportPreCalc collector, IStockMeta stockMetaProv, StalkerData stalkerData)
+    static public List<RepDataPfSales> GenerateReport(IReportFilters reportParams, IReportPreCalc collector, IStockMeta stockMetaProv, StalkerData stalkerData, IStockNotes stockNotes)
     {
         Dictionary<string, RepDataPfSales> ret = new(); // Create as TradeId key'd to simplify merges.. but only return values on end
         RepDataInvestedHeader header = new();
@@ -55,6 +55,7 @@ public class RepGenPfSales
                     retTrade = new();
 
                     retTrade.StockMeta = sm;
+                    retTrade.NoteHeader = stockNotes.GetHeader(stock.Stock.SRef);
                     retTrade.TradeId = rcTrade.ST.Sold.TradeId;
                     retTrade.TradeNote = rcTrade.ST.Sold.TradeNote;
                     retTrade.SaleDate = rcTrade.ST.Sold.SaleDate;

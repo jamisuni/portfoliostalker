@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
 using Pfs.Types;
+using static PfsUI.Components.OverviewStocks;
 
 namespace PfsUI.Components;
 
@@ -41,6 +42,7 @@ public partial class ReportPfStocks
     [Parameter] public string PfName { get; set; } // Atm this report is supported only under Portfolio so this must be set
 
     protected CurrencyId _homeCurrency;
+    protected bool _viewCompanyNameColumn = true;
 
     protected bool _showGrowthColumn;
     protected bool _showAlarmOverColumn;
@@ -49,6 +51,7 @@ public partial class ReportPfStocks
     protected override void OnParametersSet()
     {
         _homeCurrency = Pfs.Config().HomeCurrency;
+        _viewCompanyNameColumn = Pfs.Account().GetAppCfg(AppCfgId.HideCompanyName) == 0;
 
         ReloadReportData();
     }
@@ -77,6 +80,7 @@ public partial class ReportPfStocks
                     MC = UiF.Curr(inData.StockMeta.marketCurrency),
                     OrderDetails = null,
                     AllowRemove = inData.RRTotalHold == null && inData.HasTrades == false,
+                    SymbolToolTip = string.Empty,
                 };
 
                 if (outData.d.RRAlarm != null && outData.d.RRAlarm.OverP != null)
@@ -85,6 +89,16 @@ public partial class ReportPfStocks
                 if (inData.RRTotalHold != null)
                     // Profit column is shown only if group has something w it..
                     _showGrowthColumn = true;
+
+                if (_viewCompanyNameColumn == false)
+                    outData.SymbolToolTip += $"{inData.StockMeta.name}";
+
+                if (string.IsNullOrEmpty(inData.NoteHeader) == false)
+                {
+                    if (_viewCompanyNameColumn == false)
+                        outData.SymbolToolTip += ": ";
+                    outData.SymbolToolTip += $"{inData.NoteHeader}";
+                }
 
                 if ( inData.Order != null )
                 {   // Only one order is bring per Stock... triggered or closes to trigger if many.. and shown report under company name
@@ -223,4 +237,6 @@ public class ViewReportEntry
     public bool AllowRemove { get; set; }
 
     public string OrderDetails { get; set; }
+
+    public string SymbolToolTip { get; set; }
 }

@@ -20,9 +20,11 @@ namespace Pfs.Types;
 // Part of ''Overview'' -account feature, this lists stocks information 
 public class OverviewStocksData
 {
-    public StockMeta StockMeta = null;
+    public StockMeta StockMeta { get; set; } = null;
 
-    public RCEod RCEod = null;
+    public string NoteHeader { get; set; } = null;
+
+    public RCEod RCEod { get; set; } = null;
 
     public RCGrowth RCTotalHold { get; set; } = null;
 
@@ -30,7 +32,7 @@ public class OverviewStocksData
 
     public RCOrder BestOrder { get; set; } = null;
 
-    public List<RCOrder> PfOrder = new(); // one for each PF
+    public List<RCOrder> PfOrder { get; set; } = new(); // one for each PF
 
     public RCExtraColumn[] ExCol { get; set; } = new RCExtraColumn[IExtraColumns.MaxCol];
 }

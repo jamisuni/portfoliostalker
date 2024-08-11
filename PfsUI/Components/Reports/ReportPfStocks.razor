@@ -10,12 +10,15 @@ else
     <MudTable T="ViewReportEntry" Items="@_report" Dense="true" Hover="true" SortLabel="Sort By" FixedHeader="true" Height="565px" >
         <ColGroup>
             <col style="width: 5%;" />  @* Symbol *@
+            @if (_viewCompanyNameColumn)
+            {
             <col style="width: 25%;" /> @* Company *@
+            }
             <col style="width: 10%;" /> @* Latest *@
             <col style="width: 5%;" />  @* Alarm Under *@
             @if (_showAlarmOverColumn == true)
             {
-                <col style="width: 5%;" />  @* Alarm Over *@
+            <col style="width: 5%;" />  @* Alarm Over *@
             }
             @if (_showGrowthColumn == true)
             {
@@ -25,7 +28,10 @@ else
         </ColGroup>
         <HeaderContent>
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportEntry, object>(x=>x.d.StockMeta.symbol)">Symbol</MudTableSortLabel></MudTh>
+            @if (_viewCompanyNameColumn)
+            {
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportEntry, object>(x=>x.d.StockMeta.name)">Name</MudTableSortLabel></MudTh>
+            }
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportEntry, object>(x=>x.d.RCEod?.ChangeP)">Latest</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportEntry, object>(x=>x.d.RRAlarm?.UnderP)">Under%</MudTableSortLabel></MudTh>
             @if (_showAlarmOverColumn == true)
@@ -39,8 +45,14 @@ else
             <MudTh>Oper</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd><MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta.GetSRef()))" >$@context.d.StockMeta.symbol</MudButton></MudTd>
-                <MudTd> @* Company *@
+            <MudTd>
+                <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Left">
+                <MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta.GetSRef()))" >$@context.d.StockMeta.symbol</MudButton>
+                </MudTooltip>
+            </MudTd>
+            @if (_viewCompanyNameColumn)
+            {
+            <MudTd> @* Company *@
                 @if ( string.IsNullOrWhiteSpace(context.d.FailedMsg) == false)
                 {
                     @($"Failed: {context.d.FailedMsg}")
@@ -58,7 +70,7 @@ else
 		            </div>		      </div>
                 }
             </MudTd>
-
+            }
             <MudTd> @* LatestEOD + ChangeP *@
                 <RCellEod RCEod="@context.d.RCEod" StockMeta="context.d.StockMeta" />
             </MudTd>

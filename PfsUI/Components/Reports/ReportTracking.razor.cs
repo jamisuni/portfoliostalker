@@ -65,6 +65,7 @@ public partial class ReportTracking
             {
                 d = inData,
                 allowDelete = true,
+                SymbolToolTip = inData.NoteHeader,
             };
 
             if (inData.AnyPfHoldings.Count > 0 || inData.AnyPfTrades.Count > 0 )
@@ -205,5 +206,7 @@ public partial class ReportTracking
         public RepDataTracking d;
 
         public bool allowDelete;
+
+        public string SymbolToolTip;
     }
 }

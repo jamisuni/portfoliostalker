@@ -20,6 +20,7 @@ namespace Pfs.Types;
 public class RepDataTracking
 {
     public StockMeta Stock { get; set; } = null;
+    public string NoteHeader { get; set; } = null;
 
     public ExtProviderId[] FetchProvider { get; set; }
     public List<string> AnyPfTracking { get; set; } = new();    // Names of all portfolio's those follow this stock

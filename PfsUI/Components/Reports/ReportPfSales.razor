@@ -15,7 +15,10 @@ else
         <ColGroup>
             <col style="width: 5%;" />  @* Date *@
             <col style="width: 4%;" />  @* Symbol *@
+            @if (_viewCompanyNameColumn)
+            {
             <col style="width: 20%;" /> @* Company *@
+            }
             <col style="width: 15%;" /> @* Buy / Sell *@
             <col style="width: 5%;" />  @* Units *@
             <col style="width: 5%;" />  @* Invested *@
@@ -37,7 +40,10 @@ else
                 </MudTableSortLabel>
             </MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<ViewSaleEntry, object>(x=>x.d.StockMeta.symbol)">Symbol</MudTableSortLabel></MudTh>
+            @if (_viewCompanyNameColumn)
+            {
             <MudTh><MudTableSortLabel SortBy="new Func<ViewSaleEntry, object>(x=>x.d.StockMeta.name)">Company</MudTableSortLabel></MudTh>
+            }
             <MudTh>Buy / Sell</MudTh>       @* Buy / Sell (unit prices) *@
             <MudTh>Units</MudTh>
             <MudTh>Invested</MudTh>         @* Invested *@
@@ -51,8 +57,15 @@ else
         </HeaderContent>
         <RowTemplate>
             <MudTd>@context.d.SaleDate.ToString("yyyy-MM-dd")</MudTd>
-            <MudTd><MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta))" >$@context.d.StockMeta.symbol</MudButton></MudTd>
+            <MudTd>
+                <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Left">
+                <MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta))" >$@context.d.StockMeta.symbol</MudButton>
+                </MudTooltip>
+            </MudTd>
+            @if (_viewCompanyNameColumn)
+            { 
             <MudTd>@context.d.StockMeta.name</MudTd>
+            }
 
             <MudTd>                         @* Buy / Sell (unit prices) *@
                 <RCellAvrgBuySell RRTotalGrowth="@context.d.TotalGrowth" HomeCurrency="@_homeCurrency" MarketCurrency="context.d.StockMeta.marketCurrency" />

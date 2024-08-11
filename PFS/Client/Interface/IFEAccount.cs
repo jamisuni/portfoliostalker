@@ -22,6 +22,9 @@ namespace Pfs.Client;
 public interface IFEAccount
 {
     AccountTypeId AccountType { get; }
+
+    int GetAppCfg(AppCfgId id);
+
     List<MenuEntry> GetMenuData();
     void SaveData();
 

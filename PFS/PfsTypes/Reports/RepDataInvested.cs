@@ -22,6 +22,8 @@ public class RepDataInvested
 {
     public StockMeta StockMeta { get; set; } = null;
 
+    public string NoteHeader { get; set; } = null;
+
     public RCEod RCEod { get; set; } = null;    // This report does NOT support IntraDay
 
     public RCGrowth RCTotalHold { get; set; } = null;

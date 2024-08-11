@@ -33,6 +33,7 @@ public partial class OverviewStocks
     protected List<View> _viewTop15 = null;                 // Actual 15 those are shown on time per column/sorting selections
     protected bool _viewOrdersColumn = false;
     protected bool _viewHoldingsColumn = false;
+    protected bool _viewCompanyNameColumn = true;
 
     protected enum BTN
     {
@@ -63,6 +64,8 @@ public partial class OverviewStocks
         _BTN[BTN.Latest] = _btnPositive;
 
         _reportData = Pfs.Report().GetOverviewStocks();
+
+        _viewCompanyNameColumn = Pfs.Account().GetAppCfg(AppCfgId.HideCompanyName) == 0;
 
         // Note! Nothing happens before owner call's 'OnUpdateReport'
     }
@@ -95,6 +98,7 @@ public partial class OverviewStocks
                 d = inData,
                 Active = true,
                 CompanyName = inData.StockMeta.name,
+                SymbolToolTip = string.Empty,
             };
 
             if (inData.RCTotalHold != null)
@@ -102,6 +106,16 @@ public partial class OverviewStocks
 
             if ( view.CompanyName.Length > 25 )
                 view.CompanyName = view.CompanyName.Substring(0,25);
+
+            if (_viewCompanyNameColumn == false)
+                view.SymbolToolTip += $"{view.CompanyName}";
+
+            if (string.IsNullOrEmpty(inData.NoteHeader) == false)
+            {
+                if (_viewCompanyNameColumn == false)
+                    view.SymbolToolTip += ": ";
+                view.SymbolToolTip += $"{inData.NoteHeader}";
+            }
 
             if (string.IsNullOrEmpty(args.OrdersFromPf))
             {   // group is not PF specific, so use best order of any PF
@@ -231,6 +245,8 @@ public partial class OverviewStocks
         public bool Active;
 
         public string CompanyName; // Limiting 25 to make sure doesnt go two lines
+
+        public string SymbolToolTip;
 
         public string OrderTT;
         public RCOrder Order = null; // Need ref for sorting, as diff groups uses diff one

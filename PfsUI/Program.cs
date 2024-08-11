@@ -132,6 +132,7 @@ builder.Services.AddSingleton<IDataOwner>(x => x.GetRequiredService<StoreUserEve
 
 builder.Services.AddSingleton<StoreNotes>();
 builder.Services.AddSingleton<IDataOwner>(x => x.GetRequiredService<StoreNotes>());
+builder.Services.AddSingleton<IStockNotes>(x => x.GetRequiredService<StoreNotes>());
 
 builder.Services.AddSingleton<StoreReportFilters>();
 builder.Services.AddSingleton<IDataOwner>(x => x.GetRequiredService<StoreReportFilters>());

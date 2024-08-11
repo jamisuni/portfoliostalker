@@ -28,6 +28,8 @@ public class RepDataPfSales
 
     public StockMeta StockMeta { get; set; } = null;
 
+    public string NoteHeader { get; set; } = null;
+
     public decimal SoldTotalUnits { get; set; }         // May include units from multiple holdings
 
     public RCGrowth TotalGrowth { get; set; } = null;   // Sale Profit, so value-invested

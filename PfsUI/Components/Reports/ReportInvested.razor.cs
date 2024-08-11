@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Components;
 
 using MudBlazor;
 using Pfs.Types;
+using static PfsUI.Components.OverviewStocks;
 
 namespace PfsUI.Components;
 
@@ -29,6 +30,7 @@ public partial class ReportInvested
 
     private List<ViewReportInvestedData> _viewReport = null;
 
+    protected bool _viewCompanyNameColumn = true;
     protected CurrencyId _homeCurrency;
     protected string _HC = string.Empty;
 
@@ -43,6 +45,7 @@ public partial class ReportInvested
         _viewReport = null;
         _homeCurrency = Pfs.Config().HomeCurrency;
         _HC = UiF.Curr(_homeCurrency);
+        _viewCompanyNameColumn = Pfs.Account().GetAppCfg(AppCfgId.HideCompanyName) == 0;
 
         ReloadReport();
     }
@@ -68,7 +71,18 @@ public partial class ReportInvested
             {
                 d = inData,
                 MC = UiF.Curr(inData.RCEod.MarketCurrency),
+                SymbolToolTip = string.Empty
             };
+
+            if (_viewCompanyNameColumn == false)
+                outData.SymbolToolTip += $"{inData.StockMeta.name}";
+
+            if (string.IsNullOrEmpty(inData.NoteHeader) == false)
+            {
+                if (_viewCompanyNameColumn == false)
+                    outData.SymbolToolTip += ": ";
+                outData.SymbolToolTip += $"{inData.NoteHeader}";
+            }
 
             _viewReport.Add(outData);
         }
@@ -121,5 +135,7 @@ public partial class ReportInvested
         public string MC;
 
         public bool ShowDetails;
+
+        public string SymbolToolTip;
     }
 }

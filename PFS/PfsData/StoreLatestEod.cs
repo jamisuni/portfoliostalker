@@ -254,16 +254,9 @@ public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
 
             foreach (XElement stockElem in topElem.Elements())
             {
-                if ( stockElem.Name == "Data" )
-                {
-                    ret.Data.Add((string)stockElem.Attribute("SRef"), new StockData(
-                        (string)stockElem.Attribute("EOD"),
-                        (string)stockElem.Attribute("Hist")));
-                }
-                else // !!!TODO!!! Remove, too risky to have user given symbol on XML name.. under transition.. saving changed already for v2.0.0.7
-                    ret.Data.Add(stockElem.Name.ToString().Replace('_', '$'), new StockData(
-                        (string)stockElem.Attribute("EOD"),
-                        (string)stockElem.Attribute("Hist")));
+                ret.Data.Add((string)stockElem.Attribute("SRef"), new StockData(
+                    (string)stockElem.Attribute("EOD"),
+                    (string)stockElem.Attribute("Hist")));
             }
         }
         return ret;

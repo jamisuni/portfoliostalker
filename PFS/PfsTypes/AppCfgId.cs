@@ -34,4 +34,6 @@ public enum AppCfgId : int
     ExtraColumn1, 
     ExtraColumn2, 
     ExtraColumn3,
+
+    HideCompanyName,
 }

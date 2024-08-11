@@ -39,13 +39,13 @@ public class FEAccount : IFEAccount
     protected ILatestRates _latestRatesProv;
     protected StoreUserEvents _storeUserEvents;
     protected IPfsSetMarketConfig _marketConfig;
-    protected StoreNotes _stockNotes;
+    protected IStockNotes _stockNotes;
     protected IFEConfig _fEConfig;
     protected ClientReportPreCalcs _clientReportPreCalcs;
 
     public FEAccount(IPfsPlatform pfsPlatform, IPfsStatus pfsStatus, ClientData clientData, ClientStalker clientStalker, IMarketMeta marketMetaProv, IStockMeta stockMetaProv, ILatestEod latestEodProv, 
                      IFetchEod fetchEod, IFetchRates fetchRates, ILatestRates latestRatesProv, StoreUserEvents storeUserEvents, IPfsSetMarketConfig marketConfig,
-                     StoreNotes stockNotes, IFEConfig fEConfig, ClientReportPreCalcs clientReportPreCalcs)
+                     IStockNotes stockNotes, IFEConfig fEConfig, ClientReportPreCalcs clientReportPreCalcs)
     {
         _pfsPlatform = pfsPlatform;
         _pfsStatus = pfsStatus;
@@ -65,6 +65,11 @@ public class FEAccount : IFEAccount
     }
 
     public AccountTypeId AccountType { get { return _pfsStatus.AccountType; } }
+
+    public int GetAppCfg(AppCfgId id)
+    {
+        return _pfsStatus.GetAppCfg(id);
+    }
 
     public List<MenuEntry> GetMenuData()
     {

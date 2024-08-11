@@ -23,7 +23,7 @@ namespace Pfs.Reports;
 public class RepGenInvested
 {
     static public (RepDataInvestedHeader header, List<RepDataInvested> stocks) GenerateReport(
-           IReportFilters reportParams, IReportPreCalc collector, IStockMeta stockMetaProv, StalkerData stalkerData)
+           IReportFilters reportParams, IReportPreCalc collector, IStockMeta stockMetaProv, StalkerData stalkerData, IStockNotes stockNotes)
     {
         List<RepDataInvested> ret = new();
         RepDataInvestedHeader header = new();
@@ -54,6 +54,7 @@ public class RepGenInvested
                 RCEod = stock.RCEod,
                 RCTotalHold = stock.RCTotalHold,
                 SubHoldings = new(),
+                NoteHeader = stockNotes.GetHeader(stock.Stock.SRef),
             };
 
             if (stock.RCHoldingsTotalDivident != null)

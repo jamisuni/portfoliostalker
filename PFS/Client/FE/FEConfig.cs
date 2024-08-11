@@ -37,12 +37,11 @@ public class FEConfig : IFEConfig
     protected ILatestRates _latestRatesProv;
     protected StoreUserEvents _storeUserEvents;
     protected IPfsSetMarketConfig _marketConfig;
-    protected StoreNotes _stockNotes;
     protected ProvConfig _provConfig;
 
     public FEConfig(IPfsPlatform pfsPlatform, IPfsStatus pfsStatus, ClientData clientData, ClientStalker clientStalker, IMarketMeta marketMetaProv, IStockMeta stockMetaProv, ILatestEod latestEodProv, 
                      IFetchEod fetchEod, IFetchRates fetchRates, FetchConfig fetchConfig, ILatestRates latestRatesProv, StoreUserEvents storeUserEvents, IPfsSetMarketConfig marketConfig,
-                     StoreNotes stockNotes, ProvConfig provConfig)
+                     ProvConfig provConfig)
     {
         _pfsPlatform = pfsPlatform;
         _pfsStatus = pfsStatus;
@@ -57,7 +56,6 @@ public class FEConfig : IFEConfig
         _latestRatesProv = latestRatesProv;
         _storeUserEvents = storeUserEvents;
         _marketConfig = marketConfig;
-        _stockNotes = stockNotes;
         _provConfig = provConfig;
     }
 

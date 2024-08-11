@@ -17,21 +17,11 @@
 
 namespace Pfs.Types;
 
-public class RepDataPfStocks
+public interface IStockNotes
 {
-    public StockMeta StockMeta { get; set; } = null;
+    string GetHeader(string sRef);
 
-    public string NoteHeader { get; set; } = null;
+    Note Get(string sRef);
 
-    public string FailedMsg { get; set; } = string.Empty;
-
-    public RCEod RCEod { get; set; } = null;    // This report does NOT support IntraDay
-
-    public RCGrowth RRTotalHold {  get; set; } = null;
-
-    public bool HasTrades { get; set; } = false;
-
-    public RRAlarm RRAlarm { get; set; } = null;
-
-    public SOrder Order { get; set; } = null; // Report only supports one PF so this is for that PF
+    void Store(string sRef, Note note);
 }

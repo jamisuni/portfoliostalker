@@ -36,10 +36,11 @@ public class FEReport : IFEReport
     protected IPfsFetchConfig _fetchConfig;
     protected IExtraColumns _extraColumns;
     protected StoreStockMetaHist _storeStockMetaHist;
+    protected IStockNotes _stockNotes;
 
     public FEReport(ClientReportPreCalcs reportPreCalcColl, ClientStalker clientStalker, IPfsPlatform pfsPlatform, IPfsStatus pfsStatus, IMarketMeta marketMetaProv,
                     IStockMeta stockMetaProv, ILatestEod latestEodProv, ILatestRates latestRatesProv, StoreReportFilters storeReportFilters, IPfsFetchConfig fetchConfig,
-                    IExtraColumns extraColumns, StoreStockMetaHist storeStockMetaHist)
+                    IExtraColumns extraColumns, StoreStockMetaHist storeStockMetaHist, IStockNotes stockNotes)
     {
         _clientStalker = clientStalker;
         _pfsPlatform = pfsPlatform;
@@ -53,6 +54,7 @@ public class FEReport : IFEReport
         _fetchConfig = fetchConfig;
         _extraColumns = extraColumns;
         _storeStockMetaHist = storeStockMetaHist;
+        _stockNotes = stockNotes;
     }
 
     protected ReportFilters _currentReportFilters = null;
@@ -88,7 +90,7 @@ public class FEReport : IFEReport
         ReportFilters filter = GetReportFilters(ReportFilters.CurrentTag);
         IReportPreCalc preCalc = _reportPreCalcColl.Get(ReportId.Invested, filter);
 
-        return RepGenInvested.GenerateReport(filter, preCalc, _stockMetaProv, _clientStalker);
+        return RepGenInvested.GenerateReport(filter, preCalc, _stockMetaProv, _clientStalker, _stockNotes);
     }
 
     public Result<RepDataDivident> GetDivident()
@@ -114,7 +116,7 @@ public class FEReport : IFEReport
         ReportFilters filter = ReportFilters.Default;
         IReportPreCalc preCalc = _reportPreCalcColl.Get(ReportId.Overview, filter);
 
-        return ReportOverviewStocks.GenerateReport(filter, preCalc, _pfsStatus, _clientStalker, _stockMetaProv, _marketMetaProv, _extraColumns);
+        return ReportOverviewStocks.GenerateReport(filter, preCalc, _pfsStatus, _clientStalker, _stockMetaProv, _marketMetaProv, _extraColumns, _stockNotes);
     }
 
     // Portfolio Specific -reports
@@ -125,7 +127,7 @@ public class FEReport : IFEReport
         filter.Set(FilterId.PfName, pfName);
         IReportPreCalc preCalc = _reportPreCalcColl.Get(ReportId.PfStocks, filter);
 
-        return RepGenPfStocks.GenerateReport(filter, preCalc, _clientStalker);
+        return RepGenPfStocks.GenerateReport(filter, preCalc, _clientStalker, _stockNotes);
     }
 
     public List<RepDataPfSales> GetPfSales(string pfName)
@@ -134,7 +136,7 @@ public class FEReport : IFEReport
         filter.Set(FilterId.PfName, pfName);
         IReportPreCalc preCalc = _reportPreCalcColl.Get(ReportId.PfSales, filter);
 
-        return RepGenPfSales.GenerateReport(filter, preCalc, _stockMetaProv, _clientStalker);
+        return RepGenPfSales.GenerateReport(filter, preCalc, _stockMetaProv, _clientStalker, _stockNotes);
     }
 
     // Exports
@@ -167,7 +169,7 @@ public class FEReport : IFEReport
 
     public List<RepDataTracking> GetTracking()
     {
-        return RepGenTracking.GenerateReport(_clientStalker, _marketMetaProv, _stockMetaProv, _latestEodProv, _fetchConfig);
+        return RepGenTracking.GenerateReport(_clientStalker, _marketMetaProv, _stockMetaProv, _latestEodProv, _fetchConfig, _stockNotes);
     }
 
     public Result<List<RepDataStMgHoldings>> GetStMgHoldings(string sRef)

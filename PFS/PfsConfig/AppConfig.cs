@@ -78,6 +78,8 @@ public class AppConfig : ICmdHandler, IDataOwner
         { AppCfgId.ExtraColumn2,                    new AppCfgDef((int)ExtraColumnId.Unknown) },
         { AppCfgId.ExtraColumn3,                    new AppCfgDef((int)ExtraColumnId.Unknown) },
 
+        { AppCfgId.HideCompanyName,                 new AppCfgDef(0) },     // 0 == false, 1 == true
+
     }.ToImmutableDictionary();
 
     protected Dictionary<AppCfgId, int> _configs = new();

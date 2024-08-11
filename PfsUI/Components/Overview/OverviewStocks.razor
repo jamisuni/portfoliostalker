@@ -10,7 +10,10 @@ else
     <MudTable T="View" Items="@_viewTop15" FixedHeader="true" Height="418px" Dense="true" >
         <ColGroup>
             <col style="width: 4%;" />  @* Symbol *@
-            <col style="width: 14%;" /> @* Company *@
+            @if (_viewCompanyNameColumn)
+            {
+                <col style="width: 14%;" /> @* Company *@
+            }
             @if (_viewHoldingsColumn)
             {
                 <col style="width: 8%;" /> @* AvrgHolding *@
@@ -28,7 +31,10 @@ else
         </ColGroup>
         <HeaderContent>
             <MudTh>Symbol</MudTh>
-            <MudTh>Company</MudTh>
+            @if (_viewCompanyNameColumn)
+            {
+                <MudTh>Company</MudTh>
+            }
             @if (_viewHoldingsColumn)
             {
                 <MudTh>Avrg</MudTh>
@@ -45,13 +51,19 @@ else
             @if (_exColHdr[3] != null) { <MudTh> <MudButton Color="_BTN[BTN.ExCol3]" @onclick="@(() => DoSort(BTN.ExCol3))">@(_exColHdr[3])</MudButton>  </MudTh> }
         </HeaderContent>
         <RowTemplate>
-            <MudTd><MudLink Underline="Underline.Hover" @onclick="@(() => OnBtnStockMgmtLaunchAsync(@context.d.StockMeta))">$@context.d.StockMeta.symbol</MudLink></MudTd>
-            <MudTd>@context.CompanyName</MudTd>
+            <MudTd>
+                <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Left">
+                <MudLink Underline="Underline.Hover" @onclick="@(() => OnBtnStockMgmtLaunchAsync(@context.d.StockMeta))">$@context.d.StockMeta.symbol</MudLink>
+                </MudTooltip>
+            </MudTd>
+            @if (_viewCompanyNameColumn)
+            {
+                <MudTd>@context.CompanyName</MudTd>
+            }
             @if (_viewHoldingsColumn)
             {
                 <MudTd>
-                    @if (context.d.RCTotalHold != null)
-                    {
+                    @if (context.d.RCTotalHold != null) {
                         @context.d.RCTotalHold.McAvrgPrice.ToString("0.00")@UiF.Curr(context.d.StockMeta.marketCurrency)
                     }
                 </MudTd>

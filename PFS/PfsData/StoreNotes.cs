@@ -17,30 +17,89 @@
 
 using System.Text;
 
-using Serilog;
-
 using Pfs.Types;
 
 namespace Pfs.Data;
 
 // These event's track things are shown user daily as potentially important, like: Triggered Alarms, Order Expires, etc
-public class StoreNotes : IDataOwner
+public class StoreNotes : IDataOwner, IStockNotes
 {
     const string _separator = "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
 
     protected const string _componentName = "notes";
-    protected readonly string storekey = "stocknotes_"; // ""stocknotes_NYSE_MSFT
+    protected const string prefixstorekey = "stocknotes_"; // ""stocknotes_NYSE_MSFT
     protected readonly IPfsPlatform _platform;          // Later! atm notes are lost if stock market/symbol is changed
     protected IPfsStatus _pfsStatus;
+
+    protected Dictionary<string, string> _cacheHeaders = new();
+
+    /* !!!DOCUMENT!!! Notes
+     * - Each stock can have its own user specific notes, those can be seen/edited under StockMgmt
+     * - These are really preferred to be max 10 lines or so, longer notes should be kept elsewhere
+     * - Stocks note itself is stored as own file stocknotes_NYSE_MSFT, and not hold on memory
+     * - Demo doesnt support notes
+     * - If first line of note starts with '>' then  its assume as header:
+     *      - Header's is just single line (to first eod/endoffile), kind of personal highlights for stock
+     *      - Limiting is as 120 characters maximum
+     *      - Its cached for fast fetch as reports can/should have it available
+     *      - User can add it simply on note editing by just adding line
+     * 
+     * Later!
+     * - Secondary book keeping, by also storing cached headers, and using it as index to double know what notes has currently
+     * - Going to create own custom importing, someday.. that allows to bring highlights from longer notes to PFS notes
+     * - Going to have "public" part on custom importing, for.. later...
+     */
 
     public StoreNotes(IPfsPlatform pfsPlatform, IPfsStatus pfsStatus)
     {
         _platform = pfsPlatform;
         _pfsStatus = pfsStatus;
+
+        Init();
     }
 
     protected void Init()
     {
+        _cacheHeaders = new();
+
+        foreach (string skey in _platform.PermGetKeys().Where(k => k.StartsWith(prefixstorekey)))
+        {
+            string sRef = StoreName2SRef(skey);
+            Note note = Get(sRef);
+            if (note == null)
+                continue;
+
+            string hdr = note.GetHeader();
+
+            if (hdr == null)
+                continue;
+
+            AddHeader(sRef, hdr);
+        }
+    }
+
+    public string GetHeader(string sRef)
+    {
+        if (_cacheHeaders.ContainsKey(sRef))
+            return _cacheHeaders[sRef];
+
+        return string.Empty;
+    }
+
+    protected void AddHeader(string sRef, string hdr)
+    {
+        if ( string.IsNullOrWhiteSpace(hdr) )
+        {
+            if (_cacheHeaders.ContainsKey(sRef))
+                _cacheHeaders.Remove(sRef);
+        }
+        else
+        {
+            if (_cacheHeaders.ContainsKey(sRef))
+                _cacheHeaders[sRef] = hdr;
+            else
+                _cacheHeaders.Add(sRef, hdr);
+        }
     }
 
     public Note Get(string sRef)
@@ -63,17 +122,28 @@ public class StoreNotes : IDataOwner
 
         string content = note.GetStorageFormat();
 
-        if ( string.IsNullOrWhiteSpace(content) == false)
-            _platform.PermWrite(StoreName(sRef), note.GetStorageFormat());
+        if (string.IsNullOrWhiteSpace(content) == false)
+        {
+            _platform.PermWrite(StoreName(sRef), content);
+
+            AddHeader(sRef, note.GetHeader());
+        }
         else
             _platform.PermRemove(StoreName(sRef));
+
+        EventNewUnsavedContent?.Invoke(this, _componentName);
     }
 
-    protected string StoreName(string sRef)
+    protected static string StoreName(string sRef)
     {
         var stock = StockMeta.ParseSRef(sRef);
 
-        return $"{storekey}{stock.marketId}_{stock.symbol}";
+        return $"{prefixstorekey}{stock.marketId}_{stock.symbol}";
+    }
+
+    protected static string StoreName2SRef(string skey) 
+    {
+        return skey.Replace(prefixstorekey, "").Replace('_', '$');
     }
 
     public event EventHandler<string> EventNewUnsavedContent;                                       // IDataOwner
@@ -85,16 +155,11 @@ public class StoreNotes : IDataOwner
     {
         StringBuilder sb = new();
 
-        foreach (string key in _platform.PermGetKeys().Where(k => k.StartsWith(storekey)))
+        foreach (string skey in _platform.PermGetKeys().Where(k => k.StartsWith(prefixstorekey)))
         {
-            string content = _platform.PermRead(key);
+            string content = _platform.PermRead(skey);
 
-            string sRef = key.Replace(storekey, "");
-
-            if (sRef.IndexOf('_') < 0)
-                continue;
-
-            sRef = sRef.Replace('_', '$');
+            string sRef = StoreName2SRef(skey);
 
             sb.AppendLine(_separator);
             sb.AppendLine(sRef);
@@ -145,7 +210,7 @@ public class StoreNotes : IDataOwner
         if (_pfsStatus.AllowUseStorage == false)
             return;
 
-        foreach (string key in _platform.PermGetKeys().Where(k => k.StartsWith(storekey)))
-            _platform.PermRemove(key);
+        foreach (string skey in _platform.PermGetKeys().Where(k => k.StartsWith(prefixstorekey)))
+            _platform.PermRemove(skey);
     }
 }

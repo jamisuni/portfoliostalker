@@ -41,6 +41,19 @@ public class Note
         return _content;
     }
 
+    public string GetHeader()
+    {
+        if ( _content.StartsWith('>') == false)
+            return null;
+
+        string hdr = _content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None)[0];
+
+        if (hdr.Contains("[*") || hdr.Contains("*]"))
+            return null;
+
+        return hdr.TrimStart('>');
+    }
+
     // For public reports, by adding overview or bodyText a [* text here, multilines ok *] can fetch only that text to be shown on reports
     public string GetPublicNote()
     {

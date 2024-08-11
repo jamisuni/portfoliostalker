@@ -51,7 +51,11 @@ else
             {
                 <MudTd><span style="color:orange">@context.d.Stock.marketId.ToString()</span></MudTd>
             }
-            <MudTd><MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => OnBtnStockMgmtLaunchAsync(@context.d.Stock.GetSRef()))">$@context.d.Stock.symbol</MudButton></MudTd>
+            <MudTd>
+                <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Left">
+                <MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => OnBtnStockMgmtLaunchAsync(@context.d.Stock.GetSRef()))">$@context.d.Stock.symbol</MudButton>
+                </MudTooltip>
+            </MudTd>
             <MudTd>@context.d.Stock.name</MudTd>
 
             @if (context.d.FetchProvider == null || context.d.FetchProvider.Count() == 0)
