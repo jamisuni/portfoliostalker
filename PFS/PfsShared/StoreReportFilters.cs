@@ -17,6 +17,9 @@
 
 using System.Buffers;
 using System.Xml.Linq;
+
+using Serilog;
+
 using Pfs.Types;
 
 namespace Pfs.Shared;
@@ -95,8 +98,9 @@ public class StoreReportFilters : IDataOwner
 
             return new OkResult();
         }
-        catch
+        catch (Exception ex)
         {   // Not handled as critical error, as yes params are lost but hopefully nothing else not...
+            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
             return new OkResult();
         }
     }
@@ -115,8 +119,9 @@ public class StoreReportFilters : IDataOwner
 
             _stored = ImportXml(stored);
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
             Init();
             _platform.PermRemove(_componentName);
         }

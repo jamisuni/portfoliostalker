@@ -19,6 +19,8 @@ using System.Text;
 using System.Xml.Linq;
 using System.Collections.Immutable;
 
+using Serilog;
+
 using Pfs.Helpers;
 using Pfs.Types;
 
@@ -213,9 +215,10 @@ public class MarketConfig : IMarketMeta, IPfsSetMarketConfig, ICmdHandler, IData
             RecreateHolidayDateOnlys();
             return new OkResult();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return new FailResult($"MarketConfig: Exception: {e.Message}");
+            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
+            return new FailResult($"MarketConfig: Exception: {ex.Message}");
         }
     }
 
@@ -239,8 +242,9 @@ public class MarketConfig : IMarketMeta, IPfsSetMarketConfig, ICmdHandler, IData
             _configs = ImportXml(xml);
             RecreateHolidayDateOnlys();
         }
-        catch
+        catch ( Exception ex )
         {
+            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
             Init();
             _platform.PermRemove(_componentName);
         }

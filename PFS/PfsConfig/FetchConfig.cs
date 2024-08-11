@@ -18,6 +18,9 @@
 using System.Collections.Immutable;
 using System.Text;
 using System.Xml.Linq;
+
+using Serilog;
+
 using Pfs.Helpers;
 using Pfs.Types;
 
@@ -207,9 +210,10 @@ public class FetchConfig : IPfsFetchConfig, ICmdHandler, IDataOwner
 
             return new OkResult();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return new FailResult($"FetchConfig: Exception: {e.Message}");
+            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
+            return new FailResult($"FetchConfig: Exception: {ex.Message}");
         }
     }
 
@@ -226,10 +230,11 @@ public class FetchConfig : IPfsFetchConfig, ICmdHandler, IDataOwner
             else
                 (_ratesCfg, _fetchCfg) = ImportXml(content);
         }
-        catch
+        catch ( Exception ex )
         {
+            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
             Init();
-
+            // Later! Why actual removal here?
             _platform.PermRemove(_componentName);
         }
     }

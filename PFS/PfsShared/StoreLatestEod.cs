@@ -15,9 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.en.html>.
  */
 
-using Pfs.Types;
 using System.Text;
 using System.Xml.Linq;
+
+using Serilog;
+
+using Pfs.Types;
 
 namespace Pfs.Shared;
 
@@ -177,8 +180,9 @@ public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
 
             return new OkResult();
         }
-        catch 
+        catch ( Exception ex) 
         {   // Note! This is NOT critical error for Restore - as can just refetch!
+            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
             Init();
             return new OkResult();
         }
@@ -198,8 +202,9 @@ public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
 
             _d = ImportXml(stored);
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
             Init();
             _platform.PermRemove(_componentName);
         }
@@ -221,10 +226,13 @@ public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
 
         foreach (KeyValuePair<string, StockData> kvp in _d.Data)
         {
-            if (symbols != null && symbols.Contains(StockMeta.ParseSRef(kvp.Key).symbol) == false)
+            (MarketId marketId, string symbol) = StockMeta.ParseSRef(kvp.Key);
+
+            if (symbols != null && symbols.Contains(symbol) == false)
                 continue;
 
-            XElement stockElem = new XElement(kvp.Key.ToString().Replace('$', '_'));
+            XElement stockElem = new XElement("Data");
+            stockElem.SetAttributeValue("SRef", kvp.Key);
             stockElem.SetAttributeValue("EOD", kvp.Value.EOD.GetStoreFormat());
             stockElem.SetAttributeValue("Hist", kvp.Value.GetHistoryStorageFormat());
             eodElem.Add(stockElem);
@@ -246,9 +254,16 @@ public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
 
             foreach (XElement stockElem in topElem.Elements())
             {
-                ret.Data.Add(stockElem.Name.ToString().Replace('_', '$'), new StockData(
-                    (string)stockElem.Attribute("EOD"),
-                    (string)stockElem.Attribute("Hist")));
+                if ( stockElem.Name == "Data" )
+                {
+                    ret.Data.Add((string)stockElem.Attribute("SRef"), new StockData(
+                        (string)stockElem.Attribute("EOD"),
+                        (string)stockElem.Attribute("Hist")));
+                }
+                else // !!!TODO!!! Remove, too risky to have user given symbol on XML name.. under transition.. saving changed already for v2.0.0.7
+                    ret.Data.Add(stockElem.Name.ToString().Replace('_', '$'), new StockData(
+                        (string)stockElem.Attribute("EOD"),
+                        (string)stockElem.Attribute("Hist")));
             }
         }
         return ret;

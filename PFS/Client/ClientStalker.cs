@@ -21,6 +21,7 @@ using Pfs.Types;
 using System.Collections.Immutable;
 using System.Text;
 using System.Text.Json;
+using Serilog;
 
 namespace Pfs.Client;
 
@@ -96,6 +97,7 @@ public class ClientStalker : StalkerDoCmd, ICmdHandler, IDataOwner
         }
         catch ( Exception ex)
         {
+            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
             return new FailResult($"ClientStalker: Exception: {ex.Message}");
         }
     }
@@ -133,8 +135,9 @@ public class ClientStalker : StalkerDoCmd, ICmdHandler, IDataOwner
             if (string.IsNullOrEmpty(sectorsJSON) == false)
                 _sectors = JsonSerializer.Deserialize<SSector[]>(sectorsJSON);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
             Init();
             _platform.PermRemove(storagePortfoliosKey);
             _platform.PermRemove(storageStocksKey);

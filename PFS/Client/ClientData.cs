@@ -17,6 +17,9 @@
 
 using System.IO.Compression;
 using System.Text;
+
+using Serilog;
+
 using Pfs.Types;
 
 namespace Pfs.Client;
@@ -173,6 +176,8 @@ public class ClientData
         }
         catch (Exception ex)
         {
+            Log.Warning($"ImportFromBackupZip failed to exception: [{ex.Message}]");
+
             DoInitDataOwners();
 
             return new FailResult($"Close and reopen application plz! ImportFromBackupZip failed to: {ex.Message}");

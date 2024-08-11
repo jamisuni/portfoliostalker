@@ -28,13 +28,14 @@ public partial class ReportTracking
     [Inject] PfsClientAccess Pfs { get; set; }
     [Inject] IDialogService Dialog { get; set; }
 
-    private List<ViewTrackingData> _viewReport;
+    private List<ViewTrackingData> _allData;
+    private List<ViewTrackingData> _viewData;
 
     protected bool _anythingToDelete; // 'Delete' column w button to delete is only shown if has stocks those wo dependencies so that they can be deleted
-
     protected string _headerTextName = string.Empty;
-
     protected List<string> _allPfNames = null;
+    protected bool _symbolSearchActive = false;
+    protected string _symbolSearchText = string.Empty;
 
     protected override void OnParametersSet()
     {
@@ -54,7 +55,8 @@ public partial class ReportTracking
     protected void RefreshReportData()
     {
         _anythingToDelete = false;
-        _viewReport = new();
+        _allData = new();
+        _viewData = new();
         List<RepDataTracking> reportData = Pfs.Report().GetTracking();
 
         foreach (RepDataTracking inData in reportData)
@@ -68,10 +70,30 @@ public partial class ReportTracking
             if (inData.AnyPfHoldings.Count > 0 || inData.AnyPfTrades.Count > 0 )
                 outData.allowDelete = false; // nothing is allowed as if otherwise just comes back w missing logic
 
-            _viewReport.Add(outData);
+            _allData.Add(outData);
+            _viewData.Add(outData);
         }
 
-        _headerTextName = string.Format("Name (total {0} stocks)", _viewReport.Count());
+        _headerTextName = string.Format("Name (total {0} stocks)", _allData.Count());
+    }
+
+    protected void OnBtnActivateSymbolSearch() => _symbolSearchActive = true;
+    protected string SymbolSearchText
+    {
+        get { return _symbolSearchText; }
+        set
+        {
+            _symbolSearchText = value;
+
+            _viewData = _allData.Where(s => s.d.Stock.symbol.Contains(value)).ToList();
+
+            if (_viewData.Count == 0 || string.IsNullOrWhiteSpace(value))
+            {
+                _symbolSearchActive = false;
+                _viewData = _allData;
+            }
+            StateHasChanged();
+        }
     }
 
     protected void OnEventPfsClient(object sender, IFEWaiting.FeEventArgs args)
@@ -126,7 +148,7 @@ public partial class ReportTracking
 
         await Pfs.Cmd().CmdAsync($"stockmeta remove {entry.d.Stock.marketId} {entry.d.Stock.symbol}");
 
-        _viewReport.Remove(entry);
+        _viewData.Remove(entry);
 
         StateHasChanged();
     }

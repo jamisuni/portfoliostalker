@@ -19,6 +19,8 @@ using System.Text;
 using System.Xml.Linq;
 using System.Collections.Immutable;
 
+using Serilog;
+
 using Pfs.Helpers;
 using Pfs.Types;
 
@@ -32,9 +34,10 @@ public class AppConfig : ICmdHandler, IDataOwner
 
     protected readonly static ImmutableArray<string> _cmdTemplates = [
         "list",
-        "set",
-        "reset",
-        "resetdef"
+        "set <appcfg> int",
+        "setcol <appcfg> <extracolumn>",
+        "reset <appcfg>",
+        "resetall"
     ];
 
     protected record AppCfgDef(int def);
@@ -99,6 +102,21 @@ public class AppConfig : ICmdHandler, IDataOwner
         return _cfgDef[id].def;
     }
 
+    protected void Set(AppCfgId id, int? val = null)
+    {
+        if ( val == null || val == _cfgDef[id].def)
+        {   // Back to default, so no need have value
+            if (_configs.ContainsKey(id))
+                _configs.Remove(id);
+            return;
+        }
+
+        if (_configs.ContainsKey(id))
+            _configs[id] = val.Value;
+        else
+            _configs.Add(id, val.Value);
+    }
+
     public event EventHandler<string> EventNewUnsavedContent;                                       // IDataOwner
     public string GetComponentName() { return _componentName; }
     public void OnDataInit() { Init(); }
@@ -121,8 +139,9 @@ public class AppConfig : ICmdHandler, IDataOwner
             _configs = ImportXml(content);
             return new OkResult();
         }
-        catch (Exception)
+        catch (Exception ex)
         {   // Not going to fail full load of backup over this
+            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
             return new OkResult();
         }
     }
@@ -140,8 +159,9 @@ public class AppConfig : ICmdHandler, IDataOwner
 
             _configs = ImportXml(xml);
         }
-        catch
+        catch ( Exception ex )
         {
+            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
             Init();
             _platform.PermRemove(_componentName);
         }
@@ -175,21 +195,20 @@ public class AppConfig : ICmdHandler, IDataOwner
     protected Dictionary<AppCfgId, int> ImportXml(string xml)
     {
         XDocument xmlDoc = XDocument.Parse(xml);
-        XElement allUserCfgElem = xmlDoc.Element("AppCfg");
+        XElement rootPFS = xmlDoc.Element("PFS");
+
+        XElement allUserCfgElem = rootPFS.Element("AppCfg");
 
         Dictionary<AppCfgId, int> ret = new();
 
-        XElement allMarketsElem = allUserCfgElem.Element("Markets");
-        if (allMarketsElem != null && allMarketsElem.HasElements)
+        foreach (XElement cfgElem in allUserCfgElem.Elements())
         {
-            foreach (XElement mcElem in allMarketsElem.Elements())
-            {
-                AppCfgId id = (AppCfgId)Enum.Parse(typeof(AppCfgId), mcElem.Name.ToString());
+            AppCfgId id = (AppCfgId)Enum.Parse(typeof(AppCfgId), cfgElem.Name.ToString());
 
-                int value = (int)mcElem.Attribute("Value");
+            int value = (int)cfgElem.Attribute("Value");
 
+            if (value != _cfgDef[id].def)
                 ret.Add(id, value);
-            }
         }
         return ret;
     }
@@ -218,11 +237,39 @@ public class AppConfig : ICmdHandler, IDataOwner
                     return new OkResult<string>(sb.ToString());
                 }
 
-            case "set":
-            case "reset":
-            case "resetdef":
+            case "reset": // "reset <appcfg>"
+                {
+                    AppCfgId id = Enum.Parse<AppCfgId>(parseResp.Data["<appcfg>"]);
+                    Set(id);
+                    EventNewUnsavedContent?.Invoke(this, _componentName);
+                    return new OkResult<string>($"{id} = {Get(id)}");
+                }
 
-                return new OkResult<string>("to be implemented");
+            case "set": // "set <appcfg> int"
+                {
+                    AppCfgId id = Enum.Parse<AppCfgId>(parseResp.Data["<appcfg>"]);
+                    if (int.TryParse(parseResp.Data["int"], out int value))
+                    {
+                        Set(id, value);
+                        EventNewUnsavedContent?.Invoke(this, _componentName);
+                        return new OkResult<string>($"{id} = {Get(id)}");
+                    }
+                    return new FailResult<string>("Cmd parsing failed (int required)");
+                }
+
+            case "setcol": //"setcol <appcfg> <extracolumn>"
+                {
+                    AppCfgId id = Enum.Parse<AppCfgId>(parseResp.Data["<appcfg>"]);
+                    ExtraColumnId colId = Enum.Parse<ExtraColumnId>(parseResp.Data["<extracolumn>"]);
+                    Set(id, (int)colId);
+                    EventNewUnsavedContent?.Invoke(this, _componentName);
+                    return new OkResult<string>($"{id} = {Get(id)}");
+                }
+
+            case "resetall":
+                Init();
+                EventNewUnsavedContent?.Invoke(this, _componentName);
+                return new OkResult<string>("All restored back to defaults");
         }
         throw new NotImplementedException($"AppConfig.CmdAsync missing {parseResp.Data["cmd"]}");
     }

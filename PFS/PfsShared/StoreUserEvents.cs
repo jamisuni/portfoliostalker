@@ -18,7 +18,10 @@
 using System.Collections.ObjectModel;
 using System.Text;
 
+using Serilog;
+
 using Pfs.Types;
+
 using static Pfs.Shared.UserEvent;
 
 namespace Pfs.Shared;
@@ -257,8 +260,9 @@ public class StoreUserEvents : IUserEvents, IDataOwner
                 }
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
             Init();
             _platform.PermRemove(_componentName);
         }

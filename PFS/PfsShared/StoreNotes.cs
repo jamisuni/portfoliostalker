@@ -15,8 +15,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.en.html>.
  */
 
-using Pfs.Types;
 using System.Text;
+
+using Serilog;
+
+using Pfs.Types;
 
 namespace Pfs.Shared;
 

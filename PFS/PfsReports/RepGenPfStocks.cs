@@ -34,6 +34,8 @@ public class RepGenPfStocks
 
                 ret.Add(new()
                 {
+                    RRTotalHold = stock.RCTotalHold,
+                    HasTrades = stock.Trades.FirstOrDefault() != null,
                     StockMeta = stock.StockMeta,
                     FailedMsg = stock.StockMeta?.marketId == MarketId.CLOSED 
                                 ? "Stock Closed (see history)"

@@ -35,7 +35,7 @@ public partial class DlgImport
     [Inject] private IDialogService Dialog { get; set; }
 
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-
+    [Inject] NavigationManager NavigationManager { get; set; }
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 
     public enum ImportType : int
@@ -214,11 +214,16 @@ public partial class DlgImport
 
         _showBusySignal = false;
 
-        // !!!TODO!!! !!!LATER!!! Get result bool, if fails partially or fully show error and list of errors on import per List<string>
-
         if (ret == true)
         {
-            MudDialog.Close();
+            if (_importType == ImportType.AccountBackupZip)
+            {
+                // forceLoad as all data is replaced, so easier just store backup and do normal startup loading 
+                Pfs.Account().SaveData();
+                NavigationManager.NavigateTo(NavigationManager.BaseUri, true);
+            }
+            else
+                MudDialog.Close();
         }
         else
         {
@@ -329,7 +334,7 @@ public partial class DlgImport
                     sm = Pfs.Stalker().FindStock(symbol);
 
                 if (sm == null)
-                { Log.Warning($"ImportWaveAlarms() could not find {symbol}, ignored {line}"); continue; }
+                { Log.Warning($"ImportWaveAlarms() could not find/identify {marketId}${symbol}, ignored {line}"); continue; }
 
                 symbol = sm.symbol;
                 marketId = sm.marketId;

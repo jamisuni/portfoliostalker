@@ -18,6 +18,9 @@
 using System.Collections.Immutable;
 using System.Text;
 using System.Xml.Linq;
+
+using Serilog;
+
 using Pfs.Helpers;
 using Pfs.Types;
 
@@ -114,9 +117,10 @@ public class ProvConfig : IPfsProvConfig, ICmdHandler, IDataOwner
 
             return new OkResult();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return new FailResult($"ProvConfig: Exception: {e.Message}");
+            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
+            return new FailResult($"ProvConfig: Exception: {ex.Message}");
         }
     }
 
@@ -131,8 +135,9 @@ public class ProvConfig : IPfsProvConfig, ICmdHandler, IDataOwner
             if (string.IsNullOrWhiteSpace(xml) == false)
                 _configs = ImportXml(xml);
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
             Init();
             _platform.PermRemove(_componentName);
         }

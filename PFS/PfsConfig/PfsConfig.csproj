@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Serilog" Version="4.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PfsHelpers\PfsHelpers.csproj" />
     <ProjectReference Include="..\PfsTypes\PfsTypes.csproj" />
   </ItemGroup>

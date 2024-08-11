@@ -15,9 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.en.html>.
  */
 
-using Pfs.Types;
 using System.Text;
 using System.Xml.Linq;
+
+using Serilog;
+
+using Pfs.Types;
 
 namespace Pfs.Shared;
 
@@ -149,9 +152,10 @@ public class StoreStockMetaHist : IDataOwner
             _stockHist = ImportXml(content);
             return new OkResult();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return new FailResult($"StoreStockMetaHist: Exception: {e.Message}");
+            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
+            return new FailResult($"StoreStockMetaHist: Exception: {ex.Message}");
         }
     }
 
@@ -185,8 +189,9 @@ public class StoreStockMetaHist : IDataOwner
             }
             _stockHist = shList.ToArray();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
             Init();
             _platform.PermRemove(_componentName);
         }

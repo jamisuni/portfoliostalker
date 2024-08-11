@@ -24,6 +24,7 @@ using Pfs.Config;
 using Pfs.ExtProviders;
 using Pfs.Helpers;
 using Pfs.Types;
+using Serilog;
 
 namespace Pfs.ExtFetch;
 
@@ -548,8 +549,9 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
 
             return JsonSerializer.Deserialize<Dictionary<ExtProviderId, FetchEodTask.ProvPermInfo>>(stored);        // !!!TODO!!! ImportXml
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
             _pfsPlatform.PermRemove(_componentName);
         }
         return new();

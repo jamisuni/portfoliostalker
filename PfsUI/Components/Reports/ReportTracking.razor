@@ -1,13 +1,13 @@
 ﻿@namespace PfsUI.Components
 @using Pfs.Types
 
-@if (_viewReport == null)
+@if (_viewData == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <MudTable T="ViewTrackingData" Items="@_viewReport" Hover="true" SortLabel="Sort By" FixedHeader="true" Height="560px" >
+    <MudTable T="ViewTrackingData" Items="@_viewData" Hover="true" SortLabel="Sort By" FixedHeader="true" Height="555px">
         <ColGroup>
             <col style="width: 5%;" />      @* Market *@
             <col style="width: 5%;" />      @* Symbol *@
@@ -21,7 +21,19 @@ else
         </ColGroup>
         <HeaderContent>
             <MudTh><MudTableSortLabel SortBy="new Func<ViewTrackingData, object>(x=>x.d.Stock.marketId.ToString())">Market</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<ViewTrackingData, object>(x=>x.d.Stock.symbol)">Ticker</MudTableSortLabel></MudTh>
+            <MudTh>
+                @if (_symbolSearchActive == false)
+                {
+                    <MudStack Row="true">
+                        <MudIconButton Icon="@Icons.Material.Filled.Search" Size="Size.Small"  aria-label="save" OnClick="OnBtnActivateSymbolSearch" />
+                        <MudTableSortLabel SortBy="new Func<ViewTrackingData, object>(x=>x.d.Stock.symbol)">Symbol</MudTableSortLabel>
+                    </MudStack>
+                }
+                else
+                {
+                    <MudTextField @bind-Value="SymbolSearchText" Variant="Variant.Text" MaxLength="8" />
+                }
+            </MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<ViewTrackingData, object>(x=>x.d.Stock.name)">@_headerTextName</MudTableSortLabel></MudTh>
             <MudTd>Providers</MudTd>
             <MudTd>Tracking</MudTd>
@@ -188,5 +200,5 @@ else
         </RowTemplate>
     </MudTable>
 
-    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled._360" Color="Color.Primary" OnClick="OnTestFetchBtnAsync">TEST FETCH</MudButton>
+    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled._360" Size="Size.Small" Color="Color.Primary" OnClick="OnTestFetchBtnAsync">TEST FETCH</MudButton>
 }

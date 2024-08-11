@@ -124,6 +124,8 @@ public class CmdParser      // Note! Keep it now on separate helpers library.. u
         {
             "provider" => typeof(ExtProviderId),
             "market" => typeof(MarketId),
+            "appcfg" => typeof(AppCfgId),
+            "extracolumn" => typeof(ExtraColumnId),
             _ => throw new ArgumentException($"{enumTempl} is not supported")
         };
     }

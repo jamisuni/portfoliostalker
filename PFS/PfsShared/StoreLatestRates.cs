@@ -15,13 +15,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.en.html>.
  */
 
-using Pfs.Helpers;
-using Pfs.Types;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Xml.Linq;
+
+using Serilog;
+
+using Pfs.Helpers;
+using Pfs.Types;
 
 namespace Pfs.Shared;
 
@@ -146,9 +149,10 @@ public class StoreLatesRates : ILatestRates, ICmdHandler, IDataOwner
             _data.HomeCurrency = homeCurrency;
             return new OkResult();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return new FailResult($"StoreLatesRates: Exception: {e.Message}");
+            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
+            return new FailResult($"StoreLatesRates: Exception: {ex.Message}");
         }
     }
 
@@ -166,8 +170,9 @@ public class StoreLatesRates : ILatestRates, ICmdHandler, IDataOwner
 
             _data = JsonSerializer.Deserialize<LatestRates>(stored);
         }
-        catch
+        catch (Exception ex)
         {
+            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
             Init();
             _platform.PermRemove(storekey);
         }
