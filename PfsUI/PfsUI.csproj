@@ -5,7 +5,7 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-    <Version>2.0.0.7</Version>
+    <Version>2.0.0.8</Version>
     <UserSecretsId>b32f4308-1db8-4eaf-be0f-e7a6c8ebcc48</UserSecretsId>
   </PropertyGroup>
 
@@ -21,9 +21,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PFS\Client\Client.csproj" />
+    <ProjectReference Include="..\PFS\PfsData\PfsData.csproj" />
     <ProjectReference Include="..\PFS\PfsExtFetch\PfsExtFetch.csproj" />
     <ProjectReference Include="..\PFS\PfsExtTransactions\PfsExtTransactions.csproj" />
-    <ProjectReference Include="..\PFS\PfsShared\PfsShared.csproj" />
     <ProjectReference Include="..\PFS\PfsTypes\PfsTypes.csproj" />
   </ItemGroup>
 

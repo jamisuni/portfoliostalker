@@ -19,7 +19,7 @@ using System.Runtime.Serialization;
 
 using Pfs.Types;
 
-namespace Pfs.Shared;
+namespace Pfs.Data;
 
 // Presents single user event as string format thats easy/compact to store
 public class UserEvent

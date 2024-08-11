@@ -24,7 +24,7 @@ using Serilog;
 using Pfs.Helpers;
 using Pfs.Types;
 
-namespace Pfs.Shared;
+namespace Pfs.Data;
 
 // All stock meta, meaning market+symbol+companyName+ISIN is handled here and atm user created
 public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOwner

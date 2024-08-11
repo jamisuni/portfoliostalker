@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PfsConfig\PfsConfig.csproj" />
-    <ProjectReference Include="..\PfsShared\PfsShared.csproj" />
+    <ProjectReference Include="..\PfsData\PfsData.csproj" />
     <ProjectReference Include="..\PfsTypes\PfsTypes.csproj" />
   </ItemGroup>
 

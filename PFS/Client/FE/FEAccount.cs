@@ -17,11 +17,11 @@
 
 using Pfs.Config;
 using Pfs.ExtFetch;
-using Pfs.Shared;
+using Pfs.Data;
 using Pfs.Types;
 using System.Collections.ObjectModel;
 using static Pfs.Client.IFEAccount;
-using static Pfs.Shared.UserEvent;
+using static Pfs.Data.UserEvent;
 
 namespace Pfs.Client;
 

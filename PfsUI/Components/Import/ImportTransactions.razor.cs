@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
 using MudBlazor;
-using Pfs.Shared.Stalker;
+using Pfs.Data.Stalker;
 using Pfs.Types;
 using Pfs.ExtTransactions;
 using BlazorDownloadFile;

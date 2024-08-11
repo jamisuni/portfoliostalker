@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.en.html>.
  */
 
-namespace Pfs.Shared.Stalker;
+namespace Pfs.Data.Stalker;
 
 public class StalkerSplit
 {

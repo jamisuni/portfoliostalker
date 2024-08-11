@@ -26,7 +26,7 @@ using Serilog;
 using Pfs.Helpers;
 using Pfs.Types;
 
-namespace Pfs.Shared;
+namespace Pfs.Data;
 
 public class StoreLatesRates : ILatestRates, ICmdHandler, IDataOwner
 {

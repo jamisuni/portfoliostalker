@@ -18,7 +18,7 @@
 using Pfs.Types;
 using System.Collections.ObjectModel;
 
-namespace Pfs.Shared.Stalker;
+namespace Pfs.Data.Stalker;
 
 // Raw presentation of specific accounts core data
 public class StalkerData

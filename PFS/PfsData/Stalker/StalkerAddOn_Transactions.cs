@@ -17,7 +17,7 @@
 
 using Pfs.Types;
 
-namespace Pfs.Shared.Stalker;
+namespace Pfs.Data.Stalker;
 
 // Provides generic Validate & Convert a external Brokers 'ExtTransaction' records to Stalker Action's format
 public class StalkerAddOn_Transactions

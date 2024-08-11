@@ -22,7 +22,7 @@ using Serilog;
 
 using Pfs.Types;
 
-namespace Pfs.Shared;
+namespace Pfs.Data;
 
 // Storage of user defined report filters
 public class StoreReportFilters : IDataOwner

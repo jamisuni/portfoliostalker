@@ -16,7 +16,7 @@
  */
 
 using Pfs.Types;
-using Pfs.Shared.Stalker;
+using Pfs.Data.Stalker;
 
 namespace Pfs.Reports;
 

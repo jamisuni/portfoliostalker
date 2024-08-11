@@ -17,7 +17,7 @@
 
 using Pfs.Types;
 
-namespace Pfs.Shared.Stalker;
+namespace Pfs.Data.Stalker;
 
 // Holder of Action, that is single command w Operation-Element combo plus set of parameters
 public class StalkerAction

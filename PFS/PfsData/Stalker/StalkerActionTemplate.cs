@@ -18,7 +18,7 @@
 using System.Collections.Immutable;
 using System.Text;
 
-namespace Pfs.Shared.Stalker;
+namespace Pfs.Data.Stalker;
 
 // Provides template for each Stalker Action combo of its expected parameters, and their allowed ranges/formattings
 internal class StalkerActionTemplate

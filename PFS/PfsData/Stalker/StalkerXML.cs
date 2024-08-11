@@ -20,7 +20,7 @@ using System.Xml.Linq;
 
 using Pfs.Types;
 
-namespace Pfs.Shared.Stalker;
+namespace Pfs.Data.Stalker;
 
 public class StalkerXML
 {

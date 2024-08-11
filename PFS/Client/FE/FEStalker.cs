@@ -16,7 +16,7 @@
  */
 
 using Pfs.ExtFetch;
-using Pfs.Shared.Stalker;
+using Pfs.Data.Stalker;
 using Pfs.Types;
 using System.Collections.ObjectModel;
 

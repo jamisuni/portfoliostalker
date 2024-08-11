@@ -17,7 +17,7 @@
 
 using Pfs.Config;
 using Pfs.Reports;
-using Pfs.Shared;
+using Pfs.Data;
 using Pfs.Types;
 
 namespace Pfs.Client;

@@ -22,7 +22,7 @@ using Serilog;
 
 using Pfs.Types;
 
-namespace Pfs.Shared;
+namespace Pfs.Data;
 
 // Helper class for StoreStockMeta to handle History part of it. Mainly as wants own storage file for this
 public class StoreStockMetaHist : IDataOwner

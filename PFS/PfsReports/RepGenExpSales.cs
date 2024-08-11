@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.en.html>.
  */
 
-using Pfs.Shared.Stalker;
+using Pfs.Data.Stalker;
 using Pfs.Types;
 
 namespace Pfs.Reports;

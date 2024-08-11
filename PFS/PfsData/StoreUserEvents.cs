@@ -22,9 +22,9 @@ using Serilog;
 
 using Pfs.Types;
 
-using static Pfs.Shared.UserEvent;
+using static Pfs.Data.UserEvent;
 
-namespace Pfs.Shared;
+namespace Pfs.Data;
 
 // These event's track things are shown user daily as potentially important, like: Triggered Alarms, Order Expires, etc
 public class StoreUserEvents : IUserEvents, IDataOwner

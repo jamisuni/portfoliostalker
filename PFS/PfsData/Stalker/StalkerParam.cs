@@ -18,7 +18,7 @@
 using Pfs.Types;
 using System.Globalization;
 
-namespace Pfs.Shared.Stalker;
+namespace Pfs.Data.Stalker;
 
 // Handles single parameter for StalkerAction, validating and parsing it out
 public class StalkerParam

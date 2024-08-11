@@ -17,7 +17,7 @@
 
 using Pfs.Types;
 
-namespace Pfs.Shared;
+namespace Pfs.Data;
 
 public class ExpiredStocks
 {

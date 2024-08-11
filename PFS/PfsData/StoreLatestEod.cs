@@ -22,7 +22,7 @@ using Serilog;
 
 using Pfs.Types;
 
-namespace Pfs.Shared;
+namespace Pfs.Data;
 
 // Blazor specific implementation of EOD storage, and stock data giving. 
 public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner

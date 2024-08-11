@@ -17,7 +17,7 @@
 
 using Pfs.Config;
 using Pfs.ExtFetch;
-using Pfs.Shared;
+using Pfs.Data;
 using Pfs.Types;
 
 namespace Pfs.Client;

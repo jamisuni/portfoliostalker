@@ -20,7 +20,7 @@ using System.Data;
 
 using Pfs.Types;
 
-namespace Pfs.Shared.Stalker;
+namespace Pfs.Data.Stalker;
 
 // Wraps StalkerData w textual-command-API that allows editing StalkerData
 public class StalkerDoCmd : StalkerData

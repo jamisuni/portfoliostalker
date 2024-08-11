@@ -17,15 +17,17 @@
 
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+
 using MudBlazor.Services;
 using Blazored.LocalStorage;
+using BlazorDownloadFile;
+using Serilog;
+
 using Pfs.Client;
 using Pfs.Config;
 using Pfs.Types;
 using PfsUI;
-using Serilog;
-using Pfs.Shared;
-using BlazorDownloadFile;
+using Pfs.Data;
 using Pfs.ExtFetch;
 
 // Think! Maybe 'AddSingleton' is not need, as its one session so AddScoped should be ok?
