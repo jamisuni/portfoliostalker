@@ -40,6 +40,18 @@ public record StockMeta(MarketId marketId, string symbol, string name, CurrencyI
         return (marketId: Enum.Parse<MarketId>(split[0]), split[1]);
     }
 
+    public static (MarketId marketId, string symbol) TryParseSRef(string sRef)
+    {
+        string[] split = sRef.Split('$');
+
+        if (split.Count() != 2 ||
+            Enum.TryParse(split[0], out MarketId marketId) == false ||
+            Validate.Str(ValidateId.Symbol, split[1]).Fail )
+            return (MarketId.Unknown, string.Empty);
+
+        return (marketId, split[1]);
+    }
+
     public static bool IsClosed(string sRef)
     {
         return sRef.Split('$')[0] == MarketId.CLOSED.ToString();

@@ -24,7 +24,8 @@ using MudBlazor;
 
 using BlazorDownloadFile;
 using Pfs.Types;
-using Serilog; // https://github.com/arivera12/BlazorDownloadFile
+using Serilog;
+using System.Text; // https://github.com/arivera12/BlazorDownloadFile
 
 namespace PfsUI.Components;
 
@@ -43,7 +44,7 @@ public partial class DlgImport
         Unknown = 0,
         AccountBackupZip,
         CompaniesTxt,
-//        StockNotesTxt,
+        StockNotesTxt,
         WaveAlarms,
     }
 
@@ -62,14 +63,13 @@ public partial class DlgImport
             ImportNote = "Allows to bring company meta as txt file w lines: MarketId,Symbol,CompanyName",
             ImportWarning = null,
         },
-#if false
         [ImportType.StockNotesTxt] = new DlgImportCfg()
         {
             ContentTxt = true,
-            ImportNote = "StockNotes.txt. Used to import manually edited or previous backup of stock notes",
+            ImportNote = "Used to import manually edited stock notes (highlights). Start of start line needs to be [#NYSE$TSN#>... " +
+                         "and text area on txt file needs to end #] as start of line. That > there marks header that shown reports.",
             ImportWarning = "Warning! All previous Stock Note descriptions are going to be replaced with ones from this txt file",
         },
-#endif
         [ImportType.WaveAlarms] = new DlgImportCfg()
         {
             ContentTxt = true,
@@ -91,7 +91,8 @@ public partial class DlgImport
         _supportedImports = [
             ImportType.AccountBackupZip, 
             ImportType.CompaniesTxt,
-            ImportType.WaveAlarms];
+            ImportType.WaveAlarms,
+            ImportType.StockNotesTxt];
     }
 
     protected void OnImportTypeChanged(ImportType type)
@@ -168,6 +169,12 @@ public partial class DlgImport
             WaveAlarmImport(content.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries));
 
         }
+        else if (_importType == ImportType.StockNotesTxt)
+        {
+            string content = System.Text.Encoding.UTF8.GetString(ms.ToArray());
+            StockNotesImport(content.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries));
+
+        }
         else if (_importType == ImportType.CompaniesTxt)
         {
             string content = System.Text.Encoding.UTF8.GetString(ms.ToArray());
@@ -238,6 +245,137 @@ public partial class DlgImport
         public bool ContentTxt { get; set; }
     }
 
+    protected void StockNotesImport(string[] allInputLines)
+    {
+        foreach ( KeyValuePair<string, string> kvp in Local_Parse(allInputLines))
+        {
+            Note note = new Note(kvp.Value);
+
+            Pfs.Account().StoreNote(kvp.Key, note);
+        }
+        return;
+
+        Dictionary<string, string> Local_Parse(string[] allInputLines)
+        {
+            Dictionary<string, string> ret = new();
+
+#if false
+        
+[#NYSE$TSN#>2024-Aug: Current 0.5% is keeper, double up asap, its big business I like to own longterm! Go heavy, bite heavy!!
+
+- largest poultry, pork and beef processor in the entire United States, with impressive international 
+  operations selling the company's products in over 140 countries.
+- The company's operations are fully vertically integrated, from breeding stock, contract farmers, 
+  feed production, processing, VAP processing, marketing and logistics.
+- Some of the largest characterizing factors in the company is the fact that the Tyson family as well 
+  as the Tyson Limited Partnership ('TLP'), owns around 70.97% of the voting rights in the company
+- 10% on pork, 36% beef, 31% chicken, rest under "prepared food"
+- Historically Tyson Foods is an underperformer in times of higher economic growth (higher inflation)
+- Food production is a low-margin industry, and an increase in input costs can squeeze margins
+
+! 2024-Aug: Hoping to keep this long term, divident looks safe, debt low.. so my 0.5% is all ok place here
+// ending is this.. but compilet assumes preprocessor...  #]
+
+#endif
+
+            StringBuilder sb = null; // if not null then everything else is also set
+            int sbLines = 0;
+            MarketId marketId = MarketId.Unknown;
+            string symbol = string.Empty;
+
+            foreach (string inputLine in allInputLines)
+            {
+                string line = inputLine.TrimEnd();
+
+                if ( sb != null )
+                {   // collecting is active
+                    if (line.TrimStart().StartsWith("#]"))
+                    {   // accept
+                        ret.Add($"{marketId}${symbol}", sb.ToString());
+                        sb = null;
+                        continue;
+                    }
+                    else if (line.StartsWith("[#") || sbLines >= 50)
+                    {
+                        Log.Warning($"StockNotesImport() didnt find ending for {marketId}${symbol}");
+                        sb = null;
+                        // fall thru to handle new [#
+                    }
+                    else if (string.IsNullOrWhiteSpace(line))
+                    {   // empty lines look ok on notes file, but not bringing them PFS as space is limited
+                        continue;
+                    }
+                    else
+                    {
+                        sbLines++;
+                        sb.AppendLine(line);
+                        continue;
+                    }
+                }
+
+                // else lets see if its start of new note
+
+                if (line.StartsWith("[#") == false)
+                    continue;
+
+                line = line.Substring(2);
+
+                int nextPos = line.IndexOf('#');
+
+                if (nextPos < "$T".Length)
+                    continue;
+
+                string stockinfo = line.Substring(0, nextPos);
+
+                (marketId, symbol) = StockMeta.TryParseSRef(stockinfo);
+
+                if (marketId != MarketId.Unknown)
+                {   // so we have potential, but is it known stock
+                    if (Pfs.Stalker().GetStockMeta(marketId, symbol) == null)
+                    {
+                        Log.Warning($"StockNotesImport() has potential start for {stockinfo} but its unknown stock?");
+                        continue;
+                    }
+                }
+                else // either its invalid.. or its just [#$TSN# without market
+                {
+                    if ( stockinfo.StartsWith('$'))
+                        stockinfo = stockinfo.Substring(1);
+
+                    if (Validate.Str(ValidateId.Symbol, stockinfo).Ok)
+                    {
+                        StockMeta sm = Pfs.Stalker().FindStock(stockinfo);
+
+                        if (sm != null)
+                        {
+                            marketId = sm.marketId;
+                            symbol = sm.symbol;
+                        }
+                    }
+                }
+
+                if (marketId == MarketId.Unknown)
+                {
+                    Log.Warning($"StockNotesImport() has potential start for {stockinfo} but failed to map it to one of ur stocks");
+                    continue;
+                }
+
+                // Here we have start and we know stock its going... so lets start collecting tuff
+                sb = new StringBuilder();
+                line = line.Substring(nextPos + 1);
+                if (string.IsNullOrWhiteSpace(line))
+                    sbLines = 0;
+                else
+                {
+                    sb.AppendLine(line);
+                    sbLines = 1;
+                }
+            }
+            return ret;
+        }
+    }
+
+
     protected record WAlarm(SAlarmType type, decimal lvl, string note);
 
     protected void WaveAlarmImport(string[] allInputLines)
@@ -292,13 +430,19 @@ public partial class DlgImport
                 string line = inputLine.TrimStart().TrimEnd();
 
                 if (line.Contains("~$") == false)
+                {   
+                    if ( line.Count(c => c == '~') >= 4 )
+                    {   // easy to forgot it has to start ~$ also when giving market, so lets give warning from potentials
+                        Log.Warning($"ImportWaveAlarms() was this supposed to have alarm: {line}");
+                    }
                     continue;
+                }
 
                 line = line.Substring(line.IndexOf("~$") + 2);
 
                 int lastPos = line.LastIndexOf('~');
 
-                if (lastPos < 0)
+                if (lastPos <= 0)
                     continue;
 
                 line = line.Substring(0, lastPos);

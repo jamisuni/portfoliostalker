@@ -711,6 +711,14 @@ public class StalkerDoCmd : StalkerData
             _portfolios.Any(p => p.StockTrades.Any(h => h.PurhaceId == purhaceId)))
             return new FailResult($"{StalkerErr.Duplicate}! {purhaceId} already exists!");
 
+        // Later! Duplicate detection purely bases to purhaceId, its given manually as mandatory, or on import.
+        //        May even able to come as empty from ImportTransactions... but Nordnet has it always. If comes
+        //        empty then start adding some "GEN-random" as it. That case may has to add checking if "GEN-"
+        //        then mark as duplicate also ones that "same day, same amount, same price, with GEN-". 
+        //        Its not rush, and actually it effects edits, and trades, etc so dont do before has to.
+        //        That time could also allow manually give empty, so can hit same verifications. 
+        //        Problem is doing partial small sale could get duplicated on imports if purhaceId is not match.
+
         pf.StockHoldings.Add(new SHolding()
         {
             SRef = sRef,

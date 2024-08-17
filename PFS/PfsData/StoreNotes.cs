@@ -129,7 +129,10 @@ public class StoreNotes : IDataOwner, IStockNotes
             AddHeader(sRef, note.GetHeader());
         }
         else
+        {
             _platform.PermRemove(StoreName(sRef));
+            AddHeader(sRef, null);
+        }
 
         EventNewUnsavedContent?.Invoke(this, _componentName);
     }

@@ -58,7 +58,7 @@ public class BtNordnet : BtParser
     */
     protected readonly static BtMap[] _map = [
         new BtMap(BtField.Action,           "Tapahtumatyyppi",          BtFormat.Manual,        null),          // Tapahtumatyyppi	    OSTO
-        new BtMap(BtField.UniqueId,         "Id",                       BtFormat.String,        null),          // Id	                1687464777 (same as export pdf top-right corner)
+        new BtMap(BtField.UniqueId,         "Vahvistusnumero",          BtFormat.String,        null),          // Vahvistusnumero      1687464777 (same as export pdf top-right corner)
         new BtMap(BtField.RecordDate,       "Kauppapäivä",              BtFormat.Date,          "yyyy-MM-dd"),  // Kauppapäivä	        2024-04-26	
         new BtMap(BtField.PaymentDate,      "Maksupäivä",               BtFormat.Date,          "yyyy-MM-dd"),  // Maksupäivä	        2024-04-30
         new BtMap(BtField.Note,             "Tapahtumateksti",          BtFormat.String,        null),          // Tapahtumateksti	    

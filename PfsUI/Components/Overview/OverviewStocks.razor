@@ -52,7 +52,7 @@ else
         </HeaderContent>
         <RowTemplate>
             <MudTd>
-                <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Left">
+                <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Right">
                 <MudLink Underline="Underline.Hover" @onclick="@(() => OnBtnStockMgmtLaunchAsync(@context.d.StockMeta))">$@context.d.StockMeta.symbol</MudLink>
                 </MudTooltip>
             </MudTd>

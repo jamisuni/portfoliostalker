@@ -57,7 +57,7 @@ else
         <RowTemplate>
             @* Symbol *@
             <MudTd>
-                <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Left">
+                <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Right">
                 <MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta.GetSRef()))" >$@context.d.StockMeta.symbol</MudButton>
                 </MudTooltip>    
             </MudTd>

@@ -308,7 +308,7 @@ public class StalkerXML
                     string sector = (string)underStockElem.Attribute("Sector");
                     string field = (string)underStockElem.Attribute("Field");
 
-                    int sectorPos = Array.IndexOf(ret.Sectors, ret.Sectors.FirstOrDefault(s => s.Name == sector));
+                    int sectorPos = Array.IndexOf(ret.Sectors, ret.Sectors.FirstOrDefault(s => s != null && s.Name == sector));
 
                     if (sectorPos == -1)
                         continue;
