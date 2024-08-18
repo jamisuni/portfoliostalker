@@ -55,8 +55,8 @@ public class StalkerXML
                     continue;
 
                 // XML! Under Portfolio has list of all stocks it has data / references
-                XElement pfSRefElem = new XElement(splitSRef.symbol);
-                pfSRefElem.SetAttributeValue("MarketId", splitSRef.marketId);
+                XElement pfSRefElem = new XElement("Stock");
+                pfSRefElem.SetAttributeValue("SRef", sRef);
                 if (stalkerData.PortfolioSRefs(pf.Name).Contains(sRef))
                     pfSRefElem.SetAttributeValue("Tracking", true);
                 else // so each stock goes xml, but user can keep painfull memories off from list
@@ -194,8 +194,8 @@ public class StalkerXML
             if (symbols != null && symbols.Contains(splitSRef.symbol) == false)
                 continue;
 
-            XElement myStElem = new XElement(splitSRef.symbol);
-            myStElem.SetAttributeValue("MarketId", splitSRef.marketId);
+            XElement myStElem = new XElement("Stock");
+            myStElem.SetAttributeValue("SRef", stock.SRef);
             allStElem.Add(myStElem);
 
             string[] sectors = stalkerData.GetStockSectors(stock.SRef);
@@ -295,8 +295,18 @@ public class StalkerXML
 
         foreach (XElement myStElem in rootPFS.Element("Stocks").Elements())
         {
-            MarketId marketId = (MarketId)Enum.Parse(typeof(MarketId), (string)myStElem.Attribute("MarketId"));
-            string symbol = myStElem.Name.ToString();
+            MarketId marketId = MarketId.Unknown;
+            string symbol = string.Empty;
+
+            if (myStElem.Name.ToString() == "Stock")
+            {
+                (marketId, symbol) = StockMeta.ParseSRef((string)myStElem.Attribute("SRef"));
+            }
+            else // !!!TODO!!! Remove soon, just moving off from using symbol as XML Name
+            {
+                marketId = (MarketId)Enum.Parse(typeof(MarketId), (string)myStElem.Attribute("MarketId"));
+                symbol = myStElem.Name.ToString();
+            }
 
             SStock sstock = new SStock($"{marketId}${symbol}");
             ret.Stocks.Add(sstock);
@@ -342,8 +352,18 @@ public class StalkerXML
 
             foreach ( XElement pfSRefElem in myPfElem.Elements())
             {
-                MarketId marketId = (MarketId)Enum.Parse(typeof(MarketId), (string)pfSRefElem.Attribute("MarketId"));
-                string symbol = pfSRefElem.Name.ToString();
+                MarketId marketId = MarketId.Unknown;
+                string symbol = string.Empty;
+
+                if (pfSRefElem.Name.ToString() == "Stock")
+                {
+                    (marketId, symbol) = StockMeta.ParseSRef((string)pfSRefElem.Attribute("SRef"));
+                }
+                else // !!!TODO!!! Remove soon, just moving off from using symbol as XML Name
+                {
+                    marketId = (MarketId)Enum.Parse(typeof(MarketId), (string)pfSRefElem.Attribute("MarketId"));
+                    symbol = pfSRefElem.Name.ToString();
+                }
 
                 if ((bool)pfSRefElem.Attribute("Tracking"))
                     pf.SRefs.Add($"{marketId}${symbol}");

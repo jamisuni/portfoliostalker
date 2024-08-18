@@ -44,9 +44,9 @@ public class StoreStockMetaHist : IDataOwner
         _stockHist = Array.Empty<StockMetaHist>();
     }
 
-    public void AppendNewStock(MarketId marketId, string symbol, string companyName)
+    public void AppendNewStock(MarketId marketId, string symbol, string companyName, DateOnly date)
     {
-        _stockHist = _stockHist.Append(new StockMetaHist(StockMetaHistType.AddNew, $"{marketId}${symbol}", $"{marketId}${symbol}", DateOnly.MinValue, $"Added new stock, name=[{companyName}]")).ToArray();
+        _stockHist = _stockHist.Append(new StockMetaHist(StockMetaHistType.AddNew, $"{marketId}${symbol}", $"{marketId}${symbol}", date, $"Added new stock, name=[{companyName}]")).ToArray();
     }
 
     public void AppendUpdateName(MarketId marketId, string symbol, DateOnly date, string companyName)
@@ -93,7 +93,8 @@ public class StoreStockMetaHist : IDataOwner
         {
             relatedSRefs.Add(sRef);
         }
-        return ret.Distinct().ToList();
+        // Shows actual adding day of stock as first, rest are date order (as w import add day may be after some records)
+        return ret.Distinct().OrderBy(h => h.Type == StockMetaHistType.AddNew).ThenBy(d => d.Date).ToList();
 
         // Takes sRef to be checked, and returns new sRef if has unknown found
         string LocalAdd(string sRef)

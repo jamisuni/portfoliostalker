@@ -252,11 +252,18 @@ public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
         {
             ret.Date = DateOnlyExtensions.ParseYMD((string)topElem.Attribute("Date"));
 
-            foreach (XElement stockElem in topElem.Elements())
+            foreach (XElement stockElem in topElem.Elements("Data"))
             {
-                ret.Data.Add((string)stockElem.Attribute("SRef"), new StockData(
-                    (string)stockElem.Attribute("EOD"),
-                    (string)stockElem.Attribute("Hist")));
+                try
+                {
+                    ret.Data.Add((string)stockElem.Attribute("SRef"), new StockData(
+                        (string)stockElem.Attribute("EOD"),
+                        (string)stockElem.Attribute("Hist")));
+                }
+                catch ( Exception ex )
+                {
+                    Log.Warning($"{_componentName} ImportXml failed for {(string)stockElem.Attribute("SRef")} to exception: [{ex.Message}]");
+                }
             }
         }
         return ret;

@@ -28,16 +28,17 @@ public class StoreNotes : IDataOwner, IStockNotes
 
     protected const string _componentName = "notes";
     protected const string prefixstorekey = "stocknotes_"; // ""stocknotes_NYSE_MSFT
-    protected readonly IPfsPlatform _platform;          // Later! atm notes are lost if stock market/symbol is changed
-    protected IPfsStatus _pfsStatus;
-
+    private readonly IPfsPlatform _platform;
+    private readonly IPfsStatus _pfsStatus;
+    private readonly IStockMeta _stockMetaProv;
     protected Dictionary<string, string> _cacheHeaders = new();
 
     /* !!!DOCUMENT!!! Notes
      * - Each stock can have its own user specific notes, those can be seen/edited under StockMgmt
-     * - These are really preferred to be max 10 lines or so, longer notes should be kept elsewhere
-     * - Stocks note itself is stored as own file stocknotes_NYSE_MSFT, and not hold on memory
-     * - Demo doesnt support notes
+     * - These are really preferred to be ~10 (max50) lines, longer notes should be kept elsewhere
+     * - Stocks note itself is stored as own file stocknotes_NYSE_MSFT if storing is allowed,
+     *   and if storing is not allowed then full notes are kept memory (example for demos)
+     * - If storing is allowed then only header of each note is kept on memory
      * - If first line of note starts with '>' then  its assume as header:
      *      - Header's is just single line (to first eod/endoffile), kind of personal highlights for stock
      *      - Limiting is as 120 characters maximum
@@ -45,22 +46,24 @@ public class StoreNotes : IDataOwner, IStockNotes
      *      - User can add it simply on note editing by just adding line
      * 
      * Later!
-     * - Secondary book keeping, by also storing cached headers, and using it as index to double know what notes has currently
-     * - Going to create own custom importing, someday.. that allows to bring highlights from longer notes to PFS notes
      * - Going to have "public" part on custom importing, for.. later...
+     * - notes are lost if stock market/symbol is changed
      */
 
-    public StoreNotes(IPfsPlatform pfsPlatform, IPfsStatus pfsStatus)
+    public StoreNotes(IPfsPlatform pfsPlatform, IPfsStatus pfsStatus, IStockMeta stockMetaProv)
     {
         _platform = pfsPlatform;
         _pfsStatus = pfsStatus;
-
+        _stockMetaProv = stockMetaProv;
         Init();
     }
 
     protected void Init()
     {
         _cacheHeaders = new();
+
+        if (_pfsStatus.AllowUseStorage == false)
+            return;
 
         foreach (string skey in _platform.PermGetKeys().Where(k => k.StartsWith(prefixstorekey)))
         {
@@ -120,7 +123,7 @@ public class StoreNotes : IDataOwner, IStockNotes
         if (_pfsStatus.AllowUseStorage == false)
             return;
 
-        string content = note.GetStorageFormat();
+        string content = note.GetStorageContent();
 
         if (string.IsNullOrWhiteSpace(content) == false)
         {
@@ -154,7 +157,17 @@ public class StoreNotes : IDataOwner, IStockNotes
     public void OnDataInit() { Init(); }
     public void OnDataSaveStorage() { }
 
-    public string CreateBackup() // All separate notes merged one 'file' w SRef followed w newline plus note content plus special break char
+    public string CreateBackup()
+    {
+        return CreateBackup(new List<string>());
+    }
+    
+    public string CreatePartialBackup(List<string> symbols)
+    {
+        return CreateBackup(symbols);
+    }
+
+    protected string CreateBackup(List<string> symbols)
     {
         StringBuilder sb = new();
 
@@ -163,45 +176,46 @@ public class StoreNotes : IDataOwner, IStockNotes
             string content = _platform.PermRead(skey);
 
             string sRef = StoreName2SRef(skey);
+            StockMeta sm = _stockMetaProv.Get(sRef);
+
+            if (sm == null)
+                // No meta left anymore for SRef, so its time to stop backuping it also
+                continue;
+
+            if (symbols.Count > 0 && symbols.Contains(sm.symbol) == false)
+                continue;
+
+            Note note = Get(sRef);
+
+            if (note == null)
+                continue;
 
             sb.AppendLine(_separator);
-            sb.AppendLine(sRef);
-            sb.AppendLine(content);
+            sb.AppendLine(note.CreateExportFormat(sRef));
         }
         return sb.ToString();
     }
-    
-    public string CreatePartialBackup(List<string> symbols)
-    {
-        return string.Empty;
-    }
 
     public Result RestoreBackup(string content)
-    {
+    {   // Note! This doesnt need 'AllowUseStorage' as all called  functions has it
+        //       and we do wanna call 'Store' even if not actually storing
         Init();
-
-        if (_pfsStatus.AllowUseStorage == false)
-            return new OkResult();
 
         ClearStorageContent();
 
         string[] split = content.Split(_separator);
 
-        foreach (string s in split)
+        foreach (string notestr in split)
         {
-            if (string.IsNullOrWhiteSpace(s))
+            if (string.IsNullOrWhiteSpace(notestr))
                 continue;
 
-            string sub = s.Substring(1); // has extra 
+            (string sRef, Note note, string errMsg) = Note.ParseExportFormat(notestr);
 
-            int pos = sub.IndexOf(Environment.NewLine);
+            if (string.IsNullOrEmpty(errMsg) == false)
+                continue;
 
-            if ( string.IsNullOrWhiteSpace(sub) || pos < 0) continue;
-
-            string sRef = sub.Substring(0, pos);
-            string note = sub.Substring(pos + 1);
-
-            Store(sRef, new Note(note));
+            Store(sRef, note);
         }
         return new OkResult();
     }

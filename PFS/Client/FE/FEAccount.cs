@@ -109,9 +109,6 @@ public class FEAccount : IFEAccount
         _pfsPlatform.PermClearAll();
 
         _clientData.DoInitDataOwners();
-
-
-        // _userSettings.SetLocalStorageOwner(_userSettings.SessionUsername); ??
     }
 
     public Result LoadDemo(byte[] zip)

@@ -15,6 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.en.html>.
  */
 
+using System.Text;
+
 namespace Pfs.Types;
 
 public class Note
@@ -36,7 +38,7 @@ public class Note
         return _content;
     }
 
-    public string GetStorageFormat()
+    public string GetStorageContent()
     {
         return _content;
     }
@@ -47,28 +49,99 @@ public class Note
             return null;
 
         string hdr = _content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None)[0];
-
-        if (hdr.Contains("[*") || hdr.Contains("*]"))
-            return null;
-
         return hdr.TrimStart('>');
     }
 
-    // For public reports, by adding overview or bodyText a [* text here, multilines ok *] can fetch only that text to be shown on reports
-    public string GetPublicNote()
+#if false
+
+[#NYSE$TSN#>2024-Aug: Current 0.5% is keeper, double up asap, its big business I like to own longterm! Go heavy, bite heavy!!
+- largest poultry, pork and beef processor in the entire United States, with impressive international
+  operations selling the company's products in over 140 countries.
+- The company's operations are fully vertically integrated, from breeding stock, contract farmers, 
+  feed production, processing, VAP processing, marketing and logistics.
+- Some of the largest characterizing factors in the company is the fact that the Tyson family as well 
+  as the Tyson Limited Partnership('TLP'), owns around 70.97% of the voting rights in the company
+- 10% on pork, 36% beef, 31% chicken, rest under "prepared food"
+- Historically Tyson Foods is an underperformer in times of higher economic growth(higher inflation)
+- Food production is a low-margin industry, and an increase in input costs can squeeze margins
+
+! 2024-Aug: Hoping to keep this long term, divident looks safe, debt low..so my 0.5% is all ok place here
+// ending is this.. but compilet assumes preprocessor...  #]
+
+#endif    
+
+    public string CreateExportFormat(string sRef)
     {
-        int start;
-        int end;
+        if (string.IsNullOrWhiteSpace(_content))
+            return null;
 
-        if (string.IsNullOrWhiteSpace(_content) == false)
+        return $"[#{sRef}#{_content}{Environment.NewLine}#]{Environment.NewLine}";
+    }
+
+    public static (string sRef, Note note, string errMsg) ParseExportFormat(string content)
+    {
+        string[] lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        return ParseExportFormat(ref lines);
+    }
+
+    public static (string sRef, Note note, string errMsg) ParseExportFormat(ref string[] lines, int lineStart = 0)
+    {
+        StringBuilder sb = null; // if not null then everything else is also set
+        int sbLines = 0;
+        MarketId marketId = MarketId.Unknown;
+        string symbol = string.Empty;
+
+        if (lines[lineStart].StartsWith("[#") == false)
+            return (null, null, $"Note.ParseExportFormat: Invalid call. [{lines[lineStart]}]");
+
+        string line = lines[lineStart].Substring(2);
+
+        int nextPos = line.IndexOf('#');
+
+        if (nextPos < "TSX$T".Length)
+            return (null, null, $"Note.ParseExportFormat: Invalid call. [{lines[lineStart]}]");
+
+        string stockinfo = line.Substring(0, nextPos);
+
+        (marketId, symbol) = StockMeta.TryParseSRef(stockinfo);
+
+        if (marketId == MarketId.Unknown)
+            return (null, null, $"Note.ParseExportFormat: Invalid SRef format. [{lines[lineStart]}]");
+
+        // Here we have start and we know stock its going... so lets start collecting tuff
+        sb = new StringBuilder();
+        line = line.Substring(nextPos + 1);
+        if (string.IsNullOrWhiteSpace(line))
+            sbLines = 0;
+        else
         {
-            start = _content.IndexOf("[*");
-            end = _content.IndexOf("*]");
-
-            if (start >= 0 && end >= 0 && end - start >= 5)
-                return _content.Substring(start + 2, end - start - 2);
+            sb.AppendLine(line);
+            sbLines = 1;
         }
 
-        return string.Empty;
+        for (int linePos = lineStart+1; linePos < lines.Count(); linePos++ )
+        {
+            line = lines[linePos].TrimEnd();
+
+            if (line.TrimStart().StartsWith("#]"))
+                return ($"{marketId}${symbol}", new Note(sb.ToString()), null);
+
+            else if (line.StartsWith("[#"))
+                return (null, null, $"Note.ParseExportFormat: Double start syntax error [{lines[lineStart]}]");
+
+            else if (sbLines >= 50)
+                return (null, null, $"Note.ParseExportFormat: Over 50 lines for [{lines[lineStart]}]");
+
+            else if (string.IsNullOrWhiteSpace(line))
+            {   // empty lines look ok on notes file, but not bringing them PFS as space is limited
+                continue;
+            }
+            else
+            {
+                sbLines++;
+                sb.AppendLine(line);
+            }
+        }
+        return (null, null, $"Note.ParseExportFormat: Didnt find ending for [{lines[lineStart]}]");
     }
 }

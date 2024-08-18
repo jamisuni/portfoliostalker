@@ -132,7 +132,7 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
 
         _stockMeta = _stockMeta.Append(new StockMeta(marketId, symbol.ToUpper(), companyName, _marketCurrencies.First(c => c.market == marketId).currency, ISIN)).ToArray();
 
-        _stockMetaHist.AppendNewStock(marketId, symbol, companyName);
+        _stockMetaHist.AppendNewStock(marketId, symbol, companyName, _platform.GetCurrentLocalDate());
 
         EventNewUnsavedContent?.Invoke(this, _componentName);
         return true;
@@ -399,11 +399,9 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
         return new OkResult<string>("Cmd is OK:" + string.Join(",", parseResp.Data.Select(x => x.Key + "=" + x.Value)));
     }
 
-    protected string ExportXml(List<string> symbols = null)
+    protected string ExportXml(List<string> symbols = null) // Only used for BACKUPS
     {
         XElement rootPFS = new XElement("PFS");
-
-        // Keep this separate as so much more critical information
         XElement stockMetaElem = new XElement("StockMeta");
         rootPFS.Add(stockMetaElem);
 
@@ -412,17 +410,16 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
             if (symbols != null && symbols.Contains(sm.symbol) == false)
                 continue;
 
-            XElement smElem = new XElement(sm.symbol);
-            smElem.SetAttributeValue("MarketId", sm.marketId.ToString());
+            XElement smElem = new XElement("Stock");
+            smElem.SetAttributeValue("SRef", $"{sm.marketId}${sm.symbol}");
             smElem.SetAttributeValue("Name", sm.name);
             smElem.SetAttributeValue("ISIN", sm.ISIN);
             stockMetaElem.Add(smElem);
         }
-
         return rootPFS.ToString();
     }
 
-    protected StockMeta[] ImportXml(string xml)
+    protected StockMeta[] ImportXml(string xml)             // Only used for BACKUPS
     {
         List<StockMeta> ret = new();
         XDocument xmlDoc = XDocument.Parse(xml);
@@ -434,11 +431,21 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
 
         foreach (XElement smElem in stockMetaElem.Descendants())
         {
-            string symbol = smElem.Name.ToString();
-            MarketId marketId = (MarketId)Enum.Parse(typeof(MarketId), (string)smElem.Attribute("MarketId"));
-            string name = (string)smElem.Attribute("Name");
-            string ISIN = (string)smElem.Attribute("ISIN");
-            ret.Add(new StockMeta(marketId, symbol, name, _marketCurrencies.First(c => c.market == marketId).currency, ISIN));
+            if (smElem.Name.ToString() == "Stock")
+            {
+                (MarketId marketId, string symbol) = StockMeta.ParseSRef((string)smElem.Attribute("SRef"));
+                string name = (string)smElem.Attribute("Name");
+                string ISIN = (string)smElem.Attribute("ISIN");
+                ret.Add(new StockMeta(marketId, symbol, name, _marketCurrencies.First(c => c.market == marketId).currency, ISIN));
+            }
+            else // !!!TODO!!! Remove soon, just changing format to avoid symbol on XML Names
+            {
+                string symbol = smElem.Name.ToString();
+                MarketId marketId = (MarketId)Enum.Parse(typeof(MarketId), (string)smElem.Attribute("MarketId"));
+                string name = (string)smElem.Attribute("Name");
+                string ISIN = (string)smElem.Attribute("ISIN");
+                ret.Add(new StockMeta(marketId, symbol, name, _marketCurrencies.First(c => c.market == marketId).currency, ISIN));
+            }
         }
         return ret.ToArray();
     }
