@@ -31,7 +31,9 @@ public class StoreNotes : IDataOwner, IStockNotes
     private readonly IPfsPlatform _platform;
     private readonly IPfsStatus _pfsStatus;
     private readonly IStockMeta _stockMetaProv;
-    protected Dictionary<string, string> _cacheHeaders = new();
+
+    // If AllowUseStorage then just header, otherwise if not allowed store then cache full note content
+    protected Dictionary<string, string> _cache = new();
 
     /* !!!DOCUMENT!!! Notes
      * - Each stock can have its own user specific notes, those can be seen/edited under StockMgmt
@@ -60,7 +62,7 @@ public class StoreNotes : IDataOwner, IStockNotes
 
     protected void Init()
     {
-        _cacheHeaders = new();
+        _cache = new();
 
         if (_pfsStatus.AllowUseStorage == false)
             return;
@@ -68,76 +70,81 @@ public class StoreNotes : IDataOwner, IStockNotes
         foreach (string skey in _platform.PermGetKeys().Where(k => k.StartsWith(prefixstorekey)))
         {
             string sRef = StoreName2SRef(skey);
-            Note note = Get(sRef);
-            if (note == null)
-                continue;
-
-            string hdr = note.GetHeader();
-
-            if (hdr == null)
-                continue;
-
-            AddHeader(sRef, hdr);
+            // Read note, and get it header to be added cache
+            AddToCache(sRef, Get(sRef)?.GetHeader());
         }
     }
 
     public string GetHeader(string sRef)
     {
-        if (_cacheHeaders.ContainsKey(sRef))
-            return _cacheHeaders[sRef];
+        if (_cache.ContainsKey(sRef) == false)
+            return null;
 
-        return string.Empty;
-    }
-
-    protected void AddHeader(string sRef, string hdr)
-    {
-        if ( string.IsNullOrWhiteSpace(hdr) )
-        {
-            if (_cacheHeaders.ContainsKey(sRef))
-                _cacheHeaders.Remove(sRef);
-        }
+        if (_pfsStatus.AllowUseStorage == false)
+            return new Note(_cache[sRef]).GetHeader(); // may return null
         else
-        {
-            if (_cacheHeaders.ContainsKey(sRef))
-                _cacheHeaders[sRef] = hdr;
-            else
-                _cacheHeaders.Add(sRef, hdr);
-        }
+            return _cache[sRef];
     }
 
     public Note Get(string sRef)
     {
-        if (_pfsStatus.AllowUseStorage == false)
-            return null;
+        if (_pfsStatus.AllowUseStorage)
+        {
+            string content = _platform.PermRead(StoreName(sRef));
 
-        string content = _platform.PermRead(StoreName(sRef));
+            if (string.IsNullOrEmpty(content))
+                return null;
 
-        if (string.IsNullOrEmpty(content))
-            return null;
-
-        return new Note(content);
+            return new Note(content);
+        }
+        else // demo etc uses cache for full content
+        {
+            if (_cache.ContainsKey(sRef))
+                return new Note(_cache[sRef]);
+        }
+        return null;
     }
 
     public void Store(string sRef, Note note)
     {
-        if (_pfsStatus.AllowUseStorage == false)
-            return;
-
         string content = note.GetStorageContent();
 
-        if (string.IsNullOrWhiteSpace(content) == false)
+        if (_pfsStatus.AllowUseStorage)
         {
-            _platform.PermWrite(StoreName(sRef), content);
+            if (string.IsNullOrWhiteSpace(content) == false)
+            {
+                _platform.PermWrite(StoreName(sRef), content);
 
-            AddHeader(sRef, note.GetHeader());
+                AddToCache(sRef, note.GetHeader());
+            }
+            else
+            {
+                _platform.PermRemove(StoreName(sRef));
+                AddToCache(sRef, null);
+            }
+
+            EventNewUnsavedContent?.Invoke(this, _componentName);
+        }
+        else // demo etc uses cache for full content
+        {
+            AddToCache(sRef, content);
+        }
+    }
+
+    protected void AddToCache(string sRef, string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            if (_cache.ContainsKey(sRef))
+                _cache.Remove(sRef);
         }
         else
         {
-            _platform.PermRemove(StoreName(sRef));
-            AddHeader(sRef, null);
+            if (_cache.ContainsKey(sRef))
+                _cache[sRef] = content;
+            else
+                _cache.Add(sRef, content);
         }
-
-        EventNewUnsavedContent?.Invoke(this, _componentName);
     }
 
     protected static string StoreName(string sRef)

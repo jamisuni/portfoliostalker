@@ -30,7 +30,7 @@ public class Note
 
     public Note(string content)
     {
-        _content = content;
+        _content = new string(content);
     }
 
     public string Get()
