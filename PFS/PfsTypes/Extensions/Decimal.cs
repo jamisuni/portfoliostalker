@@ -15,6 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.en.html>.
  */
 
+using System.Globalization;
+
 namespace Pfs.Types;
 
 public static class DecimalExtensions
@@ -80,5 +82,10 @@ public static class DecimalExtensions
             return decimal.Round(value, 1);
         else
             return decimal.Round(value, 0);
+    }
+
+    public static decimal Parse(string str) // call with: DecimalExtensions.Parse(
+    {   // Had issue with region effecting to parsing result of decimals, so this allows either way
+        return decimal.Parse(str.Replace(',', '.'), CultureInfo.InvariantCulture);
     }
 }

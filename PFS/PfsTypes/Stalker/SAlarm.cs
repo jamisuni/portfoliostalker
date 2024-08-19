@@ -85,7 +85,7 @@ public abstract class SAlarm
             return null; // Handle this! Dont waste full data for broken alarm!
 
         SAlarmType alarmType = Enum.Parse<SAlarmType>(split[0]);
-        decimal level = decimal.Parse(split[1]);
+        decimal level = DecimalExtensions.Parse(split[1]);
         string note = string.Empty;
         string prms = string.Empty;
 

@@ -240,10 +240,10 @@ public class ExtTwelveData : IExtProvider, IExtDataProvider, IExtCurrencyProvide
                 FullEOD eod = new()
                 {
                     //                    DayTime = DateTime.Now, // best that can be done here, but actually pretty accurate                   !!!TODO!!! 2024 - needs at least 'time' there? => Own Intra structure
-                    //                    Latest = Decimal.Parse(companyData.values[0].close),
-                    High = Decimal.Parse(companyData.values[0].high),
-                    Low = Decimal.Parse(companyData.values[0].low),
-                    Open = Decimal.Parse(companyData.values[0].open),
+                    //                    Latest = DecimalExtensions.Parse(companyData.values[0].close),
+                    High = DecimalExtensions.Parse(companyData.values[0].high),
+                    Low = DecimalExtensions.Parse(companyData.values[0].low),
+                    Open = DecimalExtensions.Parse(companyData.values[0].open),
                     PrevClose = -1,     // dont start pulling it here from previous if dont have field, let central place to do pulling from prev day
                     Volume = int.Parse(companyData.values[0].volume),
                 };
@@ -286,11 +286,11 @@ public class ExtTwelveData : IExtProvider, IExtDataProvider, IExtCurrencyProvide
 
                     FullEOD eod = new()
                     {
-//                        DayTime = DateTime.Now,
-  //                      Latest = Decimal.Parse(companyData.values[0].close),                  !!!TODO!!! 2024 - needs at least 'time' there? => Own Intra structure
-                        High = Decimal.Parse(companyData.values[0].high),
-                        Low = Decimal.Parse(companyData.values[0].low),
-                        Open = Decimal.Parse(companyData.values[0].open),
+                        //                        DayTime = DateTime.Now,
+                        //                      Latest = DecimalExtensions.Parse(companyData.values[0].close),                  !!!TODO!!! 2024 - needs at least 'time' there? => Own Intra structure
+                        High = DecimalExtensions.Parse(companyData.values[0].high),
+                        Low = DecimalExtensions.Parse(companyData.values[0].low),
+                        Open = DecimalExtensions.Parse(companyData.values[0].open),
                         PrevClose = -1,     // dont start pulling it here from previous if dont have field, let central place to do pulling from prev day
                         Volume = int.Parse(companyData.values[0].volume),
                     };
@@ -379,7 +379,7 @@ public class ExtTwelveData : IExtProvider, IExtDataProvider, IExtCurrencyProvide
                 FullEOD eod = new()
                 {
                     Date = DateOnly.FromDateTime(DateTime.ParseExact(companyData.datetime, "yyyy-MM-dd", CultureInfo.InvariantCulture)),
-                    Close = Decimal.Parse(companyData.close),
+                    Close = DecimalExtensions.Parse(companyData.close),
                     High = -1,
                     Low = -1,
                     Open = -1,
@@ -436,10 +436,10 @@ public class ExtTwelveData : IExtProvider, IExtDataProvider, IExtCurrencyProvide
                     FullEOD eod = new()
                     {
                         Date = DateOnly.FromDateTime(DateTime.ParseExact(companyData.values[0].datetime, "yyyy-MM-dd", CultureInfo.InvariantCulture)),
-                        Close = Decimal.Parse(companyData.values[0].close),
-                        High = Decimal.Parse(companyData.values[0].high),
-                        Low = Decimal.Parse(companyData.values[0].low),
-                        Open = Decimal.Parse(companyData.values[0].open),
+                        Close = DecimalExtensions.Parse(companyData.values[0].close),
+                        High = DecimalExtensions.Parse(companyData.values[0].high),
+                        Low = DecimalExtensions.Parse(companyData.values[0].low),
+                        Open = DecimalExtensions.Parse(companyData.values[0].open),
                         PrevClose = -1,     // dont start pulling it here from previous if dont have field, let central place to do pulling from prev day
                         Volume = int.Parse(companyData.values[0].volume),
                     };

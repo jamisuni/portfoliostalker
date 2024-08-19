@@ -264,7 +264,7 @@ public class StalkerParam
 
             if (templateSegments.Count() >= 2 && templateSegments[1].Length > 0)
             {
-                decimal min = decimal.Parse(templateSegments[1]);
+                decimal min = DecimalExtensions.Parse(templateSegments[1]);
 
                 if (value < min)
                 {
@@ -275,7 +275,7 @@ public class StalkerParam
 
             if (templateSegments.Count() >= 3 && templateSegments[2].Length > 0)
             {
-                decimal max = decimal.Parse(templateSegments[2]);
+                decimal max = DecimalExtensions.Parse(templateSegments[2]);
 
                 if (value > max)
                 {
@@ -386,7 +386,7 @@ public class StalkerParam
     public static implicit operator string(StalkerParam param) { return param.Value; }
     public static implicit operator int(StalkerParam param) { return int.Parse(param.Value); }
     public static implicit operator double(StalkerParam param) { return double.Parse(param.Value); }
-    public static implicit operator decimal(StalkerParam param) { return decimal.Parse(param.Value); }
+    public static implicit operator decimal(StalkerParam param) { return DecimalExtensions.Parse(param.Value); }
     public static implicit operator DateOnly(StalkerParam param) { return DateOnly.ParseExact(param.Value, "yyyy-MM-dd", CultureInfo.InvariantCulture); }
     public static implicit operator SAlarmType(StalkerParam param) {  return (SAlarmType)Enum.Parse(typeof(SAlarmType), param.Value); }
     public static implicit operator SOrder.OrderType(StalkerParam param) { return (SOrder.OrderType)Enum.Parse(typeof(SOrder.OrderType), param.Value); }

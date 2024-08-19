@@ -342,7 +342,7 @@ public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
             for (int p = 0; p < MaxWorkDays; p++)
             {
                 if (string.IsNullOrWhiteSpace(hist[p]) == false)
-                    History[p] = decimal.Parse(hist[p]);
+                    History[p] = DecimalExtensions.Parse(hist[p]);
             }
         }
 

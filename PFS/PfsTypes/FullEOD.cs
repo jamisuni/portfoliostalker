@@ -34,7 +34,7 @@ public class ClosingEOD
 
         string[] split = storageFormat.Split(',');
         Date = DateOnly.ParseExact(split[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
-        Close = decimal.Parse(split[1]);
+        Close = DecimalExtensions.Parse(split[1]);
     }
 }
 
@@ -79,11 +79,11 @@ public class FullEOD : ClosingEOD
         string[] split = storageFormat.Split(',');
 
         Date = DateOnly.ParseExact(split[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
-        Close = decimal.Parse(split[1]);
-        Open = decimal.Parse(split[2]);
-        High = decimal.Parse(split[3]);
-        Low = decimal.Parse(split[4]);
-        PrevClose = decimal.Parse(split[5]);
+        Close = DecimalExtensions.Parse(split[1]);
+        Open = DecimalExtensions.Parse(split[2]);
+        High = DecimalExtensions.Parse(split[3]);
+        Low = DecimalExtensions.Parse(split[4]);
+        PrevClose = DecimalExtensions.Parse(split[5]);
         Volume = int.Parse(split[6]);
     }
 

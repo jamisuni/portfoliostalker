@@ -131,7 +131,7 @@ public class UserEvent
                 case EvFieldId.EodClose:
                 case EvFieldId.EodLow:
                 case EvFieldId.EodHigh:
-                    value = decimal.Parse(split[1]);
+                    value = DecimalExtensions.Parse(split[1]);
                     break;
 
                 default:
