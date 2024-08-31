@@ -1,0 +1,43 @@
+﻿@using Pfs.Types
+
+@namespace PfsUI.Components
+
+<MudDialog Style="width: 200px;">
+
+    <DialogContent>
+
+        @if (_allActiveMarkets.Count == 0)
+        {
+            <b>Nothing to do, all stocks have latest EOD</b>
+        }
+        else
+        {
+            <MudSelect T="string" Label="Market" HelperText="Select markets" MultiSelection="true" @bind-Value="SelMarketsTrigger">
+                @foreach (MarketId marketId in _allActiveMarkets)
+                {
+                    <MudSelectItem T="string" Value="@marketId.ToString()">@marketId</MudSelectItem>
+                }
+            </MudSelect>
+
+            @if (_availableProviders.Count > 0)
+            {
+                <MudSelect T="ExtProviderId" Label="Select" Strict="true" Variant="Variant.Outlined" Format="F2" @bind-Value="_selectedProvider">
+                    @{
+                        foreach (ExtProviderId providerId in _availableProviders)
+                        {
+                            <MudSelectItem T="ExtProviderId" Value="@providerId">@providerId.ToString()</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+            }
+        }
+    </DialogContent>
+
+    <DialogActions>
+        @if (_availableProviders.Count > 0 && _selectedProvider != ExtProviderId.Unknown)
+        {
+            <MudButton OnClick="OnForceStockFetch">Fetch</MudButton>
+        }
+        <MudButton OnClick="DlgCancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

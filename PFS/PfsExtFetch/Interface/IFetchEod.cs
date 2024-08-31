@@ -21,7 +21,8 @@ namespace Pfs.ExtFetch;
 
 public interface IFetchEod
 {
-    void Fetch(Dictionary<MarketId, List<string>> symbols); // thread protected (each market has one/many symbols w ',' separation)
+    // if opt provider given then does all fetching with that wo caring rules
+    void Fetch(Dictionary<MarketId, List<string>> symbols, ExtProviderId provider = ExtProviderId.Unknown); 
 
     FetchProgress GetFetchProgress();
 

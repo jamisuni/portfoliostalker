@@ -72,13 +72,19 @@ internal class FetchEodPending
         }
     }
 
-    public void AddToPending(MarketId marketId, string symbols)
+    public void AddToPending(MarketId marketId, string symbols, ExtProviderId enforceProvider = ExtProviderId.Unknown)
     {
         _noJobsLeft = new(); // clear blacklist
 
         foreach ( string symbol in symbols.Split(','))
         {
-            // First needs to see if there is any dedicated rules for this symbol
+            if ( enforceProvider != ExtProviderId.Unknown )
+            {   // Allows fetch to enforce fetching to specific provider (tracking report)
+                _priority[enforceProvider].Add($"{marketId}${symbol}");
+                continue;
+            }
+
+            // See if there is any dedicated rules for this symbol
             ExtProviderId provId = _fetchConfig.GetDedicatedProviderForSymbol(marketId, symbol);
             if (provId != ExtProviderId.Unknown)
             {

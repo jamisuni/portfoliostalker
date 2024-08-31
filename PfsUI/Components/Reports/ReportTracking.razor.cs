@@ -137,6 +137,16 @@ public partial class ReportTracking
             ReloadReport();
     }
 
+    protected async Task OnForceFetchBtnAsync()
+    {
+        DialogOptions widerOpt = new DialogOptions() { MaxWidth = MaxWidth.Medium, CloseButton = true };
+        var dialog = Dialog.Show<DlgForceStockFetch>("Force Fetch", new DialogParameters(), widerOpt);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            ReloadReport();
+    }
+
     private async Task DoDeleteStockAsync(ViewTrackingData entry)
     {
         bool? result = await Dialog.ShowMessageBox("Sure?", "Going to remove stock totally!", yesText: "Aye", cancelText: "Cancel");

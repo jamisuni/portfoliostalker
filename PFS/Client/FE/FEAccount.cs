@@ -22,6 +22,9 @@ using Pfs.Types;
 using System.Collections.ObjectModel;
 using static Pfs.Client.IFEAccount;
 using static Pfs.Data.UserEvent;
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using System.Diagnostics.SymbolStore;
 
 namespace Pfs.Client;
 
@@ -176,6 +179,24 @@ public class FEAccount : IFEAccount
         return _fetchEod.GetFetchProgress();
     }
 
+    public Dictionary<MarketId, List<string>> GetExpiredStocks()
+    {
+        Dictionary<MarketId, List<string>> ret = new();
+
+        (int _, List<ExpiredStocks.Expired> expired) = ExpiredStocks.GetExpiredEods(_pfsPlatform.GetCurrentUtcTime(), _stockMetaProv, _latestEodProv, _marketMetaProv);
+
+        foreach (ExpiredStocks.Expired ex in expired)
+        {
+            (MarketId marketId, string symbol) = StockMeta.ParseSRef(ex.SRef);
+
+            if (ret.ContainsKey(marketId) == false)
+                ret.Add(marketId, new());
+
+            ret[marketId].Add(symbol);
+        }
+        return ret;
+    }
+
     public (int fetchAmount, int pendingAmount) FetchExpiredStocks()
     {
         (int _, List<ExpiredStocks.Expired> expired) = ExpiredStocks.GetExpiredEods(_pfsPlatform.GetCurrentUtcTime(), _stockMetaProv, _latestEodProv, _marketMetaProv);
@@ -217,6 +238,11 @@ public class FEAccount : IFEAccount
         Dictionary<MarketId, List<string>> fetch = new();
         fetch.Add(marketId, new List<string>() { symbol });
         _fetchEod.Fetch(fetch);
+    }
+
+    public void ForceFetchToProvider(ExtProviderId provider, Dictionary<MarketId, List<string>> stocks)
+    {
+        _fetchEod.Fetch(stocks, provider);
     }
 
     public async Task<Dictionary<ExtProviderId, Result<ClosingEOD>>> TestStockFetchingAsync(MarketId marketId, string symbol, ExtProviderId[] providers)

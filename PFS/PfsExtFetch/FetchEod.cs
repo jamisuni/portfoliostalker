@@ -48,6 +48,7 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
     protected readonly IPfsProvConfig _provConfig;
     protected readonly IMarketMeta _marketMetaProv;
     private readonly FetchEodPending _pendingSymbols;
+    protected ExtProviderId _newFetchEnforceProvider = ExtProviderId.Unknown;
     protected ConcurrentQueue<(MarketId market, string symbols)> _newFetch = new(); // <= recv reqs
     private FetchEodTask[] _fetchTask;
     protected Dictionary<MarketId, DateOnly> _latestCloseDate = null;
@@ -158,7 +159,7 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
         return;
     }
 
-    public void Fetch(Dictionary<MarketId, List<string>> symbols)                                         // IFetchEod - could be wrong task so just queue
+    public void Fetch(Dictionary<MarketId, List<string>> symbols, ExtProviderId provider = ExtProviderId.Unknown) // IFetchEod - could be wrong task so just queue
     {
         if (_pendingSymbols.TotalPending() > 0)
             return; // silent failure, as not supposed to happen with UI
@@ -184,6 +185,9 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
 
         // Note! Fixing expected date per fetch time, so anything older than this is rejected
         Local_UpdLastCloseDateForMarkets();
+
+        // Most time this is unknown, but tracking has force button that allows to enforce all fetch to specific provider
+        _newFetchEnforceProvider = provider;
 
         foreach ( KeyValuePair<MarketId, List<string>> kvp in symbols)
             // Goes to queue as dont wanna risk thread issues more than this -> OnUpdateAsync
@@ -284,8 +288,8 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
     {
         if (_newFetch.IsEmpty == false)
         {   // All new requests are processed here, as we do not wanna risk thread issues
-            if (_newFetch.TryDequeue(out (MarketId marketId, string symbols) result) )
-                _pendingSymbols.AddToPending(result.marketId, result.symbols);
+            if (_newFetch.TryDequeue(out (MarketId marketId, string symbols) result))
+                _pendingSymbols.AddToPending(result.marketId, result.symbols, _newFetchEnforceProvider);
         }
 
         bool finishedAnything = false;

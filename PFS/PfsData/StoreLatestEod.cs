@@ -80,13 +80,8 @@ public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
             {
                 List<string> remove = new();
                 foreach (KeyValuePair<string, StockData> kvp in _d.Data)
-                {   // As months have diff amount of market days, on moving next month needs clean unused records from end
+                    // As months have diff amount of market days, on moving next month needs clean unused records from end
                     kvp.Value.ResetEndOfMonthAfter(_d.Date);
-
-                    if ( kvp.Value.IsEmpty() == true)
-                        // Also end of month going to look if has stocks those not fetching data anymore to get rid of them
-                        remove.Add(kvp.Key);
-                }
 
                 foreach ( string r in remove)
                     _d.Data.Remove(r);
@@ -256,9 +251,13 @@ public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
             {
                 try
                 {
-                    ret.Data.Add((string)stockElem.Attribute("SRef"), new StockData(
-                        (string)stockElem.Attribute("EOD"),
-                        (string)stockElem.Attribute("Hist")));
+                    StockData sd = new ((string)stockElem.Attribute("EOD"), (string)stockElem.Attribute("Hist"));
+
+                    if (sd.IsEmpty() && sd.EOD.Date < _platform.GetCurrentUtcDate().AddMonths(-1))
+                        // there is no history, and last history fetched is over month old -> CLEANUP!
+                        continue;
+
+                    ret.Data.Add((string)stockElem.Attribute("SRef"), sd);
                 }
                 catch ( Exception ex )
                 {
