@@ -80,6 +80,8 @@ public class AppConfig : ICmdHandler, IDataOwner
 
         { AppCfgId.HideCompanyName,                 new AppCfgDef(0) },     // 0 == false, 1 == true
 
+        { AppCfgId.OverviewStockAmount,             new AppCfgDef(15) },
+
     }.ToImmutableDictionary();
 
     protected Dictionary<AppCfgId, int> _configs = new();

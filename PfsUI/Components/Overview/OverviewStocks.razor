@@ -1,13 +1,13 @@
 ﻿@namespace PfsUI.Components
 @using Pfs.Types
 
-@if (_viewTop15 == null)
+@if (_viewTopNN == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <MudTable T="View" Items="@_viewTop15" FixedHeader="true" Height="418px" Dense="true" >
+    <MudTable T="View" Items="@_viewTopNN" FixedHeader="true" Height="418px" Dense="true" >
         <ColGroup>
             <col style="width: 4%;" />  @* Symbol *@
             @if (_viewCompanyNameColumn)

@@ -108,7 +108,7 @@ public class FEReport : IFEReport
         ReportFilters filter = ReportFilters.Default;
         IReportPreCalc preCalc = _reportPreCalcColl.Get(ReportId.Overview, filter);
 
-        return ReportOverviewGroups.GenerateReport(filter, preCalc, _clientStalker, _latestRatesProv);
+        return ReportOverviewGroups.GenerateReport(filter, preCalc, _pfsStatus, _clientStalker, _latestRatesProv);
     }
 
     public List<OverviewStocksData> GetOverviewStocks()

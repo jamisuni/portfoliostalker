@@ -30,10 +30,11 @@ public partial class OverviewStocks
 
     protected List<OverviewStocksData> _reportData = null;  // Contains absolute all stocks those can be included any pages
     protected List<View> _viewStocks = null;                // all stocks those are allowed to be part of current group
-    protected List<View> _viewTop15 = null;                 // Actual 15 those are shown on time per column/sorting selections
+    protected List<View> _viewTopNN = null;                 // Actual 15 those are shown on time per column/sorting selections
     protected bool _viewOrdersColumn = false;
     protected bool _viewHoldingsColumn = false;
     protected bool _viewCompanyNameColumn = true;
+    protected int _viewStockAmount = 15;
 
     protected enum BTN
     {
@@ -66,6 +67,7 @@ public partial class OverviewStocks
         _reportData = Pfs.Report().GetOverviewStocks();
 
         _viewCompanyNameColumn = Pfs.Account().GetAppCfg(AppCfgId.HideCompanyName) == 0;
+        _viewStockAmount = Pfs.Account().GetAppCfg(AppCfgId.OverviewStockAmount);
 
         // Note! Nothing happens before owner call's 'OnUpdateReport'
     }
@@ -166,41 +168,41 @@ public partial class OverviewStocks
     protected void OnUpdateReport()
     {
         if (_BTN[BTN.Latest] == _btnNegative)
-            _viewTop15 = _viewStocks.OrderBy(s => s.d.RCEod?.ChangeP).ToList();
+            _viewTopNN = _viewStocks.OrderBy(s => s.d.RCEod?.ChangeP).ToList();
         else if (_BTN[BTN.Latest] == _btnPositive)
-            _viewTop15 = _viewStocks.OrderByDescending(s => s.d.RCEod?.ChangeP).ToList();
+            _viewTopNN = _viewStocks.OrderByDescending(s => s.d.RCEod?.ChangeP).ToList();
 
         if (_BTN[BTN.ExCol0] == _btnNegative)
-            _viewTop15 = _viewStocks.OrderBy(s => s.d.ExCol[0].Sort()).ToList();
+            _viewTopNN = _viewStocks.OrderBy(s => s.d.ExCol[0].Sort()).ToList();
         else if (_BTN[BTN.ExCol0] == _btnPositive)
-            _viewTop15 = _viewStocks.OrderByDescending(s => s.d.ExCol[0].Sort()).ToList();
+            _viewTopNN = _viewStocks.OrderByDescending(s => s.d.ExCol[0].Sort()).ToList();
 
         if (_BTN[BTN.ExCol1] == _btnNegative)
-            _viewTop15 = _viewStocks.OrderBy(s => s.d.ExCol[1].Sort()).ToList();
+            _viewTopNN = _viewStocks.OrderBy(s => s.d.ExCol[1].Sort()).ToList();
         else if (_BTN[BTN.ExCol1] == _btnPositive)
-            _viewTop15 = _viewStocks.OrderByDescending(s => s.d.ExCol[1].Sort()).ToList();
+            _viewTopNN = _viewStocks.OrderByDescending(s => s.d.ExCol[1].Sort()).ToList();
 
         if (_BTN[BTN.ExCol2] == _btnNegative)
-            _viewTop15 = _viewStocks.OrderBy(s => s.d.ExCol[2].Sort()).ToList();
+            _viewTopNN = _viewStocks.OrderBy(s => s.d.ExCol[2].Sort()).ToList();
         else if (_BTN[BTN.ExCol2] == _btnPositive)
-            _viewTop15 = _viewStocks.OrderByDescending(s => s.d.ExCol[2].Sort()).ToList();
+            _viewTopNN = _viewStocks.OrderByDescending(s => s.d.ExCol[2].Sort()).ToList();
 
         if (_BTN[BTN.ExCol3] == _btnNegative)
-            _viewTop15 = _viewStocks.OrderBy(s => s.d.ExCol[3].Sort()).ToList();
+            _viewTopNN = _viewStocks.OrderBy(s => s.d.ExCol[3].Sort()).ToList();
         else if (_BTN[BTN.ExCol3] == _btnPositive)
-            _viewTop15 = _viewStocks.OrderByDescending(s => s.d.ExCol[3].Sort()).ToList();
+            _viewTopNN = _viewStocks.OrderByDescending(s => s.d.ExCol[3].Sort()).ToList();
 
         if (_BTN[BTN.Alarm] == _btnNegative)
-            _viewTop15 = _viewStocks.OrderByDescending(s => s.d.RRAlarm?.UnderP.HasValue).ThenByDescending(s => s.d.RRAlarm?.UnderP).ToList(); // top all w alarm, sorted by %
+            _viewTopNN = _viewStocks.OrderByDescending(s => s.d.RRAlarm?.UnderP.HasValue).ThenByDescending(s => s.d.RRAlarm?.UnderP).ToList(); // top all w alarm, sorted by %
         else if (_BTN[BTN.Alarm] == _btnPositive)
-            _viewTop15 = _viewStocks.OrderByDescending(s => s.d.RRAlarm?.OverP.HasValue).ThenByDescending(s => s.d.RRAlarm?.OverP).ToList();
+            _viewTopNN = _viewStocks.OrderByDescending(s => s.d.RRAlarm?.OverP.HasValue).ThenByDescending(s => s.d.RRAlarm?.OverP).ToList();
 
         if (_BTN[BTN.Order] == _btnNegative)
-            _viewTop15 = _viewStocks.OrderByDescending(s => s.Order?.SO.Type == SOrder.OrderType.Buy).ThenByDescending(s => s.d.RRAlarm?.UnderP).ToList();
+            _viewTopNN = _viewStocks.OrderByDescending(s => s.Order?.SO.Type == SOrder.OrderType.Buy).ThenByDescending(s => s.d.RRAlarm?.UnderP).ToList();
         else if (_BTN[BTN.Order] == _btnPositive)
-            _viewTop15 = _viewStocks.OrderByDescending(s => s.Order?.SO.Type == SOrder.OrderType.Sell).ThenByDescending(s => s.d.RRAlarm?.OverP).ToList();
+            _viewTopNN = _viewStocks.OrderByDescending(s => s.Order?.SO.Type == SOrder.OrderType.Sell).ThenByDescending(s => s.d.RRAlarm?.OverP).ToList();
 
-        _viewTop15 = _viewTop15.Take(15).ToList();
+        _viewTopNN = _viewTopNN.Take(_viewStockAmount).ToList();
 
         StateHasChanged();
     }

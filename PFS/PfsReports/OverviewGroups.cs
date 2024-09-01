@@ -22,7 +22,7 @@ namespace Pfs.Reports;
 
 public class ReportOverviewGroups
 {
-    public static Result<List<OverviewGroupsData>> GenerateReport(IReportFilters reportParams, IReportPreCalc collector, StalkerData stalkerData, ILatestRates ratesProv)
+    public static Result<List<OverviewGroupsData>> GenerateReport(IReportFilters reportParams, IReportPreCalc collector, IPfsStatus pfsStatus, StalkerData stalkerData, ILatestRates ratesProv)
     {
         List<OverviewGroupsData> ret = new();
 
@@ -40,6 +40,11 @@ public class ReportOverviewGroups
             Name = "Investments",
         };
         ret.Add(stockHoldings);
+        OverviewGroupsData topValuation = new()
+        {
+            Name = "Top Valuations",
+        };
+        ret.Add(topValuation);
         OverviewGroupsData stockOldies = new()
         {
             Name = "Oldies",
@@ -63,6 +68,11 @@ public class ReportOverviewGroups
             else
                 Local_AddStock(stockOthers, stock);
         }
+
+        // Top Holdings is NN from Investment per current valuation
+        reportStocks.Where(s => s.Holdings.Count > 0).ToList()
+                                 .OrderByDescending(s => s.RCTotalHold.HcValuation).Take(pfsStatus.GetAppCfg(AppCfgId.OverviewStockAmount)).ToList()
+                                 .ForEach(s => Local_AddStock(topValuation, s));
 
         // Then add each portfolio separately
 

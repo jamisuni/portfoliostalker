@@ -36,4 +36,6 @@ public enum AppCfgId : int
     ExtraColumn3,
 
     HideCompanyName,
+
+    OverviewStockAmount,
 }
