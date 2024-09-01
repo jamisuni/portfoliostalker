@@ -166,4 +166,9 @@ public class FEConfig : IFEConfig
             return string.Join(',', ret);
         }
     }
+
+    public void SetEodFetchDedicatedProviderForSymbol(MarketId marketId, string symbol, ExtProviderId providerId)
+    {
+        _fetchConfig.SetDedicatedProviderForSymbol(marketId, symbol, providerId);
+    }
 }

@@ -31,10 +31,10 @@ public class PfsClientAccess
     protected IFECmdTerminal _feCmd;
     protected IFEAccount _feAccount;
     protected IFEConfig _feConfig;
-    protected IFEWaiting _feWaiting;
+    protected IFEClient _feClient;
     protected IFEReport _feReport;
 
-    public PfsClientAccess(IPfsPlatform pfsClientPlatform, Client client, IFEStalker stalker, IFECmdTerminal clientCmdTerminal, IFEAccount feAccount, IFEConfig feConfig, IFEWaiting feWaiting, IFEReport feReport)
+    public PfsClientAccess(IPfsPlatform pfsClientPlatform, Client client, IFEStalker stalker, IFECmdTerminal clientCmdTerminal, IFEAccount feAccount, IFEConfig feConfig, IFEClient feWaiting, IFEReport feReport)
     {
         _platform = pfsClientPlatform;
         _client = client;
@@ -46,7 +46,7 @@ public class PfsClientAccess
 
         _feAccount = feAccount;
         _feConfig = feConfig;
-        _feWaiting = feWaiting;
+        _feClient = feWaiting;
         _feReport = feReport;
     }
 
@@ -65,7 +65,7 @@ public class PfsClientAccess
 
     public ref IFEStalker Stalker() { return ref _feStalker; }
 
-    public ref IFEWaiting Waiting() { return ref _feWaiting; }
+    public ref IFEClient Client() { return ref _feClient; }
 
     public ref IFEReport Report()   { return ref _feReport; }
 

@@ -56,7 +56,7 @@ public partial class DlgTestStockFetch
 
         public ExtProviderId ProvId = ProvId;
 
-        public ClosingEOD Result;
+        public FullEOD Result;
 
         public string ErrorMsg;
 
@@ -65,6 +65,7 @@ public partial class DlgTestStockFetch
             selection = 0,
             fetching,
             result,
+            older,
             failed,
         }
     }
@@ -105,24 +106,28 @@ public partial class DlgTestStockFetch
         _lockFetchBtn = true;
 
         _availableProviders.Where(fp => fp.Use && fp.State == FetchProvider.StateId.selection).ToList().ForEach(fp => fp.State = FetchProvider.StateId.fetching);
+        MarketStatus marketStatus = Pfs.Account().GetMarketStatus().First(m => m.market.ID == Market);
 
         StateHasChanged();
 
-        Dictionary<ExtProviderId, Result<ClosingEOD>> result = await Pfs.Account().TestStockFetchingAsync(Market, Symbol, useProviders.ToArray());
+        Dictionary<ExtProviderId, Result<FullEOD>> result = await Pfs.Account().TestStockFetchingAsync(Market, Symbol, useProviders.ToArray());
 
-        foreach ( KeyValuePair<ExtProviderId, Result<ClosingEOD>> kvp in result )
+        foreach ( KeyValuePair<ExtProviderId, Result<FullEOD>> kvp in result )
         {
             FetchProvider fp = _availableProviders.Single(p => p.ProvId == kvp.Key);
 
             if ( kvp.Value.Ok )
             {
-                fp.State = FetchProvider.StateId.result;
                 fp.Result = kvp.Value.Data;
+                if (marketStatus.lastDate > fp.Result.Date)
+                    fp.State = FetchProvider.StateId.older;
+                else
+                    fp.State = FetchProvider.StateId.result;
             }
             else
             {
                 fp.State = FetchProvider.StateId.failed;
-                fp.ErrorMsg = (kvp.Value as FailResult<ClosingEOD>).Message;
+                fp.ErrorMsg = (kvp.Value as FailResult<FullEOD>).Message;
             }
         }
         if ( _availableProviders.Where(fp => fp.Use && fp.State == FetchProvider.StateId.selection).Count() > 0 )
@@ -136,14 +141,16 @@ public partial class DlgTestStockFetch
         if (Pfs.Stalker().GetStockMeta(Market, Symbol) == null)
             return;
 
-        // Decision! Cant see point to add it for EOD's, as cant keep doing this everyday anyway
-        //
-        // Later!    Could add here functionality that calls dedicated "set-dedicated Sref provider"
-        //           so press here would add dedicated rule for fetching this stock after that with
-        //           selected provider. Needs confirm msg box. Code side this would be remove old 
-        //           rule and add new... but really not urgent... so maybe someday...
+        Pfs.Client().AddEod(Market, Symbol, fp.Result);
 
-        // MudDialog.Close();
+        MudDialog.Close();
+    }
+
+    protected async Task AddFetchRuleAsync(FetchProvider fp)
+    {
+        Pfs.Config().SetEodFetchDedicatedProviderForSymbol(Market, Symbol, fp.ProvId);
+
+        await Dialog.ShowMessageBox("Fetch Rule Added!", $"{Market}${Symbol} on future is fetched wih {fp.ProvId}", yesText: "TY");
     }
 
     protected async Task ShowErrorMsgAsync(string errorMsg)

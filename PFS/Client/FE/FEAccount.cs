@@ -245,7 +245,7 @@ public class FEAccount : IFEAccount
         _fetchEod.Fetch(stocks, provider);
     }
 
-    public async Task<Dictionary<ExtProviderId, Result<ClosingEOD>>> TestStockFetchingAsync(MarketId marketId, string symbol, ExtProviderId[] providers)
+    public async Task<Dictionary<ExtProviderId, Result<FullEOD>>> TestStockFetchingAsync(MarketId marketId, string symbol, ExtProviderId[] providers)
     {
         return await _fetchEod.TestStockFetchingAsync(marketId, symbol, providers);
     }

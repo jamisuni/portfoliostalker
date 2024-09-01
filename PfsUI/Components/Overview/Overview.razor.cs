@@ -33,7 +33,7 @@ public partial class Overview
 
     protected override void OnParametersSet()
     {
-        Pfs.Waiting().EventPfsClient2Page += OnEventPfsClient;
+        Pfs.Client().EventPfsClient2Page += OnEventPfsClient;
     }
 
     public void ByOwner_ReloadReport()
@@ -43,7 +43,7 @@ public partial class Overview
         StateHasChanged();
     }
 
-    protected void OnEventPfsClient(object sender, IFEWaiting.FeEventArgs args)
+    protected void OnEventPfsClient(object sender, IFEClient.FeEventArgs args)
     {
         if (Enum.TryParse(args.Event, out PfsClientEventId clientEvId) == true)
         {   // This event seams to be coming all the way from PFS Client side itself

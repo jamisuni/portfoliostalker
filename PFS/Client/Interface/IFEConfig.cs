@@ -47,5 +47,7 @@ public interface IFEConfig
 
     void SetEodFetchCfg(ProvFetchCfg[] allCfgs);
 
+    void SetEodFetchDedicatedProviderForSymbol(MarketId marketId, string symbol, ExtProviderId providerId);
+
     IEnumerable<ExtProviderId> GetActiveEodProviders(MarketId marketId);
 }

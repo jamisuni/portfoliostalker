@@ -28,6 +28,8 @@ public interface IPfsFetchConfig
     // Rule those define symbol(s) are handled as priority on fetching, with single provider
     ExtProviderId GetDedicatedProviderForSymbol(MarketId market, string symbol);
 
+    void SetDedicatedProviderForSymbol(MarketId market, string symbol, ExtProviderId providerId);
+
     // Returns all those market's that this provider is set as one of default fetch providers
     MarketId[] GetMarketsPerRulesForProvider(ExtProviderId providerId);
 

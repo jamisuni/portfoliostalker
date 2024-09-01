@@ -210,9 +210,9 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
         }
     }
 
-    public async Task<Dictionary<ExtProviderId, Result<ClosingEOD>>> TestStockFetchingAsync(MarketId marketId, string symbol, ExtProviderId[] providers)      // IFetchEod
+    public async Task<Dictionary<ExtProviderId, Result<FullEOD>>> TestStockFetchingAsync(MarketId marketId, string symbol, ExtProviderId[] providers)      // IFetchEod
     {   // Called when user wants manually test some symbol w specific providers, ala instant "fetch it now and show me result fetch"
-        ConcurrentDictionary<ExtProviderId, Result<ClosingEOD>> result = new();
+        ConcurrentDictionary<ExtProviderId, Result<FullEOD>> result = new();
         List<Task> paraller = new();
 
         foreach ( ExtProviderId provId in providers)

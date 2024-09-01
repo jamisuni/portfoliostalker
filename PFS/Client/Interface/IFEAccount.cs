@@ -64,7 +64,7 @@ public interface IFEAccount
 
     void ForceFetchToProvider(ExtProviderId provider, Dictionary<MarketId, List<string>> stocks);
 
-    Task<Dictionary<ExtProviderId, Result<ClosingEOD>>> TestStockFetchingAsync(MarketId marketId, string symbol, ExtProviderId[] providers);
+    Task<Dictionary<ExtProviderId, Result<FullEOD>>> TestStockFetchingAsync(MarketId marketId, string symbol, ExtProviderId[] providers);
 
 
     // ***User Events***

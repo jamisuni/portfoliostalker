@@ -17,18 +17,19 @@
 
 using Pfs.Types;
 
-namespace Pfs.ExtFetch;
+namespace Pfs.Client;
 
-public interface IFetchEod
+public interface IFEClient // drop here things those dont yet fit to final apis
 {
-    // if opt provider given then does all fetching with that wo caring rules
-    void Fetch(Dictionary<MarketId, List<string>> symbols, ExtProviderId provider = ExtProviderId.Unknown); 
+    event EventHandler<FeEventArgs> EventPfsClient2PHeader; // Single EV to all possible events those PFS may send to FE (this is for PageHeader)
+    event EventHandler<FeEventArgs> EventPfsClient2Page;    // Identical event to page itself
 
-    FetchProgress GetFetchProgress();
+    public class FeEventArgs : EventArgs
+    {
+        public string Event { get; set; }
+        public object Data { get; set; }
+    }
 
-    Task<Dictionary<ExtProviderId, Result<FullEOD>>> TestStockFetchingAsync(MarketId marketId, string symbol, ExtProviderId[] providers);
-
-    IEnumerable<ExtProviderId> GetActiveEodProviders(MarketId marketId);
-
-    Task<StockMeta[]> FindBySymbolAsync(string symbol, MarketId optMarketId = MarketId.Unknown, CurrencyId optMarketCurrency = CurrencyId.Unknown);
+    // Allows to push EOD to storing/use, can be used example on TestFetch 
+    void AddEod(MarketId marketId, string symbol, FullEOD eod);
 }

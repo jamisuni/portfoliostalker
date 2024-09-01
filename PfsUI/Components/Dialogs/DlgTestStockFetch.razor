@@ -34,9 +34,19 @@
                         {
                             <MudIconButton Icon="@Icons.Material.Filled.ThumbDown" Color="Color.Warning" @onclick="@(() => ShowErrorMsgAsync(context.ErrorMsg))" />
                         }
+                        else if (context.State == FetchProvider.StateId.older)
+                        {
+                            <MudButton Color="Color.Success" Disabled="true">@($"{context.Result.Close.To00()} {FormatDate(context.Result.Date)}")</MudButton>
+                        }
                         else if (context.State == FetchProvider.StateId.result)
                         {
-                            <MudButton Color="Color.Success" @onclick="@(() => AcceptResult(context))">@($"{context.Result.Close.To00()} {FormatDate(context.Result.Date)}")</MudButton>
+                            <MudStack Row="true">
+                                <MudButton Color="Color.Success" @onclick="@(() => AcceptResult(context))">@($"{context.Result.Close.To00()} {FormatDate(context.Result.Date)}")</MudButton>
+
+                                <MudTooltip Text="Add new dedicated fetch rule to use this provider only." Inline="false">
+                                    <MudIconButton Icon="@Icons.Material.Filled.AddToQueue" Color="Color.Success" @onclick="@(() => AddFetchRuleAsync(context))" />
+                                </MudTooltip>
+                            </MudStack>
                         }
                     </MudTd>
                 </RowTemplate>

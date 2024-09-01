@@ -137,17 +137,17 @@ public partial class SettProviders
 
         if (_providerTestSupport == TestSupport.StockMSFT)
         {
-            Dictionary<ExtProviderId, Result<ClosingEOD>> fetchResult = await Pfs.Account().TestStockFetchingAsync(MarketId.NASDAQ, "MSFT", new ExtProviderId[1] { _selectedProvider });
+            Dictionary<ExtProviderId, Result<FullEOD>> fetchResult = await Pfs.Account().TestStockFetchingAsync(MarketId.NASDAQ, "MSFT", new ExtProviderId[1] { _selectedProvider });
 
             if (fetchResult == null || fetchResult.ContainsKey(_selectedProvider) == false)
                 return;
 
-            Result<ClosingEOD> res = fetchResult[_selectedProvider];
+            Result<FullEOD> res = fetchResult[_selectedProvider];
 
             if (res.Ok)
                 await Dialog.ShowMessageBox("Ok!", $"For NASDAQ$MSFT got {res.Data.Close.ToString("0.00")}", yesText: "Ok");
             else
-                await Dialog.ShowMessageBox("Failed!", $"Failed to error: {(res as FailResult<ClosingEOD>).Message}", yesText: "Ok");
+                await Dialog.ShowMessageBox("Failed!", $"Failed to error: {(res as FailResult<FullEOD>).Message}", yesText: "Ok");
         }
     }
 

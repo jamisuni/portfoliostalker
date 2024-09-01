@@ -39,7 +39,7 @@ public partial class ReportTracking
 
     protected override void OnParametersSet()
     {
-        Pfs.Waiting().EventPfsClient2Page += OnEventPfsClient;
+        Pfs.Client().EventPfsClient2Page += OnEventPfsClient;
 
         _allPfNames = Pfs.Stalker().GetPortfolios().Select(p => p.Name).ToList();
 
@@ -97,7 +97,7 @@ public partial class ReportTracking
         }
     }
 
-    protected void OnEventPfsClient(object sender, IFEWaiting.FeEventArgs args)
+    protected void OnEventPfsClient(object sender, IFEClient.FeEventArgs args)
     {
         if (Enum.TryParse(args.Event, out PfsClientEventId clientEvId) == true)
         {   // This event seams to be coming all the way from PFS Client side itself

@@ -43,7 +43,7 @@ public partial class Portfolio
     {
         Layout.EvFromPageHeaderAsync += OnEvFromPageHeaderAsync;
 
-        Pfs.Waiting().EventPfsClient2Page += OnEventPfsClient;
+        Pfs.Client().EventPfsClient2Page += OnEventPfsClient;
 
         OnTabChanged(0);
     }
@@ -176,7 +176,7 @@ public partial class Portfolio
         }
     }
 
-    protected void OnEventPfsClient(object sender, IFEWaiting.FeEventArgs args)
+    protected void OnEventPfsClient(object sender, IFEClient.FeEventArgs args)
     {
         if (Enum.TryParse(args.Event, out PfsClientEventId clientEvId) == true)
         {   // This event seams to be coming all the way from PFS Client side itself

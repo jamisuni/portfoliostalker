@@ -19,11 +19,11 @@ using Pfs.ExtFetch;
 using Pfs.Data;
 using Pfs.Types;
 using Serilog;
-using static Pfs.Client.IFEWaiting;
+using static Pfs.Client.IFEClient;
 
 namespace Pfs.Client;
 
-public class Client : IDisposable, IFEWaiting
+public class Client : IDisposable, IFEClient
 {
     // All Client -> MudUI events.. with dual identical events so that this is for PageHeader only!
     private EventHandler<FeEventArgs> evPfsClient2PHeader;
@@ -107,6 +107,11 @@ public class Client : IDisposable, IFEWaiting
         {
         }
         _busy = false;
+    }
+
+    public void AddEod(MarketId marketId, string symbol, FullEOD eod)
+    {
+        _storeLatestEod.Store(marketId, symbol, [eod]);
     }
 
     protected async Task OnPfsClientEventHandlerAsync(PfsClientEventArgs args)  // Only consumer of PfsClientLib side events!

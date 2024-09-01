@@ -77,7 +77,7 @@ public partial class PageHeader
 
         PfsUiState.OnMenuUpdated += OnMenuUpdated;
 
-        Pfs.Waiting().EventPfsClient2PHeader += OnEventPfsClient;
+        Pfs.Client().EventPfsClient2PHeader += OnEventPfsClient;
     }
 
     protected static bool _wizardRunAlready = false;
@@ -148,7 +148,7 @@ public partial class PageHeader
         }
     }
 
-    protected void OnEventPfsClient(object sender, IFEWaiting.FeEventArgs args)
+    protected void OnEventPfsClient(object sender, IFEClient.FeEventArgs args)
     {
         if ( Enum.TryParse(args.Event, out PfsClientEventId clientEvId) == true )
         {   // This event seams to be coming all the way from PFS Client side itself

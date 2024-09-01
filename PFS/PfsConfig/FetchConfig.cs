@@ -135,20 +135,66 @@ public class FetchConfig : IPfsFetchConfig, ICmdHandler, IDataOwner
     {
         foreach (ProvFetchCfg cfg in _fetchCfg)
         {
-            if (cfg.market != market || Local_IsSymbol(symbol, cfg.symbols) == false)
+            if (cfg.market != market || IsSymbol(symbol, cfg.symbols) == false)
                 continue;
 
             return cfg.providers[0];
         }
         return ExtProviderId.Unknown;
+    }
 
-        bool Local_IsSymbol(string symbol, string symbols)
+    protected bool IsSymbol(string symbol, string symbols)
+    {
+        if (string.IsNullOrWhiteSpace(symbols) == true)
+            return false;
+
+        return symbols.Split(',').Contains(symbol);
+    }
+
+    protected void RemoveDedicatedRule(MarketId market, string symbol)
+    {
+        for ( int p = _fetchCfg.Count() - 1; p >= 0; p--) 
         {
-            if (string.IsNullOrWhiteSpace(symbols) == true)
-                return false;
+            if (_fetchCfg[p].market != market || IsSymbol(symbol, _fetchCfg[p].symbols) == false)
+                continue;
 
-            return symbols.Split(',').Contains(symbol);
+            List<string> symbols = _fetchCfg[p].symbols.Split(',').ToList();
+            symbols.Remove(symbol);
+            _fetchCfg[p] = _fetchCfg[p] with { symbols = string.Join(',', symbols) };
         }
+        // Later! This leaves potentially now empty rule itself theer
+    }
+
+    public void SetDedicatedProviderForSymbol(MarketId market, string symbol, ExtProviderId providerId)
+    {
+        // Make sure this is not duplicate call
+        if (GetDedicatedProviderForSymbol(market, symbol) == providerId)
+            return;
+
+        // And get rid of potential old dedicated rule
+        RemoveDedicatedRule(market, symbol);
+
+        for (int p = 0; p < _fetchCfg.Count(); p++)
+        {
+            if (_fetchCfg[p].market != market ||                        // wrong market
+                _fetchCfg[p].providers.Count() != 1 ||                  // not single provider rule
+                _fetchCfg[p].providers[0] != providerId ||              // not correct provider
+                string.IsNullOrEmpty(_fetchCfg[p].symbols) )            // not dedicated rule
+                continue;
+
+            // this provider has already dedicated list for this market, so just add to that
+            List<string> symbols = _fetchCfg[p].symbols.Split(',').ToList();
+            symbols.Add(symbol);
+            _fetchCfg[p] = _fetchCfg[p] with { symbols = string.Join(',', symbols) };
+            EventNewUnsavedContent?.Invoke(this, _componentName);
+            return;
+        }
+
+        // Needs new dedicated rule entry
+        List<ProvFetchCfg> cfg = _fetchCfg.ToList();
+        cfg.Add(new ProvFetchCfg(market, symbol, [providerId]));
+        _fetchCfg = cfg.ToArray();
+        EventNewUnsavedContent?.Invoke(this, _componentName);
     }
 
     // Returns all those market's that this provider is set as one of default fetch providers

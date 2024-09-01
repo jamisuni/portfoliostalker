@@ -51,7 +51,7 @@ builder.Services.AddBlazoredLocalStorageAsSingleton();
 
 builder.Services.AddSingleton<PfsClientAccess>();
 builder.Services.AddSingleton<Client>();
-builder.Services.AddSingleton<IFEWaiting>(x => x.GetRequiredService<Client>());
+builder.Services.AddSingleton<IFEClient>(x => x.GetRequiredService<Client>());
 builder.Services.AddSingleton<ClientData>();
 builder.Services.AddSingleton<PfsUiState>();
 builder.Services.AddSingleton<IFECmdTerminal, ClientCmdTerminal>();

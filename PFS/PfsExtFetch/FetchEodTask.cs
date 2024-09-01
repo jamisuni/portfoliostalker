@@ -344,10 +344,10 @@ internal class FetchEodTask
         return (_marketId, _symbols, (_task.Result as FailResult<Dictionary<string, FullEOD>>).Message);
     }
 
-    public async Task<Result<ClosingEOD>> TestStockFetchingAsync(MarketId marketId, string symbol)
+    public async Task<Result<FullEOD>> TestStockFetchingAsync(MarketId marketId, string symbol)
     {
         if (GetState() != State.Free)
-            return new FailResult<ClosingEOD>("Cant do! Not available atm!");
+            return new FailResult<FullEOD>("Cant do! Not available atm!");
 
         try
         {
@@ -358,15 +358,15 @@ internal class FetchEodTask
             _state = State.Free;
 
             if ( provResp == null )
-                return new FailResult<ClosingEOD>($"Fetch failed! {_provider.GetLastError()}");
+                return new FailResult<FullEOD>($"Fetch failed! {_provider.GetLastError()}");
 
-            return new OkResult<ClosingEOD>(provResp[symbol]);
+            return new OkResult<FullEOD>(provResp[symbol]);
 
         }
         catch( Exception ex)
         {
             _state = State.Free;
-            return new FailResult<ClosingEOD>($"Failed exception! {ex.Message}");
+            return new FailResult<FullEOD>($"Failed exception! {ex.Message}");
         }
     }
 
