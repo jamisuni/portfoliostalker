@@ -19,7 +19,6 @@ using Microsoft.AspNetCore.Components;
 
 using MudBlazor;
 using Pfs.Types;
-using static PfsUI.Components.OverviewStocks;
 
 namespace PfsUI.Components;
 
@@ -220,6 +219,22 @@ public partial class ReportPfSales
         }
         else
             await Dialog.ShowMessageBox("Failed!", $"Error: {(stalkerRes as FailResult).Message}", yesText: "Ok");
+    }
+
+    protected async Task DoAddDividentAsync(ViewSaleEntry entry)
+    {
+        var parameters = new DialogParameters {
+            { "Market", entry.d.StockMeta.marketId },
+            { "Symbol", entry.d.StockMeta.symbol },
+            { "PfName", PfName },
+            { "Holding", null },
+        };
+
+        var dialog = Dialog.Show<DlgDividentAdd>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            ReloadReport();
     }
 
     private async Task ViewStockRequestedAsync(StockMeta sm)

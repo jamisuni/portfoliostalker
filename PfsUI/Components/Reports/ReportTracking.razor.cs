@@ -84,11 +84,11 @@ public partial class ReportTracking
         get { return _symbolSearchText; }
         set
         {
-            _symbolSearchText = value;
+            _symbolSearchText = value.ToUpper();
 
-            _viewData = _allData.Where(s => s.d.Stock.symbol.Contains(value)).ToList();
+            _viewData = _allData.Where(s => s.d.Stock.symbol.Contains(_symbolSearchText)).ToList();
 
-            if (_viewData.Count == 0 || string.IsNullOrWhiteSpace(value))
+            if (_viewData.Count == 0 || string.IsNullOrWhiteSpace(_symbolSearchText))
             {
                 _symbolSearchActive = false;
                 _viewData = _allData;

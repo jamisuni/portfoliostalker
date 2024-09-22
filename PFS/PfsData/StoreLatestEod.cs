@@ -439,6 +439,11 @@ public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
                     return 1;
             }
 
+            // Error! Looking 3th of Sep 2024 month failed, as first of month (monday) was labor day, 
+            // and previous month was 21 days.. and one before that 23 days. Above used old 30-Aug
+            // data to try figure out this ending -1 month to Jun (too far) and hitting zeros on August
+            // fast looking to solve this would require to use 'current date' instead one from latest eod
+
             return -1;
         }
 

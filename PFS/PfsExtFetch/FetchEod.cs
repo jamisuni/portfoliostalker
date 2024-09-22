@@ -38,7 +38,7 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
      * - Each ExtProvider spins own thread from pool, and writes res/err on dedicated spot
      * - Registers as 'scheduler client' to receive regular/timed OnUpdate events
      * - All main processing is done under single thread, just ExtProviders are on own threads
-     * -> No storing but just sends event w new data
+     * -> No storing of EOD but just sends event w new data
      */
 
     protected const string _componentName = "fetcheod";
@@ -311,9 +311,15 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
         if (_pendingSymbols.TotalPending() == 0)
         {
             if (finishedAnything)
+            {
                 // So we did finish up some fetching, and dont have more => send global event that "fetch is resting now"
                 await _pfsStatus.SendPfsClientEvent(PfsClientEventId.FetchEodsFinished, null);
 
+                // As credits are more critical to keep correct counting, we enforcing here local saving of that info on end
+                // teoretically most cases these gets stored as EOD itself causes state to be pending to save assuming user
+                // actually saved.. but on case where fetch fails and none success wouldnt even propose saving even used credits.
+                BackupToStorage();
+            }
             return;
         }
 

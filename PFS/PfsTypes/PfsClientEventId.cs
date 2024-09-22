@@ -34,6 +34,8 @@ public enum PfsClientEventId
     ReceiveRates,                   // (data=ReceiveRatesArgs) Send from FetchRated (not to be used by UI)
 
     StockAdded,                     // (data=sRef) 
+
+    StockUpdated,                   // (data=sRef) 
 }
 
 public record PfsClientEventArgs(PfsClientEventId ID, object data);

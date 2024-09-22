@@ -40,10 +40,14 @@ else
             case MarketId.NYSE:
             case MarketId.NASDAQ:
             case MarketId.AMEX:
+            case MarketId.LSE:
                 return url + StockMeta.marketId.ToString() + "%3A" + StockMeta.symbol;
 
             case MarketId.OMXH:
                 return url + "OMXHEX%3A" + StockMeta.symbol;
+
+            case MarketId.XETRA:
+                return url + "XETR%3A" + StockMeta.symbol;
         }
         return string.Empty;
     }

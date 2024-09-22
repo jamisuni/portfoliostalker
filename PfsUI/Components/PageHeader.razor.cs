@@ -169,6 +169,7 @@ public partial class PageHeader
                     break;
 
                 case PfsClientEventId.StockAdded:
+                case PfsClientEventId.StockUpdated:
                     UpdateStockStatus();
                     StateHasChanged();
                     break;

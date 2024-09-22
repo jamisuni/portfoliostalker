@@ -92,6 +92,11 @@ else
                     <MudIconButton Icon="@Icons.Material.Filled.EditNote" aria-label="edit" @onclick="@(() => OnBtnEditTradeNoteAsync(@context))" />
                     </MudTooltip>
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="remove" @onclick="@(() => OnBtnRemoveTradeAsync(@context))" />
+                    @if ( context.d.SaleDate > Pfs.Platform().GetCurrentLocalDate().AddMonths(-2))
+                    {
+                        <!-- Allowing to add dividents to already sold positions for time of few months -->
+                        <MudTooltip Text="Divident"> <MudIconButton Icon="@Icons.Material.Filled.Percent" Size="Size.Small" aria-label="Divident" @onclick="@(() => DoAddDividentAsync(context))" /></MudTooltip>
+                    }
                 </MudButtonGroup>
             </MudTd>
 

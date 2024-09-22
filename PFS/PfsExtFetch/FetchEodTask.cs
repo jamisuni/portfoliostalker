@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.en.html>.
  */
 
-using Microsoft.Extensions.Primitives;
 using Pfs.Types;
 using Serilog;
 using System.Text;
@@ -385,7 +384,11 @@ internal class FetchEodTask
         }
 
         if (provResp.First().Value.Date < _expectedDate)
-        {
+        {   // Decision! This '_expectedDate' is coming from markets last closing. So anything older gets 
+            // instantly rejected. Teoretically could have situation where has week old data and getting 
+            // few days older would be improvement. => Dont care, its latest or nothing! 
+            // Reason is that after all this is exception case, and fixing it would mean that this fetch
+            // component would need to know whats latest data.. and dont wanna do useless dependencies!
             _failedFetch[(int)_marketId]++;
             _failedUptime[(int)_marketId]++;
             _state = State.Error;

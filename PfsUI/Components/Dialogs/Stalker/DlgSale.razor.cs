@@ -55,7 +55,7 @@ public partial class DlgSale
     protected CurrencyId _marketCurrency = CurrencyId.Unknown;
     protected CurrencyId _homeCurrency = CurrencyId.Unknown;
 
-    // Decision! There is no EDIT! But its possible to delete latest 'Trade' of specific stock under specific Portfolio (so can retry)
+    // Decision! 2024-Sep: There is no EDIT! But its possible to delete latest 'Trade' of specific stock under specific Portfolio (so can retry)
 
     protected override void OnInitialized()
     {

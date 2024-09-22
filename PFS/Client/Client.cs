@@ -112,6 +112,8 @@ public class Client : IDisposable, IFEClient
     public void AddEod(MarketId marketId, string symbol, FullEOD eod)
     {
         _storeLatestEod.Store(marketId, symbol, [eod]);
+
+        _pfsStatus.SendPfsClientEvent(PfsClientEventId.StockUpdated, $"{marketId}${symbol}");
     }
 
     protected async Task OnPfsClientEventHandlerAsync(PfsClientEventArgs args)  // Only consumer of PfsClientLib side events!
@@ -154,6 +156,7 @@ public class Client : IDisposable, IFEClient
             case PfsClientEventId.UserEventStatus:
             case PfsClientEventId.StoredLatestEod:
             case PfsClientEventId.StockAdded:
+            case PfsClientEventId.StockUpdated:
                 {
                     var feArgs = new FeEventArgs()
                     {

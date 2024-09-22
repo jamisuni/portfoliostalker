@@ -44,7 +44,7 @@
         </div>
         }
 
-        <MudDatePicker Label="Purhace Day" @bind-Date="_purhaceDate" MaxDate="@(DateTime.Now)" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
+        <MudDatePicker Label="Purhace Day" @bind-Date="_purhaceDate" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
 
         <MudTextField @bind-Value="_purhaceNote" Label="Custom notes" Variant="Variant.Outlined" />
 

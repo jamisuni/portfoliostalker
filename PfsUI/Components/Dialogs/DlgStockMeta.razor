@@ -21,7 +21,7 @@
                 <MudPaper Class="pa-4 ma-2" Outlined="false">
                     Allows to edit company name and/or ISIN codes for selected stock.
                 </MudPaper>
-                <MudDatePicker Label="Date" @bind-Date="_date" MaxDate="@(DateTime.Now)" />
+                <MudDatePicker Label="Date" @bind-Date="_date" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog" />
                 <MudTextField @bind-Value="_editCompany" Variant="Variant.Outlined" Label="company name" />
                 <MudTextField @bind-Value="_editISIN" Variant="Variant.Outlined" Label="optional ISIN" />
             </MudTabPanel>
@@ -30,7 +30,7 @@
                 <MudPaper Class="pa-4 ma-2" Outlined="false">
                     Allows to change market and/or symbol for stock.
                 </MudPaper>
-                <MudDatePicker Label="Date" @bind-Date="_date" MaxDate="@(DateTime.Now)" />
+                <MudDatePicker Label="Date" @bind-Date="_date" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog" />
                 <MudSelect T="MarketId" Label="Change market?" Required @bind-Value="_editMarket">
                     @foreach (MarketMeta market in _activeMarkets)
                     {
@@ -45,7 +45,7 @@
                 <MudPaper Class="pa-4 ma-2" Outlined="false">
                     Carefull! Closes stock permanently. Example someone M&A it off markets.
                 </MudPaper>
-                <MudDatePicker Label="Date" @bind-Date="_date" MaxDate="@(DateTime.Now)" />
+                <MudDatePicker Label="Date" @bind-Date="_date" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog" />
                 <MudTextField @bind-Value="_editComment" Variant="Variant.Outlined" Label="Reason for closing?" />
             </MudTabPanel>
 

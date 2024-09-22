@@ -33,7 +33,7 @@
             </div>
         }
 
-        <MudDatePicker Label="Sale Day" @bind-Date="_tradeDate" MaxDate="@(DateTime.Now)" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd"  />
+        <MudDatePicker Label="Sale Day" @bind-Date="_tradeDate" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
 
         <MudTextField @bind-Value="_tradeNote" Label="Custom notes" Variant="Variant.Outlined" />
 
