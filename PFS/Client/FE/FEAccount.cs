@@ -224,6 +224,8 @@ public class FEAccount : IFEAccount
         if (fetch.Count == 0)
             return (0, pendingAmount);
 
+        _pfsStatus.SendPfsClientEvent(PfsClientEventId.FetchEodsStarted);
+
         _fetchEod.Fetch(fetch);
         return (fetch.Values.Sum(list => list.Count), pendingAmount);
     }
@@ -235,6 +237,8 @@ public class FEAccount : IFEAccount
         if (progr.IsBusy())
             return;
 
+        _pfsStatus.SendPfsClientEvent(PfsClientEventId.FetchEodsStarted);
+
         Dictionary<MarketId, List<string>> fetch = new();
         fetch.Add(marketId, new List<string>() { symbol });
         _fetchEod.Fetch(fetch);
@@ -242,6 +246,7 @@ public class FEAccount : IFEAccount
 
     public void ForceFetchToProvider(ExtProviderId provider, Dictionary<MarketId, List<string>> stocks)
     {
+        _pfsStatus.SendPfsClientEvent(PfsClientEventId.FetchEodsStarted);
         _fetchEod.Fetch(stocks, provider);
     }
 

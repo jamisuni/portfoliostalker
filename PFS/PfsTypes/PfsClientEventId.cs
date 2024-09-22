@@ -21,6 +21,8 @@ public enum PfsClientEventId
 {
     Unknown = 0,
 
+    FetchEodsStarted,               // (data=null) Allows different fetch operations to control 'busy' spinner on pageheader
+
     FetchEodsFinished,              // (data=null) Send when last of EOD fetch requests finished -> report instand update for FE
 
     StatusUnsavedData,              // (data=bool) true has unsaved data, false all saved

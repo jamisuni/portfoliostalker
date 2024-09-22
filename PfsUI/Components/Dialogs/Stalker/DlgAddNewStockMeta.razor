@@ -29,7 +29,18 @@
             </div>
 
             <MudTextField @bind-Value="_company" Variant="Variant.Outlined" Label="company name" />
-            <MudTextField @bind-Value="_ISIN" Variant="Variant.Outlined" Label="optional ISIN" />
+
+            @if (IsReady())
+            {
+                <MudTextField @bind-Value="_ISIN" Variant="Variant.Outlined" Label="optional ISIN" />
+
+                <MudSelect T="string" Label="Add to portfolio?" Strict="true" Variant="Variant.Outlined" Format="F2" @bind-Value="_pfSel" >
+                    @foreach (string pf in _pfNames)
+                    {
+                        <MudSelectItem T="string" Value="@pf">@pf</MudSelectItem>
+                    }
+                </MudSelect>
+            }
         </MudPaper>
 
     </DialogContent>
@@ -37,7 +48,7 @@
     <DialogActions>
 
         <MudButton OnClick="DlgCancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="OnBtnSaveAsync">Add</MudButton>
+        <MudButton Color="Color.Primary" OnClick="OnBtnSaveAsync" Disabled="@(!IsReady())">Add</MudButton>
 
     </DialogActions>
 </MudDialog>

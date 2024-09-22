@@ -151,6 +151,7 @@ public class Client : IDisposable, IFEClient
                 // These are *not* allowed to be passed for UI
                 break;
 
+            case PfsClientEventId.FetchEodsStarted:
             case PfsClientEventId.FetchEodsFinished:
             case PfsClientEventId.StatusUnsavedData:
             case PfsClientEventId.UserEventStatus:

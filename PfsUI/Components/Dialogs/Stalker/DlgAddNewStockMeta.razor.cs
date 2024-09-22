@@ -18,7 +18,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Pfs.Types;
-using System.Reflection;
 
 namespace PfsUI.Components;
 
@@ -36,10 +35,13 @@ public partial class DlgAddNewStockMeta
     protected string _ISIN = string.Empty;
 
     protected IEnumerable<MarketMeta> _activeMarkets;
+    protected List<string> _pfNames = new();
+    protected string _pfSel = string.Empty;
 
     protected override void OnInitialized()
     {
         _activeMarkets = Pfs.Account().GetActiveMarketsMeta();
+        _pfNames = Pfs.Stalker().GetPortfolios().Select(pf => pf.Name).ToList();
         return;
     }
 
@@ -92,17 +94,28 @@ public partial class DlgAddNewStockMeta
         MudDialog.Cancel();
     }
 
-    private async Task OnBtnSaveAsync()
+    private bool IsReady()
     {
         if (_market == MarketId.Unknown ||
             Validate.Str(ValidateId.Symbol, _symbol.ToUpper()).Fail ||
-            Validate.Str(ValidateId.CompName, _company).Fail )
-            return;
+            string.IsNullOrWhiteSpace(_company) ||
+            Validate.Str(ValidateId.CompName, _company).Fail)
+            return false;
 
+        return true;
+    }
+
+    private async Task OnBtnSaveAsync()
+    {
         StockMeta sm = Pfs.Stalker().AddNewStockMeta(_market, _symbol.ToUpper(), _company, _ISIN);
 
         if (sm != null)
+        {
+            if ( string.IsNullOrWhiteSpace(_pfSel) == false )
+                Pfs.Stalker().DoAction($"Follow-Portfolio PfName=[{_pfSel}] SRef=[{_market}${_symbol.ToUpper()}]");
+
             MudDialog.Close(DialogResult.Ok(sm));
+        }
         else
             await Dialog.ShowMessageBox("Failed!", "duplicate?", yesText: "Dang");
     }

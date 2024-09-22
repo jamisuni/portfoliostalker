@@ -45,6 +45,8 @@ public partial class PageHeader
 
     protected ReportId _reportId = ReportId.Unknown; 
 
+    protected DateTime _stockStatusLastUpdate = DateTime.MinValue; // just to make sure we dont do UI update for btn too often
+
     [Inject] PfsUiState PfsUiState { get; set; }
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
     [Inject] NavigationManager NavigationManager { get; set; }
@@ -129,22 +131,29 @@ public partial class PageHeader
         }
     }
 
-    protected void OnBtnUpdateStocks()
+    protected void OnBtnStockStatus()
     {
-        (int fetchAmount, int pendingAmount) = Pfs.Account().FetchExpiredStocks();
+        var options = new DialogOptions { CloseButton = true };
 
-        if (fetchAmount > 0)
-        {
-            _stockStatusBusy = true;
-            _stockStatusDisable = true;
+        if (_stockStatusBusy == false)
+        {   // Normal case where not busy so press allows to do fetch
+            (int fetchAmount, int pendingAmount) = Pfs.Account().FetchExpiredStocks();
 
-            var parameters = new DialogParameters
+            if (fetchAmount > 0)
             {
-                { "PendingAmount",  pendingAmount },
-            };
+                var parameters = new DialogParameters
+                {
+                    { "PendingAmount",  pendingAmount },
+                };
 
-            var options = new DialogOptions { CloseButton = true };
-            _ = Dialog.Show<DlgFetchStats>(null, parameters, options);
+                _ = Dialog.Show<DlgFetchStats>(null, parameters, options);
+            }
+        }
+        else
+        {   // If busy fetching currently ala spinning then allow reopen dialog
+            UpdateStockStatus();
+            StateHasChanged();
+            _ = Dialog.Show<DlgFetchStats>(null, new DialogParameters(), options);
         }
     }
 
@@ -158,6 +167,25 @@ public partial class PageHeader
                 case PfsClientEventId.StatusUnsavedData:
                     // This indicates that some component has unsaved data, so refresh display to show save button
                     _unsavedDataStatus = (bool)args.Data;
+                    StateHasChanged();
+                    break;
+
+                case PfsClientEventId.FetchEodsStarted:
+                    _stockStatusBusy = true;
+                    UpdateStockStatus();
+                    StateHasChanged();
+                    break;
+
+                case PfsClientEventId.StoredLatestEod:
+                    // If busy fetching then this is nice place to keep numbers rolling
+                    if (_stockStatusBusy == false)
+                        break;
+
+                    if (_stockStatusLastUpdate.Second == Pfs.Platform().GetCurrentLocalTime().Second)
+                        break;
+
+                    _stockStatusLastUpdate = Pfs.Platform().GetCurrentLocalTime();
+                    UpdateStockStatus();
                     StateHasChanged();
                     break;
 
