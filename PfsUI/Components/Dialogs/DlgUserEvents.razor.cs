@@ -93,6 +93,16 @@ public partial class DlgUserEvents
                         outData.Desc = $"Stock closed to {inData.Alarm.DayClosed.To00()}{UiF.Curr(inData.StockMeta.marketCurrency)} " +
                                         $"under alarm level {inData.Alarm.AlarmValue.To00()}{UiF.Curr(inData.StockMeta.marketCurrency)}";
                     break;
+
+                case UserEventType.OwningPositive:
+                    outData.Desc = $"{inData.PfName} {inData.StockMeta.GetSRef()} [{inData.StockMeta.name}] total holding is back to profit!";
+                    outData.Operation1 = null;
+                    break;
+
+                case UserEventType.OwningNegative:
+                    outData.Desc = $"{inData.PfName} {inData.StockMeta.GetSRef()} [{inData.StockMeta.name}] total holding is falling on loosing!";
+                    outData.Operation1 = null;
+                    break;
             }
 
             // Get Icon per Event Mode

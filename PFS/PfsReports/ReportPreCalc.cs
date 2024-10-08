@@ -26,7 +26,7 @@ public class ReportPreCalc : IReportPreCalc
 {
     protected List<RCStock> _retStocks = new();
 
-    public ReportPreCalc(string limitSinglePfName, IReportFilters reportFilters, IPfsPlatform pfsPlatform, ILatestEod latestEodProv, IStockMeta stockMetaProv, IMarketMeta marketMetaProv, ILatestRates latestRatesProv, StalkerData stalkerData)
+    public ReportPreCalc(string limitSinglePfName, IReportFilters reportFilters, IPfsPlatform pfsPlatform, IEodLatest latestEodProv, IStockMeta stockMetaProv, IMarketMeta marketMetaProv, ILatestRates latestRatesProv, StalkerData stalkerData)
     {
         _retStocks = new();
 

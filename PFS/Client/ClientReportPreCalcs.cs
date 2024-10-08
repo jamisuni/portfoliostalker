@@ -24,7 +24,7 @@ public class ClientReportPreCalcs
 {
     protected readonly IPfsPlatform _pfsPlatform;
     protected readonly IPfsStatus _pfsStatus;
-    protected readonly ILatestEod _latestEodProv;
+    protected readonly IEodLatest _latestEodProv;
     protected readonly IStockMeta _stockMetaProv;
     protected readonly IMarketMeta _marketMetaProv;
     protected readonly ILatestRates _latestRatesProv;
@@ -39,7 +39,7 @@ public class ClientReportPreCalcs
     protected string _pfName;
     protected ReportId _reportId;
 
-    public ClientReportPreCalcs(IPfsPlatform pfsPlatform, IPfsStatus pfsStatus, ILatestEod latestEodProv, IStockMeta stockMetaProv, IMarketMeta marketMetaProv, ILatestRates latestRatesProv, ClientStalker stalkerData)
+    public ClientReportPreCalcs(IPfsPlatform pfsPlatform, IPfsStatus pfsStatus, IEodLatest latestEodProv, IStockMeta stockMetaProv, IMarketMeta marketMetaProv, ILatestRates latestRatesProv, ClientStalker stalkerData)
     {
         _pfsPlatform = pfsPlatform;
         _pfsStatus = pfsStatus;

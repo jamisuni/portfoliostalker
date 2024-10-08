@@ -35,6 +35,10 @@ public enum UserEventType : int
     AlarmUnder,
     [EnumMember(Value = "O")]
     AlarmOver,
+    [EnumMember(Value = "N")]
+    OwningNegative,
+    [EnumMember(Value = "P")]
+    OwningPositive,
 }
 
 [DataContract]

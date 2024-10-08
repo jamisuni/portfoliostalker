@@ -30,7 +30,7 @@ public class FEConfig : IFEConfig
     protected ClientStalker _clientStalker;
     protected IMarketMeta _marketMetaProv;
     protected IStockMeta _stockMetaProv;
-    protected ILatestEod _latestEodProv;
+    protected IEodLatest _latestEodProv;
     protected IFetchEod _fetchEod;
     protected IFetchRates _fetchRates;
     protected FetchConfig _fetchConfig;
@@ -39,7 +39,7 @@ public class FEConfig : IFEConfig
     protected IPfsSetMarketConfig _marketConfig;
     protected ProvConfig _provConfig;
 
-    public FEConfig(IPfsPlatform pfsPlatform, IPfsStatus pfsStatus, ClientData clientData, ClientStalker clientStalker, IMarketMeta marketMetaProv, IStockMeta stockMetaProv, ILatestEod latestEodProv, 
+    public FEConfig(IPfsPlatform pfsPlatform, IPfsStatus pfsStatus, ClientData clientData, ClientStalker clientStalker, IMarketMeta marketMetaProv, IStockMeta stockMetaProv, IEodLatest latestEodProv, 
                      IFetchEod fetchEod, IFetchRates fetchRates, FetchConfig fetchConfig, ILatestRates latestRatesProv, StoreUserEvents storeUserEvents, IPfsSetMarketConfig marketConfig,
                      ProvConfig provConfig)
     {

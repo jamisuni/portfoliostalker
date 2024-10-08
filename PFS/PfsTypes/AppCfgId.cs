@@ -38,4 +38,12 @@ public enum AppCfgId : int
     HideCompanyName,
 
     OverviewStockAmount,
+
+    HoldingLvlPeriod,           // how many days of opposite needs to be to trigget holdingLvl break events (0=disabled, 1-15 days)
+}
+
+public static class AppCfgLimit
+{
+    public static int HoldingLvlPeriodMin = 0;
+    public static int HoldingLvlPeriodMax = 15;
 }

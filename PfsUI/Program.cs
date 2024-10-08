@@ -108,8 +108,8 @@ builder.Services.AddSingleton<IOnUpdate>(x => x.GetRequiredService<FetchEod>());
 builder.Services.AddSingleton<IDataOwner>(x => x.GetRequiredService<FetchEod>());
 
 builder.Services.AddSingleton<StoreLatestEod>();
-builder.Services.AddSingleton<ILatestEod>(x => x.GetRequiredService<StoreLatestEod>());
-builder.Services.AddSingleton<IChangeEod>(x => x.GetRequiredService<StoreLatestEod>());
+builder.Services.AddSingleton<IEodLatest>(x => x.GetRequiredService<StoreLatestEod>());
+builder.Services.AddSingleton<IEodHistory>(x => x.GetRequiredService<StoreLatestEod>());
 builder.Services.AddSingleton<IDataOwner>(x => x.GetRequiredService<StoreLatestEod>());
 
 builder.Services.AddSingleton<StoreLatesRates>();

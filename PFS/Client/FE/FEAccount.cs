@@ -36,7 +36,7 @@ public class FEAccount : IFEAccount
     protected ClientStalker _clientStalker;
     protected IMarketMeta _marketMetaProv;
     protected IStockMeta _stockMetaProv;
-    protected ILatestEod _latestEodProv;
+    protected IEodLatest _latestEodProv;
     protected IFetchEod _fetchEod;
     protected IFetchRates _fetchRates;
     protected ILatestRates _latestRatesProv;
@@ -46,7 +46,7 @@ public class FEAccount : IFEAccount
     protected IFEConfig _fEConfig;
     protected ClientReportPreCalcs _clientReportPreCalcs;
 
-    public FEAccount(IPfsPlatform pfsPlatform, IPfsStatus pfsStatus, ClientData clientData, ClientStalker clientStalker, IMarketMeta marketMetaProv, IStockMeta stockMetaProv, ILatestEod latestEodProv, 
+    public FEAccount(IPfsPlatform pfsPlatform, IPfsStatus pfsStatus, ClientData clientData, ClientStalker clientStalker, IMarketMeta marketMetaProv, IStockMeta stockMetaProv, IEodLatest latestEodProv, 
                      IFetchEod fetchEod, IFetchRates fetchRates, ILatestRates latestRatesProv, StoreUserEvents storeUserEvents, IPfsSetMarketConfig marketConfig,
                      IStockNotes stockNotes, IFEConfig fEConfig, ClientReportPreCalcs clientReportPreCalcs)
     {

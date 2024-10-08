@@ -24,7 +24,7 @@ namespace Pfs.Reports;
 // This is very basic main level report that shows all stock meta user is tracking and stocks high level usage information
 public class RepGenTracking
 {
-    static public List<RepDataTracking> GenerateReport(StalkerData stalkerData, IMarketMeta marketMetaProv, IStockMeta stockMetaProv, ILatestEod latestEodProv, IPfsFetchConfig fetchConfig, IStockNotes stockNotes)
+    static public List<RepDataTracking> GenerateReport(StalkerData stalkerData, IMarketMeta marketMetaProv, IStockMeta stockMetaProv, IEodLatest latestEodProv, IPfsFetchConfig fetchConfig, IStockNotes stockNotes)
     {
         Dictionary<string, RepDataTracking> report = new();
 

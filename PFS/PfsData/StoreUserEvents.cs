@@ -141,6 +141,36 @@ public class StoreUserEvents : IUserEvents, IDataOwner
         _pfsStatus.SendPfsClientEvent(PfsClientEventId.UserEventStatus, GetAmounts());
     }
 
+    public void CreateAvrgOwning2NegEvent(string sRef, string pfName, DateOnly date)
+    {
+        Dictionary<EvFieldId, object> evPrms = new() {
+            { EvFieldId.Type,       UserEventType.OwningNegative},
+            { EvFieldId.SRef,       sRef },
+            { EvFieldId.Portfolio,  pfName }
+        };
+
+        _events.Add(new UserEventInfo(UserEventStatus.Unread, Create(evPrms)));
+
+        EventNewUnsavedContent?.Invoke(this, _componentName);
+
+        _pfsStatus.SendPfsClientEvent(PfsClientEventId.UserEventStatus, GetAmounts());
+    }
+
+    public void CreateAvrgOwning2PosEvent(string sRef, string pfName, DateOnly date)
+    {
+        Dictionary<EvFieldId, object> evPrms = new() {
+            { EvFieldId.Type,       UserEventType.OwningPositive},
+            { EvFieldId.SRef,       sRef },
+            { EvFieldId.Portfolio,  pfName }
+        };
+
+        _events.Add(new UserEventInfo(UserEventStatus.Unread, Create(evPrms)));
+
+        EventNewUnsavedContent?.Invoke(this, _componentName);
+
+        _pfsStatus.SendPfsClientEvent(PfsClientEventId.UserEventStatus, GetAmounts());
+    }
+
     public UserEventAmounts GetAmounts()
     {
         int unread = 0;

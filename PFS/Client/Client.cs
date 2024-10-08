@@ -20,6 +20,7 @@ using Pfs.Data;
 using Pfs.Types;
 using Serilog;
 using static Pfs.Client.IFEClient;
+using Pfs.Data.Stalker;
 
 namespace Pfs.Client;
 
@@ -60,17 +61,20 @@ public class Client : IDisposable, IFEClient
     protected ClientData _clientData;
     protected ClientStalker _clientStalker;
     protected StoreLatestEod _storeLatestEod;
-    protected ILatestEod _latestEod;
+    protected IEodLatest _latestEod;
     protected StoreLatesRates _storeLatestRates;
     protected IFetchRates _fetchRates;
     protected ILatestRates _latestRatesProv;
     protected IUserEvents _userEvents;
+    protected IEodHistory _eodHistoryProv;
+    protected IMarketMeta _marketMetaProv;
     protected ClientReportPreCalcs _reportPreCalcCollection;
     protected Timer _timer;
     protected bool _busy = false;
 
-    public Client(IEnumerable<IOnUpdate> onUpdateClients, IPfsStatus pfsStatus, ClientData clientData, ClientStalker clientStalker, IPfsPlatform platform, ClientReportPreCalcs reportPreCalcCollection,
-                  StoreLatestEod storeLatestEod, StoreLatesRates storeLatestRates, IFetchRates fetchRates, ILatestRates latestRatesProv, ILatestEod latestEod, IUserEvents userEvents)
+    public Client(IEnumerable<IOnUpdate> onUpdateClients, IPfsStatus pfsStatus, ClientData clientData, ClientStalker clientStalker, IPfsPlatform platform, 
+                  ClientReportPreCalcs reportPreCalcCollection, StoreLatestEod storeLatestEod, StoreLatesRates storeLatestRates, IFetchRates fetchRates, 
+                  ILatestRates latestRatesProv, IEodLatest latestEod, IUserEvents userEvents, IEodHistory eodHistoryProv, IMarketMeta marketMetaProv)
     {
         _platform = platform;
         _pfsStatus = pfsStatus;
@@ -82,6 +86,8 @@ public class Client : IDisposable, IFEClient
         _fetchRates = fetchRates;
         _latestRatesProv = latestRatesProv;
         _userEvents = userEvents;
+        _eodHistoryProv = eodHistoryProv;
+        _marketMetaProv = marketMetaProv;
         _reportPreCalcCollection = reportPreCalcCollection;
 
         _scheduler = new(onUpdateClients, _platform);
@@ -131,6 +137,8 @@ public class Client : IDisposable, IFEClient
 
                 ProcessLatestEodPerAlarmsForUserEvents(sRef, eod);
                 ProcessLatestEodPerOrders(sRef, eod);
+                // NEG & POS events, telling when PF's owning moves to loosing or winning position
+                ProcessLatestEodPerHoldingLvlEvents(sRef, eod);
                 break;
 
             case PfsClientEventId.ReceivedEod:      // From FetchEod -> IStoreEod
@@ -168,6 +176,23 @@ public class Client : IDisposable, IFEClient
                     evPfsClient2Page?.Invoke(this, feArgs);
                 }
                 break;
+        }
+    }
+
+    protected void ProcessLatestEodPerHoldingLvlEvents(string sRef, FullEOD eod)
+    {
+        try 
+        {
+            int holdingLvlPeriod = _pfsStatus.GetAppCfg(AppCfgId.HoldingLvlPeriod);
+
+            if (holdingLvlPeriod <= AppCfgLimit.HoldingLvlPeriodMin || holdingLvlPeriod > AppCfgLimit.HoldingLvlPeriodMax)
+                return;
+
+            HoldingLvlEvents.CheckAndCreate(sRef, holdingLvlPeriod, eod, _eodHistoryProv, _latestRatesProv, _marketMetaProv, _clientStalker, _userEvents);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning($"ProcessLatestEodPerHoldingLvlEvents for {sRef} failed to exception: {ex.Message}");
         }
     }
 

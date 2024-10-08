@@ -30,7 +30,7 @@ public class FEReport : IFEReport
     protected ClientReportPreCalcs _reportPreCalcColl;
     protected IMarketMeta _marketMetaProv;
     protected IStockMeta _stockMetaProv;
-    protected ILatestEod _latestEodProv;
+    protected IEodLatest _latestEodProv;
     protected ILatestRates _latestRatesProv;
     protected StoreReportFilters _storeReportFilters;
     protected IPfsFetchConfig _fetchConfig;
@@ -39,7 +39,7 @@ public class FEReport : IFEReport
     protected IStockNotes _stockNotes;
 
     public FEReport(ClientReportPreCalcs reportPreCalcColl, ClientStalker clientStalker, IPfsPlatform pfsPlatform, IPfsStatus pfsStatus, IMarketMeta marketMetaProv,
-                    IStockMeta stockMetaProv, ILatestEod latestEodProv, ILatestRates latestRatesProv, StoreReportFilters storeReportFilters, IPfsFetchConfig fetchConfig,
+                    IStockMeta stockMetaProv, IEodLatest latestEodProv, ILatestRates latestRatesProv, StoreReportFilters storeReportFilters, IPfsFetchConfig fetchConfig,
                     IExtraColumns extraColumns, StoreStockMetaHist storeStockMetaHist, IStockNotes stockNotes)
     {
         _clientStalker = clientStalker;

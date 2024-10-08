@@ -82,6 +82,8 @@ public class AppConfig : ICmdHandler, IDataOwner
 
         { AppCfgId.OverviewStockAmount,             new AppCfgDef(15) },
 
+        { AppCfgId.HoldingLvlPeriod,                new AppCfgDef(5) },     // 0 == off, def 5 days
+
     }.ToImmutableDictionary();
 
     protected Dictionary<AppCfgId, int> _configs = new();

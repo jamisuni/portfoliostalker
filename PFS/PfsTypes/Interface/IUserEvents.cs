@@ -24,4 +24,8 @@ public interface IUserEvents
     void CreateOrderExpiredEvent(string sRef, string pfName, SOrder order);
 
     void CreateOrderTriggerEvent(string sRef, string pfName, SOrder order, FullEOD eod);
+
+    void CreateAvrgOwning2NegEvent(string sRef, string pfName, DateOnly date);
+
+    void CreateAvrgOwning2PosEvent(string sRef, string pfName, DateOnly date);
 }

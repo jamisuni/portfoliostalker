@@ -24,7 +24,7 @@ public class StoreExtraColumns : IExtraColumns
 {
     protected const string _componentName = "columns";
 
-    protected readonly IChangeEod _changeEod;
+    protected readonly IEodHistory _changeEod;
 
     protected struct Store
     {
@@ -44,7 +44,7 @@ public class StoreExtraColumns : IExtraColumns
      * 
      */
 
-    public StoreExtraColumns(IPfsStatus pfsStatus, IStockMeta stockMeta, IChangeEod changeEod)
+    public StoreExtraColumns(IPfsStatus pfsStatus, IStockMeta stockMeta, IEodHistory changeEod)
     {
         _changeEod = changeEod;
 

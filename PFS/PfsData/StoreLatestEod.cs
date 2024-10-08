@@ -25,7 +25,7 @@ using Pfs.Types;
 namespace Pfs.Data;
 
 // Blazor specific implementation of EOD storage, and stock data giving. 
-public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
+public class StoreLatestEod : IEodLatest, IEodHistory, IDataOwner
 {
     protected const string _componentName = "eod";
     protected readonly IPfsPlatform _platform;
@@ -136,7 +136,7 @@ public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
         return GetFullEOD($"{marketId}${symbol}");
     }
 
-    public (decimal close, decimal changeP, decimal min, decimal max) GetWeekChange(string sRef)    // IChangeEod
+    public (decimal close, decimal changeP, decimal min, decimal max) GetWeekChange(string sRef)    // IEodHistory
     {
         if (_d.Data.ContainsKey(sRef) == false)
             return (-1, 0, 0, 0);
@@ -144,12 +144,33 @@ public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
         return _d.Data[sRef].CloseWeekAgo();
     }
 
-    public (decimal close, decimal changeP, decimal min, decimal max) GetMonthChange(string sRef)   // IChangeEod
+    public (decimal close, decimal changeP, decimal min, decimal max) GetMonthChange(string sRef)   // IEodHistory
     {
         if (_d.Data.ContainsKey(sRef) == false)
             return (-1, 0, 0, 0);
 
         return _d.Data[sRef].CloseMonthAgo();
+    }
+
+    public (DateOnly, decimal[]) GetLastClosings(string sRef, int amount)                           // IEodHistory
+    {
+        if (IsValid(sRef) == false)
+            return (DateOnly.MinValue, null);
+
+        return (_d.Data[sRef].EOD.Date, _d.Data[sRef].GetLastHistory(amount));
+    }
+
+    protected bool IsValid(string sRef)
+    {   // Needs to have EOD, and it needs to be from latest date that has received EODs
+        if (_d.Data.ContainsKey(sRef) == false)
+            return false;
+
+        FullEOD eod = _d.Data[sRef].EOD;
+
+        if (eod == null || eod.Close < 0 || eod.Date < _d.Date)
+            return false;
+
+        return true;
     }
 
     public event EventHandler<string> EventNewUnsavedContent;                                       // IDataOwner
@@ -381,6 +402,21 @@ public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
             return (close, change == 0 ? change : change / close * 100, min, max);
         }
 
+        public decimal[] GetLastHistory(int amount)
+        {
+            List<decimal> ret = new();
+            int from = EOD.Date.GetWorkingDayOfMonth();
+
+            for (; ret.Count() < amount && ret.Count() < 20; from--)
+            {
+                if (from < 0)
+                    from = EOD.Date.AddMonths(-1).GetWorkingDaysOnMonth() - 1;
+
+                ret.Add(History[from]);
+            }
+            return ret.ToArray();
+        }
+
         protected (decimal min, decimal max) GetMinMax(int from, int to)
         {
             decimal min = -1;
@@ -389,6 +425,7 @@ public class StoreLatestEod : ILatestEod, IChangeEod, IDataOwner
             for (; from != to; from++ )
             {
                 if (from == MaxWorkDays)
+                    // really should look months max but as min/max ignores ones without value here it doesnt matter
                     from = 0;
 
                 if (History[from] > 0)

@@ -17,9 +17,11 @@
 
 namespace Pfs.Types;
 
-public interface ILatestEod
+public interface IEodHistory
 {
-    FullEOD GetFullEOD(string sRef);
+    (decimal close, decimal changeP, decimal min, decimal max) GetWeekChange(string sRef);    // close == -1 if fails
 
-    FullEOD GetFullEOD(MarketId marketId, string symbol);
+    (decimal close, decimal changeP, decimal min, decimal max) GetMonthChange(string sRef);
+
+    (DateOnly, decimal[]) GetLastClosings(string sRef, int amount);
 }

@@ -23,7 +23,7 @@ namespace Pfs.Reports;
 public class RepGenStMgHoldings
 {
     // Specialised for StockMgmt, so single stock on time, to show all its current holdings => No need for filters nor collectors
-    public static Result<List<RepDataStMgHoldings>> GenerateReport(string sRef, StalkerData stalkerData, IStockMeta stockMetaProv, ILatestEod latestEodProv, ILatestRates latestRatesProv)
+    public static Result<List<RepDataStMgHoldings>> GenerateReport(string sRef, StalkerData stalkerData, IStockMeta stockMetaProv, IEodLatest latestEodProv, ILatestRates latestRatesProv)
     {
         List<RepDataStMgHoldings> report = new();
 

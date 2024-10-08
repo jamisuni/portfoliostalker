@@ -51,7 +51,6 @@ public class UserEvent
         EodLow,                     // Decimal "0.00"
         [EnumMember(Value = "EH")]
         EodHigh,                    // Decimal "0.00"
-
     }
 
     public UserEvent(string storageFormat)

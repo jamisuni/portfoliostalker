@@ -22,7 +22,7 @@ namespace Pfs.Data;
 public class ExpiredStocks
 {
     // Returns list of all those Stalked stocks those EOD doesnt look like latest and greatest possible...even if just seconds after market has closed (only ClosingEOD's NOT IntraDays!)
-    static public (int stockAmount, List<Expired> expired) GetExpiredEods(DateTime utcNow, IStockMeta stockMetaProv, ILatestEod latestEodProv, IMarketMeta marketMetaProv)
+    static public (int stockAmount, List<Expired> expired) GetExpiredEods(DateTime utcNow, IStockMeta stockMetaProv, IEodLatest latestEodProv, IMarketMeta marketMetaProv)
     {
         int stockAmount = 0;
         List<Expired> ret = new();
