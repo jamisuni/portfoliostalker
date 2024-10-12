@@ -146,7 +146,8 @@ public class StoreUserEvents : IUserEvents, IDataOwner
         Dictionary<EvFieldId, object> evPrms = new() {
             { EvFieldId.Type,       UserEventType.OwningNegative},
             { EvFieldId.SRef,       sRef },
-            { EvFieldId.Portfolio,  pfName }
+            { EvFieldId.Portfolio,  pfName },
+            { EvFieldId.Date,       date }
         };
 
         _events.Add(new UserEventInfo(UserEventStatus.Unread, Create(evPrms)));
@@ -161,7 +162,8 @@ public class StoreUserEvents : IUserEvents, IDataOwner
         Dictionary<EvFieldId, object> evPrms = new() {
             { EvFieldId.Type,       UserEventType.OwningPositive},
             { EvFieldId.SRef,       sRef },
-            { EvFieldId.Portfolio,  pfName }
+            { EvFieldId.Portfolio,  pfName },
+            { EvFieldId.Date,       date }
         };
 
         _events.Add(new UserEventInfo(UserEventStatus.Unread, Create(evPrms)));

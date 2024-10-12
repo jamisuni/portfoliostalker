@@ -281,7 +281,7 @@ public class FEAccount : IFEAccount
 
             RepDataUserEvents entry = new RepDataUserEvents()
             {
-                Date = (DateOnly)prms[EvFieldId.Date],
+                Date = prms.ContainsKey(EvFieldId.Date) ? (DateOnly)prms[EvFieldId.Date] : DateOnly.MinValue,
                 Type = (UserEventType)prms[EvFieldId.Type],
                 Status = ev.Status,
                 Id = ev.Id,
