@@ -32,32 +32,32 @@ public class RRAlarm
         decimal latestHigh = rcEOD.fullEOD.GetSafeHigh();
         decimal latestLow  = rcEOD.fullEOD.GetSafeLow();
 
+        // PFS allows to have many alarms, even same types, but for UI we only show one over and one under
+        // alarm. Picking one thats closest to alarm level or has already active alarm
         foreach ( SAlarm alarm in alarms)
         {
             if (alarm.AlarmType.IsOverType())
             {
-                (decimal dynLevel, decimal procent) = alarm.GetAlarmDistance(latestHigh);
+                decimal? procent = alarm.GetAlarmDistance(latestHigh);
 
-                if ( OverP == null || procent > OverP )
-                {
-                    Over = dynLevel;
+                if ( OverP == null || procent.HasValue && procent.Value > OverP )
+                {   // first or highest
+                    Over = alarm.Level;
                     OverP = procent;
                     OverNote = $"{Over}: {alarm.Note}";
                 }
             }
             else if (alarm.AlarmType.IsUnderType())
             {
-                (decimal dynLevel, decimal procent) = alarm.GetAlarmDistance(latestLow);
+                decimal? procent = alarm.GetAlarmDistance(latestLow);
 
-                if (UnderP == null || procent > UnderP)
+                if (UnderP == null || procent.HasValue && procent.Value > UnderP)
                 {
-                    Under = dynLevel;
+                    Under = alarm.Level;
                     UnderP = procent;
                     UnderNote = $"{Under}: {alarm.Note}";
                 }
             }
-            else
-                throw new InvalidProgramException($"SAlarmTypeExtensions is missing {alarm.AlarmType}");
         }
     }
 }

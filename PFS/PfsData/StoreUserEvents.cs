@@ -67,26 +67,21 @@ public class StoreUserEvents : IUserEvents, IDataOwner
     public void CreateAlarmTriggerEvent(string sRef, SAlarm alarm, FullEOD eod)
     {
         Dictionary<EvFieldId, object> evPrms = new() {
+            { EvFieldId.Type,       alarm.AlarmType },
             { EvFieldId.SRef,       sRef },   
             { EvFieldId.Date,       eod.Date },
             { EvFieldId.Value,      alarm.Level },
             { EvFieldId.EodClose,   eod.Close },
         };
 
-        if ( alarm.AlarmType.IsOverType() )
-        {
-            evPrms.Add(EvFieldId.Type, UserEventType.AlarmOver);
+        if ( alarm.AlarmType == SAlarmType.Over && eod.HasHigh())
+            evPrms.Add(EvFieldId.EodHigh, eod.GetSafeHigh());
 
-            if (eod.HasHigh())
-                evPrms.Add(EvFieldId.EodHigh, eod.GetSafeHigh());
-        }
-        else if ( alarm.AlarmType.IsUnderType() )
-        {
-            evPrms.Add(EvFieldId.Type, UserEventType.AlarmUnder);
+        else if ( alarm.AlarmType == SAlarmType.Under && eod.HasLow()) 
+            evPrms.Add(EvFieldId.EodLow, eod.GetSafeLow());
 
-            if (eod.HasLow())
-                evPrms.Add(EvFieldId.EodLow, eod.GetSafeLow());
-        }
+        else if ( alarm.AlarmType == SAlarmType.TrailingSellP )
+            evPrms.Add(EvFieldId.AlarmDropP, (alarm as SAlarmTrailingSellP).DropP);
 
         _events.Add(new UserEventInfo(UserEventStatus.Unread, Create(evPrms)));
 

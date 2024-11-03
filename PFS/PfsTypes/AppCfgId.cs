@@ -40,6 +40,10 @@ public enum AppCfgId : int
     OverviewStockAmount,
 
     HoldingLvlPeriod,           // how many days of opposite needs to be to trigget holdingLvl break events (0=disabled, 1-15 days)
+
+    DefTrailingSellP,           // what % is proposed by default as sell trigger
+
+    UseBetaFeatures,
 }
 
 public static class AppCfgLimit

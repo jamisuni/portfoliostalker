@@ -26,7 +26,7 @@ using System.Runtime.Serialization;
 namespace Pfs.ExtProviders;
 
 // (https://iexcloud.io/) Very extensive API, covering hefty amount of different use cases
-public class ExtIexcloud : IExtProvider, IExtDataProvider 
+public class ExtIexcloud : IExtProvider, IExtDataProvider // => shut down on August 31, 2024
 {
     protected readonly IPfsStatus _pfsStatus;
 

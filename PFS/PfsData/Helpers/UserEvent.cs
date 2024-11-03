@@ -51,6 +51,8 @@ public class UserEvent
         EodLow,                     // Decimal "0.00"
         [EnumMember(Value = "EH")]
         EodHigh,                    // Decimal "0.00"
+        [EnumMember(Value = "AD")]
+        AlarmDropP,                 // Decimal "0.00"
     }
 
     public UserEvent(string storageFormat)
@@ -86,6 +88,7 @@ public class UserEvent
                 case EvFieldId.EodClose:
                 case EvFieldId.EodLow:
                 case EvFieldId.EodHigh:
+                case EvFieldId.AlarmDropP:
                     value = ((decimal)kvp.Value).ToString("0.00");
                     break;
 

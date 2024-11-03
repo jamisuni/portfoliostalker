@@ -202,14 +202,17 @@ public class Client : IDisposable, IFEClient
         {
             SStock stock = _clientStalker.StockRef(sRef);
 
-            if (stock == null || stock.Alarms == null || stock.Alarms.Count == 0)
+            if (stock == null)
                 return;
 
             foreach (SAlarm alarm in stock.Alarms)
             {
-                if (alarm.AlarmType.IsUnderType() && alarm.GetAlarmDistance(eod.GetSafeLow()).procent >= 0 ||
-                     alarm.AlarmType.IsOverType() && alarm.GetAlarmDistance(eod.GetSafeHigh()).procent >= 0)
-                {   // Alarm level has been passed, at least momentarily so lets create user event
+                if (alarm.IsAlarmTriggered(eod))
+                {
+                    if (alarm.AlarmType == SAlarmType.TrailingSellP && _pfsStatus.GetAppCfg(AppCfgId.UseBetaFeatures) == 0)
+                        continue;
+
+                    // Alarm level has been passed, at least momentarily, so lets create user event
                     _userEvents.CreateAlarmTriggerEvent(sRef, alarm, eod);
                 }
             }

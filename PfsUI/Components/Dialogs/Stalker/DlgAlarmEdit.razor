@@ -16,9 +16,17 @@
             }
         </MudSelect>
         <br />
-        <MudNumericField @bind-Value="_editLevel" Label="Alarm Level" Variant="Variant.Outlined" Min="0" />
+        <MudNumericField @bind-Value="_lvlValue" Label="Alarm Level" Variant="Variant.Outlined" Min="0" Disabled="@_lvlDisabled" />
 
-        <MudTextField  @bind-Value="_editNote" Label="Alarm Note" Variant="Variant.Outlined" />
+        @if (string.IsNullOrEmpty(_prm1Label) == false) {
+            <MudNumericField @bind-Value="_prm1Value" Label="@_prm1Label" Variant="Variant.Outlined" Min="0" Disabled="@_prm1Disabled" />
+        }
+
+        @if (string.IsNullOrEmpty(_prm2Label) == false) {
+            <MudNumericField @bind-Value="_prm2Value" Label="@_prm2Label" Variant="Variant.Outlined" Min="0" Disabled="@_prm2Disabled" />
+        }
+
+        <MudTextField @bind-Value="_noteValue" Label="Alarm Note" Variant="Variant.Outlined" />
 
     </DialogContent>
 
@@ -28,6 +36,6 @@
             <MudButton Color="Color.Primary" OnClick="DlgDeleteAsync">Delete</MudButton>
         }
         <MudButton OnClick="DlgCancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="DlgSaveAsync">Save</MudButton>
+        <MudButton Color="Color.Primary" OnClick="DlgSaveAsync" >Save</MudButton>
     </DialogActions>
 </MudDialog>

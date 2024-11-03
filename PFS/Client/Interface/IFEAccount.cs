@@ -50,6 +50,8 @@ public interface IFEAccount
 
     // ***EODs***
 
+    FullEOD GetLatestSavedEod(MarketId marketId, string symbol);
+
     public record StockExpiredStatus(int totalStocks, int expiredStocks, int ndStocks);
 
     StockExpiredStatus GetExpiredEodStatus();

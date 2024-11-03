@@ -25,8 +25,7 @@ namespace Pfs.Types;
 [JsonConverter(typeof(SAlarmJsonConverter))]
 public abstract class SAlarm
 {
-    /* => I want to have more complex alarms like ones those track EOD and give alarm on 20% drop ala "sale off warnings"
-     * 
+    /* 
      * - Remember! There still needs to be stalker CMD to set/edit alarm, so those are set manually to template...
      *              => Type=AlarmType Level=Fixed Params=Unchecked,string,content,that,only,alarm,knows
      * 
@@ -59,17 +58,16 @@ public abstract class SAlarm
     public virtual SAlarmType AlarmType { get; set; } = SAlarmType.Unknown;
     public virtual decimal Level { get; set; } // This is static, and used as ref ID also
     public virtual string Note { get; set; }
-    public virtual string Prms { get; set; }
+    public virtual string Prms { get; internal set; }
 
-    public virtual (string ev, bool needSave) CheckWithNewEod(FullEOD newEod, FullEOD oldEod)
+    public virtual bool IsAlarmTriggered(FullEOD eod)
     {
-        return (string.Empty, false);
+        return false;
     }
 
-    // This returns 'dynLevel' that often is 'Level' but for 'TrailingSellP' could be ATH -20% example
-    public virtual (decimal dynLevel, decimal procent) GetAlarmDistance(decimal latestClose)
+    public virtual decimal? GetAlarmDistance(decimal latestClose)
     {
-        return (0, 0);
+        return null;
     }
 
     public virtual string GetStorageFormat()
@@ -111,6 +109,8 @@ public abstract class SAlarm
             case SAlarmType.Under:
                 return SAlarmUnder.Create(level, note, prms);
 
+            case SAlarmType.TrailingSellP:
+                return SAlarmTrailingSellP.Create(level, note, prms);
         }
         return null;
     }
@@ -121,21 +121,24 @@ public abstract class SAlarm
     }
 }
 
-public class SAlarmUnder : SAlarm
+public class SAlarmUnder : SAlarm // == BUY
 {
     public override SAlarmType AlarmType { get; set; } = SAlarmType.Under;
     public override decimal Level { get; set; }
     public override string Note { get; set; }
-    public override string Prms { get; set; }
+    public override string Prms { get; internal set; }
 
-    public override (string ev, bool needSave) CheckWithNewEod(FullEOD newEod, FullEOD oldEod)
+    public override bool IsAlarmTriggered(FullEOD eod)
     {
-        return (string.Empty, false);
+        if (GetAlarmDistance(eod.GetSafeLow()) >= 0)
+            return true;
+
+        return false;
     }
 
-    public override (decimal dynLevel, decimal procent) GetAlarmDistance(decimal latestClose)
+    public override decimal? GetAlarmDistance(decimal latestClose)
     {
-        return (dynLevel: Level, procent: (Level - latestClose) / latestClose * 100);
+        return (Level - latestClose) / latestClose * 100;
     }
 
     public static SAlarmUnder Create(decimal level, string note, string prms)
@@ -148,21 +151,24 @@ public class SAlarmUnder : SAlarm
     }
 }
 
-public class SAlarmOver : SAlarm
+public class SAlarmOver : SAlarm // == SELL
 {
     public override SAlarmType AlarmType { get; set; } = SAlarmType.Over;
     public override decimal Level { get; set; }
     public override string Note { get; set; }
-    public override string Prms { get; set; }
+    public override string Prms { get; internal set; }
 
-    public override (string ev, bool needSave) CheckWithNewEod(FullEOD newEod, FullEOD oldEod)
+    public override bool IsAlarmTriggered(FullEOD eod)
     {
-        return (string.Empty, false);
+        if (GetAlarmDistance(eod.GetSafeHigh()) >= 0)
+            return true;
+
+        return false;
     }
 
-    public override (decimal dynLevel, decimal procent) GetAlarmDistance(decimal latestClose)
+    public override decimal? GetAlarmDistance(decimal latestClose)
     {
-        return (dynLevel: Level, procent: (latestClose - Level) / latestClose * 100);
+        return (latestClose - Level) / latestClose * 100;
     }
 
     public static SAlarmOver Create(decimal level, string note, string prms)
@@ -172,6 +178,57 @@ public class SAlarmOver : SAlarm
             Level = level,
             Note = note,
         };
+    }
+}
+
+public class SAlarmTrailingSellP : SAlarm
+{
+    public override SAlarmType AlarmType { get; set; } = SAlarmType.TrailingSellP;
+    public override decimal Level { get; set; } // Used as ID so needs some stabile value, so keep one where we start
+    public override string Note { get; set; }
+    public override string Prms { get { return CreatePrms(DropP, High); } internal set { ParsePrms(value); } }
+
+    public decimal DropP { get; internal set; } = 0; // How many % drop for 'High' triggers alarm
+    public decimal High { get; internal set; } = 0;  // Whats highest stock valuation on tracking time
+
+    public override bool IsAlarmTriggered(FullEOD eod)
+    {
+        if (eod.Close > High)
+        {   // This is dynamic alarm, and actually updating one of its prms if gets higher EOD than before
+            High = eod.Close;
+        }
+        else if (eod.Close < High && (High - eod.Close) / High * 100 >= DropP)
+            return true;
+
+        return false;
+    }
+
+    public override decimal? GetAlarmDistance(decimal latestClose)
+    {   // lets see later if makes sence to show distance as its most time so close to trigger
+        return null;
+    }
+
+    public static SAlarmTrailingSellP Create(decimal level, string note, string prms)
+    {
+        var alarm = new SAlarmTrailingSellP()
+        {
+            Level = level,
+            Note = note,
+            Prms = prms,
+        };
+        return alarm;
+    }
+
+    protected void ParsePrms(string prms)
+    {
+        string[] split = prms.Split(';');
+        DropP = decimal.Parse(split[0]);
+        High = decimal.Parse(split[1]);
+    }
+
+    public static string CreatePrms(decimal dropP, decimal high)
+    {
+        return $"{dropP.To()};{high.To000()}";
     }
 }
 
@@ -186,7 +243,7 @@ public enum SAlarmType : int
 public static class SAlarmTypeExtensions
 {
     public static bool IsOverType(this SAlarmType alarmType)
-    {
+    {   // Main effect to this should have if alarm is included to UIs 'getting close to alarm' columns
         switch ( alarmType)
         {
             case SAlarmType.Over: 
@@ -200,7 +257,7 @@ public static class SAlarmTypeExtensions
         switch (alarmType)
         {
             case SAlarmType.Under:
-            case SAlarmType.TrailingSellP:
+//            case SAlarmType.TrailingSellP:
                 return true;
         }
         return false;
@@ -274,6 +331,10 @@ public class SAlarmJsonConverter : JsonConverter<SAlarm>    // !!!CODE!!!
         else if (value is SAlarmOver sAlarmOver)
         {
             JsonSerializer.Serialize(writer, sAlarmOver, options);
+        }
+        else if (value is SAlarmTrailingSellP sAlarmTrailingSellP)
+        {
+            JsonSerializer.Serialize(writer, sAlarmTrailingSellP, options);
         }
         else
         {

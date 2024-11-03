@@ -165,6 +165,11 @@ public class FEAccount : IFEAccount
         return await _fetchRates.GetRateAsync(_latestRatesProv.HomeCurrency, fromCurrencyId, date);
     }
 
+    public FullEOD GetLatestSavedEod(MarketId marketId, string symbol)
+    {
+        return _latestEodProv.GetFullEOD(marketId, symbol);
+    }
+
     public StockExpiredStatus GetExpiredEodStatus()
     {
         (int totalStocks, List<ExpiredStocks.Expired> expired) = ExpiredStocks.GetExpiredEods(_pfsPlatform.GetCurrentUtcTime(), _stockMetaProv, _latestEodProv, _marketMetaProv);
@@ -311,6 +316,7 @@ public class FEAccount : IFEAccount
 
                 case UserEventType.AlarmOver:
                 case UserEventType.AlarmUnder:
+                case UserEventType.OrderTrailingSell:
                     entry.Alarm = new()
                     {
                         AlarmValue = (decimal)prms[EvFieldId.Value],
@@ -322,6 +328,9 @@ public class FEAccount : IFEAccount
 
                     if (prms.ContainsKey(EvFieldId.EodHigh))
                         entry.Alarm.DayHigh = (decimal)prms[EvFieldId.EodHigh];
+
+                    if (prms.ContainsKey(EvFieldId.AlarmDropP))
+                        entry.Alarm.AlarmDropP = (decimal)prms[EvFieldId.AlarmDropP];
 
                     break;
             }

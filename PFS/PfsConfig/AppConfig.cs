@@ -84,6 +84,10 @@ public class AppConfig : ICmdHandler, IDataOwner
 
         { AppCfgId.HoldingLvlPeriod,                new AppCfgDef(5) },     // 0 == off, def 5 days
 
+        { AppCfgId.DefTrailingSellP,                new AppCfgDef(7) },     // def 7% from top is sell alarm
+
+        { AppCfgId.UseBetaFeatures,                 new AppCfgDef(0) },     // 0 == off, 1 is on
+
     }.ToImmutableDictionary();
 
     protected Dictionary<AppCfgId, int> _configs = new();
