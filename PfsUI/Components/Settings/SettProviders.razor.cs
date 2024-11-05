@@ -86,6 +86,13 @@ public partial class SettProviders
             Desc = "Supports all markets. Requires 9$/month account minimum! They do NOT provide functional free account as no HTTPS." + Environment.NewLine
                  + "9$/month gives 10,000 Req/mo. Thats enough for personal use for few hundred stocks with normal using."
         },
+        [ExtProviderId.FMP] = new DlgProviderCfg()
+        {
+            Name = "FMP (financialmodelingprep) 4Q24 - under testing",
+            Addr = "https://financialmodelingprep.com",
+            Desc = "Looks very promising, but still under testing." + Environment.NewLine
+                 + "more later..."
+        },
     });
 
 

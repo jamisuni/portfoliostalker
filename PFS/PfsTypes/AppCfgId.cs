@@ -22,9 +22,9 @@ public enum AppCfgId : int
     MarketstackMonthCredits,
     //MarketstackSpeedSecs,
 
-    //IexcloudDayCredits,   postponed
-    //IexcloudMonthCredits,
-    //IexcloudSpeedSecs,
+    FMPDayCredits,
+    FMPMonthCredits,
+    FMPSpeedSecs,
 
     //TiingoDayCredits,
     //TiingoMonthCredits,

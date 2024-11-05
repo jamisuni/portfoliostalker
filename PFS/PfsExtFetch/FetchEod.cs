@@ -121,12 +121,12 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
             marketstackF.SetPrivKey(_provConfig.GetPrivateKey(ExtProviderId.Marketstack));
             tasks.Add(marketstackF);
         }
-        //{ !!!IEXCLOUD!! postponed - changed a lot since I looked last time, needs rework.. except I think no free mode so not priority
-        //  ExtMarketDataIexcloud iexcloud = new(pfsStatus);
-        //  FetchEodTask iexcloudF = new(pfsStatus, ExtProviderId.Iexcloud, iexcloud, iexcloud, permTaskInfo.TryGetValue(ExtProviderId.Iexcloud, out var perm_i) ? perm_i : null);
-        //  iexcloudF.SetPrivKey(_provConfig.GetPrivateKey(ExtProviderId.Iexcloud));
-        //  tasks.Add(iexcloudF);
-        //}
+        {
+            ExtFmp fmp = new(pfsStatus);
+            FetchEodTask fmpF = new(pfsStatus, ExtProviderId.FMP, fmp, fmp, permTaskInfo.TryGetValue(ExtProviderId.FMP, out var perm_i) ? perm_i : null);
+            fmpF.SetPrivKey(_provConfig.GetPrivateKey(ExtProviderId.FMP));
+            tasks.Add(fmpF);
+        }
         //{ pending - cors issues, looks like their api doesnt work directly from browser 
         //  ExtMarketDataTiingo tiingo = new(pfsStatus);
         //  FetchEodTask tiingoF = new(pfsStatus, ExtProviderId.Tiingo, tiingo, tiingo, permTaskInfo.TryGetValue(ExtProviderId.Tiingo, out var perm_t) ? perm_t : null);

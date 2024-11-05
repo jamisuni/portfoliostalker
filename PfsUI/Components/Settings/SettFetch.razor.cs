@@ -122,7 +122,7 @@ partial class SettFetch // Shows list of all EOD fetch rules, with: Market, opt 
 
     protected async Task DoDeleteAsync(ProvFetchCfg cfg)
     {
-        if ( cfg.symbols.Count() > 0 )
+        if (cfg.symbols != null && cfg.symbols.Count() > 0 )
         {
             bool? result = await Dialog.ShowMessageBox("Sure?", "Going to remove also symbols!", yesText: "Remove", cancelText: "Cancel");
 

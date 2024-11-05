@@ -492,7 +492,6 @@ public partial class DlgSetupWizard
         switch (providerId)
         {
 //            case ExtProviderId.Polygon: return 32;
-//            case ExtProviderId.Iexcloud: return 35;
             case ExtProviderId.Unibit: return 32;
 //            case ExtProviderId.Tiingo: return 40;
 //            case ExtProviderId.Marketstack: return 32;

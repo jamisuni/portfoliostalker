@@ -64,10 +64,9 @@ public class AppConfig : ICmdHandler, IDataOwner
         { AppCfgId.MarketstackDayCredits,           new AppCfgDef(0) },
         { AppCfgId.MarketstackMonthCredits,         new AppCfgDef(10000) }, // with 9$ per month
 
-        // !!!IEXCLOUD!! postponed
-        //        { AppCfgId.IexcloudDayCredits,              new AppCfgDef(0) },
-        //        { AppCfgId.IexcloudMonthCredits,            new AppCfgDef(0) },
-        //        { AppCfgId.IexcloudSpeedSecs,               new AppCfgDef(0) },
+        { AppCfgId.FMPDayCredits,                   new AppCfgDef(250) },
+        { AppCfgId.FMPMonthCredits,                 new AppCfgDef(0) },
+        { AppCfgId.FMPSpeedSecs,                    new AppCfgDef(0) },
 
         //        { AppCfgId.TiingoDayCredits,                new AppCfgDef(0) },
         //        { AppCfgId.TiingoMonthCredits,              new AppCfgDef(0) },

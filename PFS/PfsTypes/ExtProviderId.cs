@@ -35,10 +35,12 @@ public enum ExtProviderId : int
     TwelveData,
     [EnumMember(Value = "Marketstack")]
     Marketstack,
+    [EnumMember(Value = "FMP")]
+    FMP,
     //[EnumMember(Value = "Tiingo")]    last tested 2024-Apr: WASM doesnt work! they have CORS config issues? F12 shows!
     //Tiingo,
-    //[EnumMember(Value = "Iexcloud")] !!!IEXCLOUD!! postponed
-    //Iexcloud,
+    //[EnumMember(Value = "Iexcloud")]
+    //Iexcloud,                         // shut down on August 31, 2024
 }
 
 public static class ExtProviderIdExtensions
@@ -62,7 +64,7 @@ public static class ExtProviderIdExtensions
             case ExtProviderId.Unibit:
             case ExtProviderId.Polygon:
             case ExtProviderId.Marketstack:
-            //case ExtProviderId.Iexcloud:
+            case ExtProviderId.FMP:
                 return true;
         }
         return false;

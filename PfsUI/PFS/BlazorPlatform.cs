@@ -123,7 +123,7 @@ public class BlazorPlatform : IPfsPlatform
 //                ret.Add(ExtProviderId.Tiingo);
                 ret.Add(ExtProviderId.Marketstack);
                 ret.Add(ExtProviderId.AlphaVantage);
-//                ret.Add(ExtProviderId.Iexcloud); !!!IEXCLOUD!! postponed
+                ret.Add(ExtProviderId.FMP);
                 ret.Add(ExtProviderId.CurrencyAPI);
                 ret.Add(ExtProviderId.TwelveData);
                 break;
@@ -131,7 +131,7 @@ public class BlazorPlatform : IPfsPlatform
             case ExtProviderJobType.Intraday:
 
                 //                ret.Add(ExtProviderId.Marketstack);
-                //                ret.Add(ExtProviderId.Iexcloud);
+                //                ret.Add(ExtProviderId.FMP);
                 //                ret.Add(ExtProviderId.TwelveData);
                 break;
 
@@ -142,7 +142,7 @@ public class BlazorPlatform : IPfsPlatform
 //                ret.Add(ExtProviderId.Tiingo);
                 ret.Add(ExtProviderId.Marketstack);
                 ret.Add(ExtProviderId.AlphaVantage);
-//                ret.Add(ExtProviderId.Iexcloud);
+                ret.Add(ExtProviderId.FMP);
                 ret.Add(ExtProviderId.TwelveData);
                 // ret.Add(ExtDataProviders.Tiingo);        Doesnt work on WASM/Blazor
                 break;
@@ -177,12 +177,12 @@ public class BlazorPlatform : IPfsPlatform
         if (ExtMarketstack.MarketSupport(marketId))
             ret.Add(ExtProviderId.Marketstack);
 
+        if (ExtFmp.MarketSupport(marketId))
+            ret.Add(ExtProviderId.FMP);
+
+
         //        if (ExtMarketDataTiingo.MarketSupport(marketId))
         //            ret.Add(ExtProviderId.Tiingo);
-
-        // !!!IEXCLOUD!! postponed
-        // if (ExtMarketDataIexcloud.MarketSupport(marketId))
-        //    ret.Add(ExtProviderId.Iexcloud);
 
         return ret;
     }
