@@ -383,16 +383,21 @@ internal class FetchEodTask
             return new FailResult<Dictionary<string, FullEOD>>(_provider.GetLastError());
         }
 
-        if (provResp.First().Value.Date < _expectedDate)
+        if (provResp.First().Value.Date != _expectedDate)
         {   // Decision! This '_expectedDate' is coming from markets last closing. So anything older gets 
             // instantly rejected. Teoretically could have situation where has week old data and getting 
             // few days older would be improvement. => Dont care, its latest or nothing! 
             // Reason is that after all this is exception case, and fixing it would mean that this fetch
             // component would need to know whats latest data.. and dont wanna do useless dependencies!
+            // Note! Actually FMP etc havent found way to make sure its EOD but on open time starts giving
+            // intraday.. so adding here actually != so doesnt allow future either
             _failedFetch[(int)_marketId]++;
             _failedUptime[(int)_marketId]++;
             _state = State.Error;
-            return new FailResult<Dictionary<string, FullEOD>>($"ERROR: From {_provider} to {marketId} was expecting {_expectedDate} but got older {provResp.First().Value.Date}");
+            if (provResp.First().Value.Date < _expectedDate)
+                return new FailResult<Dictionary<string, FullEOD>>($"ERROR: From {_provider} to {marketId} was expecting {_expectedDate} but got older {provResp.First().Value.Date}");
+            else
+                return new FailResult<Dictionary<string, FullEOD>>($"ERROR: From {_provider} to {marketId} was expecting {_expectedDate} but got newer (intraday?) {provResp.First().Value.Date}");
         }
 
         // !!!LATER!!!  Need to convert resp back to real symbol if used ~ to alternate ticker for this provider

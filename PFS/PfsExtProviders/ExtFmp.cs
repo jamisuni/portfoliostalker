@@ -33,7 +33,7 @@ public class ExtFmp : IExtProvider, IExtDataProvider
 
     protected string _fmpApiKey = "";
 
-    /* Provided functionalities: 
+    /* Provided functionalities: superb market support!
      * 
      * StockList-ExchangeSymbols: 'https://financialmodelingprep.com/api/v3/symbol/{marketId}?apikey=' 
      *  - Return all need details for *ALL* symbols on market, this is getting very fast very heavy size content to 
@@ -46,11 +46,11 @@ public class ExtFmp : IExtProvider, IExtDataProvider
      *  - Naming thats used needs to always market & symbol conversion
      *  
      * Quote-FullQuote: 'https://financialmodelingprep.com/api/v3/quote/AAPL?apikey='
-     *  - Single stock on time... TODO! Is this real closing or after market ?
+     *  - Single stock on time... just remember when market open this jumps to open time valuations, not latest EOD
      * 
      * Missing atm:
-     *  - Major! Way to know sure fetch result is end of day closing value for actual market hours
-     *  - Minor! Way to get EOD details for batch of symbols on one fetch
+     *  - Major! Way to know sure fetch result is end of day closing value for actual market hours -> may has to start bringing expected date in :/
+     *  - Minor! Way to get EOD details for batch of symbols on one fetch... cant see one, but then not a biggie
      */
 
     public ExtFmp(IPfsStatus pfsStatus)
@@ -65,7 +65,7 @@ public class ExtFmp : IExtProvider, IExtDataProvider
         _fmpApiKey = key;
     }
 
-    public int GetLastCreditPrice() { return 0; }
+    public int GetLastCreditPrice() { return 1; }
 
     public bool IsSupport(ProvFunctionId funcId)
     {
@@ -75,10 +75,10 @@ public class ExtFmp : IExtProvider, IExtDataProvider
                 return true;
 
             case ProvFunctionId.Intraday:
-                return true;
+                return false; // has actually good one, but later feature for meh
 
             case ProvFunctionId.HistoryEod:
-                return false; // too hefty credit consumption
+                return false; // havent look yet
         }
         return false;
     }
@@ -294,7 +294,7 @@ public class ExtFmp : IExtProvider, IExtDataProvider
 
                 Dictionary<string, FullEOD> ret = new Dictionary<string, FullEOD>();
 
-                SymbolLatestData data = symbolsData.FirstOrDefault(s => s.Equals(symbol + symbolEnding));
+                SymbolLatestData data = symbolsData.FirstOrDefault(s => s.symbol.Equals(symbol + symbolEnding));
 
                 ret.Add(symbol, Local_ConvertFullEOD(data));
 
