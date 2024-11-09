@@ -14,6 +14,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Update GitHub CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key 23F3D4EA75716059
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install gh
+
       - name: Create new repository
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -21,6 +28,7 @@ jobs:
           VERSION=${{ github.event.inputs.version }}
           REPO_NAME="portfolio-${VERSION//./-}"
           gh repo create $REPO_NAME --public
+          echo "Created repository: $REPO_NAME"
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4.0.1
@@ -45,6 +53,7 @@ jobs:
           git commit -m "Initial commit for version $VERSION"
           git branch -M main
           git push -u https://$GH_TOKEN@github.com/${{ github.repository_owner }}/$REPO_NAME.git main
+          echo "Pushed to repository: $REPO_NAME"
 
       - name: Setup GitHub Pages
         env:
@@ -52,5 +61,25 @@ jobs:
         run: |
           VERSION=${{ github.event.inputs.version }}
           REPO_NAME="portfolio-${VERSION//./-}"
-          gh repo edit $REPO_NAME --enable-pages
-          gh api -X POST /repos/${{ github.repository_owner }}/$REPO_NAME/pages -f source='{"branch":"main","path":"/"}'
+    
+          echo "Enabling GitHub Pages for $REPO_NAME"
+          # Enable GitHub Pages
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository_owner }}/$REPO_NAME/pages \
+            -f source='{"branch":"main","path":"/"}' || echo "Failed to enable GitHub Pages"
+    
+          echo "Checking if Pages is enabled"
+          # Check if Pages is enabled
+          gh api \
+            --method GET \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository_owner }}/$REPO_NAME/pages || echo "Failed to get Pages status"
+
+      - name: Debug Information
+        run: |
+          echo "GitHub CLI version:"
+          gh --version
+          echo "Current directory: $(pwd)"
+          ls -la
