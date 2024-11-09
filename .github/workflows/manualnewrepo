@@ -1,0 +1,56 @@
+name: Create Version Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number'
+        required: true
+
+jobs:
+  create-version-repo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create new repository
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+          REPO_NAME="portfolio-${VERSION//./-}"
+          gh repo create $REPO_NAME --public
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4.0.1
+        with:
+          dotnet-version: '8.0.303'
+
+      - name: Build and publish
+        run: |
+          dotnet publish PortfolioStalker.sln -c Release -o release --nologo
+
+      - name: Push to new repository
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+          REPO_NAME="portfolio-${VERSION//./-}"
+          cd release/wwwroot
+          git init
+          git add .
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git commit -m "Initial commit for version $VERSION"
+          git branch -M main
+          git push -u https://$GH_TOKEN@github.com/${{ github.repository_owner }}/$REPO_NAME.git main
+
+      - name: Setup GitHub Pages
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+          REPO_NAME="portfolio-${VERSION//./-}"
+          gh repo edit $REPO_NAME --enable-pages
+          gh api -X POST /repos/${{ github.repository_owner }}/$REPO_NAME/pages -f source='{"branch":"main","path":"/"}'
