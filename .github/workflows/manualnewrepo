@@ -1,4 +1,4 @@
-name: Create Version Release
+name: New Repo as Release
 
 on:
   workflow_dispatch:
