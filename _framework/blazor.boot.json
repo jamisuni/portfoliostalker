@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "PfsUI",
   "resources": {
-    "hash": "sha256-pyNhlF4LvBGg6TfocR4yOn5k2ctdIaR5LKImGGZGwHE=",
+    "hash": "sha256-ARsRqnnL3juhSkKQh6wXXK/Yr1YPge+dRzM/wouhQEM=",
     "jsModuleNative": {
       "dotnet.native.8.0.10.4xsnm8lwn6.js": "sha256-QVxMlY7ohmjgde/bZMA0dlWDAeuUP+tEfkiSdg4DFcE="
     },
@@ -19,7 +19,7 @@
     "assembly": {
       "BlazorDownloadFile.wasm": "sha256-YB8HlaKSU6hGhkiMwSSlwRa4MDljnOAAmxBFTAqQWes=",
       "Blazored.LocalStorage.wasm": "sha256-OaMAAd5n7ORfyur5e3QIyEVKJ76MKIvwbg7/icnnYcU=",
-      "Client.wasm": "sha256-/Hff62PJ5K7hMJLngY4Ma9NiutJHvfHLIGM7b814fKQ=",
+      "Client.wasm": "sha256-nkx2RHp3fM+E9W8G3+PeEKklZYPHAZzWwT0JxI9trf8=",
       "CsvHelper.wasm": "sha256-dXEioQ0YOyfHxU6gRNBEti8tgmp6nzkhk14LZZYlzUI=",
       "Microsoft.AspNetCore.Components.Forms.wasm": "sha256-TH9t55hhPiwEWEKPMgKzN713ohMRR0rxDyxMtjvf7GI=",
       "Microsoft.AspNetCore.Components.wasm": "sha256-+67N69c+dTIcoJplgbSvbWHP4AoDLRwbVHP+9zxWPqQ=",
@@ -41,15 +41,15 @@
       "Microsoft.JSInterop.WebAssembly.wasm": "sha256-rhDkGvVEd5YGb2JsVk1xQC7gCF8TXNfpDfo9dGFhuyI=",
       "MudBlazor.wasm": "sha256-KsFp8XosCtnNHBP/wr20x4ZoR62ZwVlaIYlXnaLflIo=",
       "netstandard.wasm": "sha256-YyJYhwVoqcyYA+I0ZLVcHWxafiUsOZl/UnokqeUK464=",
-      "PfsConfig.wasm": "sha256-eS3B6t1sjGUuJ7Qe/SarDPEmfXvJVLKe65+LZLJ4qIk=",
-      "PfsData.wasm": "sha256-K10Wm6aLn+6y7NDl+aqDpIzgszHzvmDqTjzfOlSLGYQ=",
-      "PfsExtFetch.wasm": "sha256-zQC0KT6ffP3zmkVOVWYEeSsShZE3YsSDlKTB2WxAEG4=",
-      "PfsExtProviders.wasm": "sha256-ae3VxriEpiSiu55c4LZsimd8plLroT/yC0l04vSHt9Y=",
-      "PfsExtTransactions.wasm": "sha256-Xc7b1Z6FWnjYr7UEwydjoEUjKiYKlrZHA+S5748Qeqg=",
-      "PfsHelpers.wasm": "sha256-32TR0oSwGrRhirpCfaZLDrQs8TZ5QNlsQptZ/7Nv7dk=",
-      "PfsReports.wasm": "sha256-eYQK86H8yQP4fM5F5mcpN9Qiegq7gKYlMmZn+SRvxfI=",
-      "PfsTypes.wasm": "sha256-wy/gcoiimOqYVan1ZUyoW3Bm8yghgLAD6t4bwFzs9V0=",
-      "PfsUI.wasm": "sha256-wMFlRFGGHjwi3gf9p+vuC+9BtJTsot1lJvY6ZERugc8=",
+      "PfsConfig.wasm": "sha256-cGZdO2lihUKfof4uuArBbEZkiy/yMn6C1UEzmXpHh0A=",
+      "PfsData.wasm": "sha256-YASB1EQNHSkHUDNpKp+UhWiblHLVM8Ca3xZo7xMidMk=",
+      "PfsExtFetch.wasm": "sha256-O3RsBU4z0d9malsrBmtRyC1chib9LYbXNZzlwGAAYTQ=",
+      "PfsExtProviders.wasm": "sha256-f+NOowAmJihTvVCaFbwWRLGQAirB3CdlEUUg0dR5TBI=",
+      "PfsExtTransactions.wasm": "sha256-12vPB98GBjsxxl5NTZrTLlsMUrV4MPyiyN6zSuJHiHs=",
+      "PfsHelpers.wasm": "sha256-bIl3h8exeW3iHvmB9n/lMZNv1QK1npsvr4yh6Zzm2+w=",
+      "PfsReports.wasm": "sha256-6K/GbU5sZif+AM9A9DUAjkGWLMd2T41k3F21ubB/Wns=",
+      "PfsTypes.wasm": "sha256-yhAdH5KXUzzKe59mnisZi/ArHlCMrsp5+O01prQId/I=",
+      "PfsUI.wasm": "sha256-AUxYHdmIJAN4sPar+7Q/K4NZss+HI/mdPZjpL4KoTYc=",
       "Serilog.Sinks.BrowserConsole.wasm": "sha256-oaUyoVo2a89AwFRLViIDIdBnhpi17mAo03uxs1QLd2g=",
       "Serilog.wasm": "sha256-DB2ftijBOf8kDRGjRJ4K0k5EkioD5Atwt1MT1OwJ7UE=",
       "System.Collections.Concurrent.wasm": "sha256-bupHDkwfvYkBKjF66fzuCNI8/b2JdXgz2yuLq487uw8=",
