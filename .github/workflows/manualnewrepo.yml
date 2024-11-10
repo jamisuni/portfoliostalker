@@ -1,0 +1,85 @@
+name: New Repo as Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number'
+        required: true
+
+jobs:
+  create-version-repo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update GitHub CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key 23F3D4EA75716059
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install gh
+
+      - name: Create new repository
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+          REPO_NAME="portfolio-${VERSION//./-}"
+          gh repo create $REPO_NAME --public
+          echo "Created repository: $REPO_NAME"
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4.0.1
+        with:
+          dotnet-version: '8.0.303'
+
+      - name: Build and publish
+        run: |
+          dotnet publish PortfolioStalker.sln -c Release -o release --nologo
+
+      - name: Push to new repository
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+          REPO_NAME="portfolio-${VERSION//./-}"
+          cd release/wwwroot
+          git init
+          git add .
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git commit -m "Initial commit for version $VERSION"
+          git branch -M main
+          git push -u https://$GH_TOKEN@github.com/${{ github.repository_owner }}/$REPO_NAME.git main
+          echo "Pushed to repository: $REPO_NAME"
+
+      - name: Setup GitHub Pages
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+          REPO_NAME="portfolio-${VERSION//./-}"
+    
+          echo "Enabling GitHub Pages for $REPO_NAME"
+          # Enable GitHub Pages
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository_owner }}/$REPO_NAME/pages \
+            -f source='{"branch":"main","path":"/"}' || echo "Failed to enable GitHub Pages"
+    
+          echo "Checking if Pages is enabled"
+          # Check if Pages is enabled
+          gh api \
+            --method GET \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository_owner }}/$REPO_NAME/pages || echo "Failed to get Pages status"
+
+      - name: Debug Information
+        run: |
+          echo "GitHub CLI version:"
+          gh --version
+          echo "Current directory: $(pwd)"
+          ls -la
