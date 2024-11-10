@@ -62,8 +62,9 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
     protected FetchProgress _fetchProgress = new();
 
     // Lists all 'failed' fetchings over all providers, including errorMsg from provider
-    protected record FailedInfo(DateTime FetchLocalTime, ExtProviderId Provider, MarketId Market, string Symbols, string ErrorMsg);
-    protected List<FailedInfo> _failed = new(); // this is per fetch time
+    protected record FailedInfo(int fetchId, ExtProviderId Provider, string ErrorMsg);
+    protected Dictionary<string, List<FailedInfo>> _failed = new(); // all uptime, so full failure history is available
+    protected int _fetchId = 0; // counter from 1... to track fetch attempts
 
     protected readonly static ImmutableArray<string> _cmdTemplates = [
         "list",
@@ -168,7 +169,7 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
 
         _pendingSymbols.ClearAllPendings();
         _pendingSymbols.ClearFailed();
-        _failed = new();
+        _fetchId++; //_failed = new(); no clean, as want to have it full uptime but it has mark for id to know older fetches
 
         foreach (FetchEodTask ft in _fetchTask)
         {
@@ -383,11 +384,20 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
                 // !!!TODO!!! Batch failure so lock provider off from batching (actually do this on Task side, but not yet)
             }
 
-            _failed.Add(new FailedInfo(DateTime.Now, task.ProvId, errorResp.marketId, string.Join(',', errorResp.symbols), errorResp.errMsg));
+            // Each failed fetch get tracked on full uptime, and if fails many providers then each and everyone is tracked
+            // point is to be able to see details of fetch issues all the way on UI dialog
+            foreach (string symbol in errorResp.symbols)
+            {
+                string sRef = $"{errorResp.marketId}${symbol}";
 
-            if (errorResp.symbols.Count == 1)
-                // Single fetch ones we report also pending side, as it never allows on uptime to use already failed provider for symbol to refetch
-                _pendingSymbols.FetchFailedBy(task.ProvId, errorResp.marketId, errorResp.symbols[0]);
+                if (_failed.ContainsKey(sRef) == false)
+                    _failed.Add(sRef, new());
+
+                _failed[sRef].Add(new FailedInfo(_fetchId, task.ProvId, errorResp.errMsg));
+
+                // Later! Atm also pending side tracks failures (to not allow retry w same provider), but can replace this w callback etc
+                _pendingSymbols.FetchFailedBy(task.ProvId, errorResp.marketId, symbol);
+            }
 
             foreach (string symbol in errorResp.symbols)
                 Local_AddLatest(new(false, DateTime.Now, task.ProvId, errorResp.marketId, symbol, null, null));
@@ -501,9 +511,14 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
                 {
                     sb.AppendLine($"All Failed Operations:");
 
-                    foreach (FailedInfo f in _failed.AsEnumerable().Reverse())
+                    foreach ( KeyValuePair<string, List<FailedInfo>> kvp in _failed)
                     {
-                        sb.AppendLine($"{f.FetchLocalTime.ToString("HH:mm")} {f.Market}${f.Symbols} by {f.Provider} failed: {f.ErrorMsg}");
+                        sb.AppendLine($"{kvp.Key} failed:");
+                        foreach (FailedInfo fail in kvp.Value)
+                        {
+                            string fetch = fail.fetchId == _fetchId ? "(latest)" : $"({fail.fetchId})";
+                            sb.AppendLine($"     {fetch} by {fail.Provider} failed: {fail.ErrorMsg}");
+                        }
                     }
 
                     if (_pendingSymbols.GetCantFindProviderSRefs().Count() > 0)

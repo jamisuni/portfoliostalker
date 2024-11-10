@@ -267,9 +267,10 @@ public class StalkerXML
         public SSector[] Sectors = new SSector[SSector.MaxSectors];
     }
 
-    public static Result<Imported> ImportXml(string xml)
+    public static (Imported data, List<string> warnings) ImportXml(string xml)
     {
-        Imported ret = new Imported();
+        Imported ret = new();
+        List<string> warnings = new(); // "let user decide" so trying to minimize lost data on errors
 
         XDocument xmlDoc = XDocument.Parse(xml);
         XElement rootPFS = xmlDoc.Elements("PFS").First();
@@ -278,16 +279,22 @@ public class StalkerXML
 
         foreach (XElement sectorElem in rootPFS.Element("Sectors").Elements())
         {
-            int sectorPos = int.Parse(sectorElem.Name.ToString().Substring(1));
-
-            ret.Sectors[sectorPos] = new SSector((string)sectorElem.Attribute("Name"));
-
-            for (int f = 0; f < SSector.MaxFields; f++)
+            try
             {
-                if (sectorElem.Attribute($"F{f}") == null)
-                    continue;
+                int sectorPos = int.Parse(sectorElem.Name.ToString().Substring(1));
 
-                ret.Sectors[sectorPos].FieldNames[f] = (string)sectorElem.Attribute($"F{f}");
+                ret.Sectors[sectorPos] = new SSector((string)sectorElem.Attribute("Name"));
+
+                for (int f = 0; f < SSector.MaxFields; f++)
+                {
+                    if (sectorElem.Attribute($"F{f}") == null)
+                        continue;
+
+                    ret.Sectors[sectorPos].FieldNames[f] = (string)sectorElem.Attribute($"F{f}");
+                }
+            }
+            catch (Exception ex) {
+                warnings.Add($"stalker, failed segment {sectorElem.Name} w exception [{ex.Message}]");
             }
         }
 
@@ -295,50 +302,48 @@ public class StalkerXML
 
         foreach (XElement myStElem in rootPFS.Element("Stocks").Elements())
         {
-            MarketId marketId = MarketId.Unknown;
-            string symbol = string.Empty;
+            string sRef = string.Empty;
 
-            if (myStElem.Name.ToString() == "Stock")
+            try
             {
-                (marketId, symbol) = StockMeta.ParseSRef((string)myStElem.Attribute("SRef"));
-            }
-            else // !!!TODO!!! Remove soon, just moving off from using symbol as XML Name
-            {
-                marketId = (MarketId)Enum.Parse(typeof(MarketId), (string)myStElem.Attribute("MarketId"));
-                symbol = myStElem.Name.ToString();
-            }
+                sRef = (string)myStElem.Attribute("SRef");
+                (MarketId marketId, string symbol) = StockMeta.ParseSRef(sRef);
 
-            SStock sstock = new SStock($"{marketId}${symbol}");
-            ret.Stocks.Add(sstock);
+                SStock sstock = new SStock($"{marketId}${symbol}");
+                ret.Stocks.Add(sstock);
 
-            foreach (XElement underStockElem in myStElem.Elements())
-            {
-                if (underStockElem.Name.ToString() == "Sector")
+                foreach (XElement underStockElem in myStElem.Elements())
                 {
-                    string sector = (string)underStockElem.Attribute("Sector");
-                    string field = (string)underStockElem.Attribute("Field");
+                    if (underStockElem.Name.ToString() == "Sector")
+                    {
+                        string sector = (string)underStockElem.Attribute("Sector");
+                        string field = (string)underStockElem.Attribute("Field");
 
-                    int sectorPos = Array.IndexOf(ret.Sectors, ret.Sectors.FirstOrDefault(s => s != null && s.Name == sector));
+                        int sectorPos = Array.IndexOf(ret.Sectors, ret.Sectors.FirstOrDefault(s => s != null && s.Name == sector));
 
-                    if (sectorPos == -1)
-                        continue;
+                        if (sectorPos == -1)
+                            continue;
 
-                    int fieldPos = Array.IndexOf(ret.Sectors[sectorPos].FieldNames, ret.Sectors[sectorPos].FieldNames.FirstOrDefault(s => s == field));
+                        int fieldPos = Array.IndexOf(ret.Sectors[sectorPos].FieldNames, ret.Sectors[sectorPos].FieldNames.FirstOrDefault(s => s == field));
 
-                    if (fieldPos == -1)
-                        continue;
+                        if (fieldPos == -1)
+                            continue;
 
-                    sstock.Sectors[sectorPos] = fieldPos;
+                        sstock.Sectors[sectorPos] = fieldPos;
+                    }
+                    else if (underStockElem.Name.ToString() == "Alarm")
+                    {
+                        SAlarmType aType = (SAlarmType)Enum.Parse(typeof(SAlarmType), (string)underStockElem.Attribute("Type"));
+                        decimal aLevel = (decimal)underStockElem.Attribute("Level");
+                        string aPrms = (string)underStockElem.Attribute("Prms");
+                        string aNote = (string)underStockElem.Attribute("Note");
+
+                        sstock.Alarms.Add(SAlarm.Create(aType, aLevel, aNote, aPrms));
+                    }
                 }
-                else if (underStockElem.Name.ToString() == "Alarm")
-                {
-                    SAlarmType aType = (SAlarmType)Enum.Parse(typeof(SAlarmType), (string)underStockElem.Attribute("Type"));
-                    decimal aLevel = (decimal)underStockElem.Attribute("Level");
-                    string aPrms = (string)underStockElem.Attribute("Prms");
-                    string aNote = (string)underStockElem.Attribute("Note");
-
-                    sstock.Alarms.Add(SAlarm.Create(aType, aLevel, aNote, aPrms));
-                }
+            }
+            catch ( Exception ex ) {
+                warnings.Add($"stalker, failed stock {sRef} w exception [{ex.Message}]");
             }
         }
 
@@ -352,129 +357,178 @@ public class StalkerXML
 
             foreach ( XElement pfSRefElem in myPfElem.Elements())
             {
-                MarketId marketId = MarketId.Unknown;
-                string symbol = string.Empty;
+                if (pfSRefElem.Name.ToString() != "Stock")
+                    continue;
 
-                if (pfSRefElem.Name.ToString() == "Stock")
+                string sRef = string.Empty;
+
+                try
                 {
-                    (marketId, symbol) = StockMeta.ParseSRef((string)pfSRefElem.Attribute("SRef"));
-                }
-                else // !!!TODO!!! Remove soon, just moving off from using symbol as XML Name
-                {
-                    marketId = (MarketId)Enum.Parse(typeof(MarketId), (string)pfSRefElem.Attribute("MarketId"));
-                    symbol = pfSRefElem.Name.ToString();
-                }
+                    sRef = (string)pfSRefElem.Attribute("SRef");
+                    (MarketId marketId, string symbol) = StockMeta.ParseSRef(sRef);
 
-                if ((bool)pfSRefElem.Attribute("Tracking"))
-                    pf.SRefs.Add($"{marketId}${symbol}");
+                    if ((bool)pfSRefElem.Attribute("Tracking"))
+                        pf.SRefs.Add($"{marketId}${symbol}");
 
-                XElement ordersElement = pfSRefElem.Element("Orders");
+                    XElement ordersElement = pfSRefElem.Element("Orders");
 
-                if (ordersElement != null)
-                {
-                    foreach (XElement stockOrderElem in ordersElement.Elements())
+                    if (ordersElement != null)
                     {
-                        SOrder order = new SOrder()
+                        foreach (XElement stockOrderElem in ordersElement.Elements())
                         {
-                            Type = (SOrder.OrderType)Enum.Parse(typeof(SOrder.OrderType), (string)stockOrderElem.Name.ToString()),
-                            SRef = $"{marketId}${symbol}",
-                            Units = (decimal)stockOrderElem.Attribute("Units"),
-                            PricePerUnit = (decimal)stockOrderElem.Attribute("Price"),
-                            LastDate = DateOnly.ParseExact((string)stockOrderElem.Attribute("LDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture),
-                            FillDate = null,
-                        };
-                        pf.StockOrders.Add(order);
-                    }
-                }
+                            string price = string.Empty;
 
-                XElement holdingsElement = pfSRefElem.Element("Holdings");
+                            try
+                            {
+                                price = (string)stockOrderElem.Attribute("Price");
 
-                if ( holdingsElement != null )
-                {
-                    foreach (XElement stockHoldingsElem in holdingsElement.Elements())
-                    {
-                        SHolding holding = new SHolding()
-                        {
-                            SRef = $"{marketId}${symbol}",
-                            PurhaceId = (string)stockHoldingsElem.Attribute("PId"),
-                            Units = (decimal)stockHoldingsElem.Attribute("Units"),
-                            PricePerUnit = (decimal)stockHoldingsElem.Attribute("PPrice"),
-                            FeePerUnit = (decimal)stockHoldingsElem.Attribute("PFee"),
-                            PurhaceDate = DateOnly.ParseExact((string)stockHoldingsElem.Attribute("PDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture),
-                            OriginalUnits = (decimal)stockHoldingsElem.Attribute("OrigUnits"),
-                            PurhaceNote = (string)stockHoldingsElem.Attribute("PNote"),
-                            CurrencyRate = stockHoldingsElem.Attribute("PRate") != null ? (decimal)stockHoldingsElem.Attribute("PRate") : 1,
-                            Sold = null,
-                            Dividents = new(),
-                        };
-
-                        //                                 myShDivElem.SetAttributeValue("Currency", divident.Currency.ToString());
-
-
-                        foreach (XElement stockHoldingDivElem in stockHoldingsElem.Elements("Divident"))
-                        {
-                            decimal PaymentPerUnit = (decimal)stockHoldingDivElem.Attribute("PayPerUnit");
-                            DateOnly ExDivDate = DateOnly.ParseExact((string)stockHoldingDivElem.Attribute("ExDivDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                            DateOnly PaymentDate = DateOnly.ParseExact((string)stockHoldingDivElem.Attribute("PaymentDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                            decimal CurrencyRate = stockHoldingDivElem.Attribute("Rate") != null ? (decimal)stockHoldingDivElem.Attribute("Rate") : 1;
-                            CurrencyId Currency = CurrencyId.Unknown;
-                            if (stockHoldingDivElem.Attribute("Currency") != null)
-                                Currency = Enum.Parse<CurrencyId>((string)stockHoldingDivElem.Attribute("Currency"));
-
-                            holding.Dividents.Add(new SHolding.Divident(PaymentPerUnit, ExDivDate, PaymentDate, CurrencyRate, Currency));
+                                SOrder order = new SOrder()
+                                {
+                                    Type = (SOrder.OrderType)Enum.Parse(typeof(SOrder.OrderType), (string)stockOrderElem.Name.ToString()),
+                                    SRef = $"{marketId}${symbol}",
+                                    Units = (decimal)stockOrderElem.Attribute("Units"),
+                                    PricePerUnit = (decimal)stockOrderElem.Attribute("Price"),
+                                    LastDate = DateOnly.ParseExact((string)stockOrderElem.Attribute("LDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture),
+                                    FillDate = null,
+                                };
+                                pf.StockOrders.Add(order);
+                            }
+                            catch ( Exception ex) {
+                                warnings.Add($"stalker, lost order {price} from {sRef} under {pfName} w exception [{ex.Message}]");
+                            }
                         }
-                        pf.StockHoldings.Add(holding);
+                    }
+
+                    XElement holdingsElement = pfSRefElem.Element("Holdings");
+
+                    if (holdingsElement != null)
+                    {
+                        foreach (XElement stockHoldingsElem in holdingsElement.Elements())
+                        {
+                            string pId = string.Empty;
+
+                            try
+                            {
+                                pId = (string)stockHoldingsElem.Attribute("PId");
+
+                                SHolding holding = new SHolding()
+                                {
+                                    SRef = $"{marketId}${symbol}",
+                                    PurhaceId = (string)stockHoldingsElem.Attribute("PId"),
+                                    Units = (decimal)stockHoldingsElem.Attribute("Units"),
+                                    PricePerUnit = (decimal)stockHoldingsElem.Attribute("PPrice"),
+                                    FeePerUnit = (decimal)stockHoldingsElem.Attribute("PFee"),
+                                    PurhaceDate = DateOnly.ParseExact((string)stockHoldingsElem.Attribute("PDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture),
+                                    OriginalUnits = (decimal)stockHoldingsElem.Attribute("OrigUnits"),
+                                    PurhaceNote = (string)stockHoldingsElem.Attribute("PNote"),
+                                    CurrencyRate = stockHoldingsElem.Attribute("PRate") != null ? (decimal)stockHoldingsElem.Attribute("PRate") : 1,
+                                    Sold = null,
+                                    Dividents = new(),
+                                };
+
+                                foreach (XElement stockHoldingDivElem in stockHoldingsElem.Elements("Divident"))
+                                {
+                                    string exDivDate = string.Empty;
+
+                                    try
+                                    {
+                                        exDivDate = (string)stockHoldingDivElem.Attribute("ExDivDate");
+
+                                        decimal PaymentPerUnit = (decimal)stockHoldingDivElem.Attribute("PayPerUnit");
+                                        DateOnly ExDivDate = DateOnly.ParseExact((string)stockHoldingDivElem.Attribute("ExDivDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                                        DateOnly PaymentDate = DateOnly.ParseExact((string)stockHoldingDivElem.Attribute("PaymentDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                                        decimal CurrencyRate = stockHoldingDivElem.Attribute("Rate") != null ? (decimal)stockHoldingDivElem.Attribute("Rate") : 1;
+                                        CurrencyId Currency = CurrencyId.Unknown;
+                                        if (stockHoldingDivElem.Attribute("Currency") != null)
+                                            Currency = Enum.Parse<CurrencyId>((string)stockHoldingDivElem.Attribute("Currency"));
+
+                                        holding.Dividents.Add(new SHolding.Divident(PaymentPerUnit, ExDivDate, PaymentDate, CurrencyRate, Currency));
+                                    }
+                                    catch (Exception ex) {
+                                        warnings.Add($"stalker, lost divident {exDivDate} of {pId}  from {sRef} under {pfName} w exception [{ex.Message}]");
+                                    }
+                                }
+                                pf.StockHoldings.Add(holding);
+                            }
+                            catch (Exception ex) {
+                                warnings.Add($"stalker, lost holding {pId} from {sRef} under {pfName} w exception [{ex.Message}]");
+                            }
+                        }
+                    }
+
+                    XElement tradesElement = pfSRefElem.Element("Trades");
+
+                    if (tradesElement != null)
+                    {
+                        foreach (XElement stockTradesElem in tradesElement.Elements())
+                        {
+                            string pId = string.Empty;
+                            string tId = string.Empty;
+
+                            try
+                            {
+                                pId = (string)stockTradesElem.Attribute("PId");
+                                tId = (string)stockTradesElem.Attribute("SId");
+
+                                SHolding trade = new SHolding()
+                                {
+                                    SRef = $"{marketId}${symbol}",
+                                    PurhaceId = (string)stockTradesElem.Attribute("PId"),
+                                    Units = (decimal)stockTradesElem.Attribute("Units"),
+                                    PricePerUnit = (decimal)stockTradesElem.Attribute("PPrice"),
+                                    FeePerUnit = (decimal)stockTradesElem.Attribute("PFee"),
+                                    PurhaceDate = DateOnly.ParseExact((string)stockTradesElem.Attribute("PDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture),
+                                    OriginalUnits = (decimal)stockTradesElem.Attribute("OrigUnits"),
+                                    PurhaceNote = (string)stockTradesElem.Attribute("PNote"),
+                                    CurrencyRate = stockTradesElem.Attribute("PRate") != null ? (decimal)stockTradesElem.Attribute("PRate") : 1,
+                                    Sold = null,
+                                    Dividents = new(),
+                                };
+
+                                string TradeId = (string)stockTradesElem.Attribute("SId");
+                                decimal SPricePerUnit = (decimal)stockTradesElem.Attribute("SPrice");
+                                decimal SFee = (decimal)stockTradesElem.Attribute("SFee");
+                                string SNote = (string)stockTradesElem.Attribute("SNote");
+                                decimal SRate = stockTradesElem.Attribute("SRate") != null ? (decimal)stockTradesElem.Attribute("SRate") : 1;
+                                DateOnly SDate = DateOnly.ParseExact((string)stockTradesElem.Attribute("SDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+                                trade.Sold = new SHolding.Sale(TradeId, SDate, SPricePerUnit, SFee, SRate, SNote);
+
+                                foreach (XElement stockTradeDivElem in stockTradesElem.Elements("Divident"))
+                                {
+                                    string exDivDate = string.Empty;
+
+                                    try
+                                    {
+                                        exDivDate = (string)stockTradeDivElem.Attribute("ExDivDate");
+                                        decimal PaymentPerUnit = (decimal)stockTradeDivElem.Attribute("PayPerUnit");
+                                        DateOnly ExDivDate = DateOnly.ParseExact((string)stockTradeDivElem.Attribute("ExDivDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                                        DateOnly PaymentDate = DateOnly.ParseExact((string)stockTradeDivElem.Attribute("PaymentDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                                        decimal CurrencyRate = stockTradeDivElem.Attribute("Rate") != null ? (decimal)stockTradeDivElem.Attribute("Rate") : 1;
+                                        CurrencyId Currency = CurrencyId.Unknown;
+                                        if (stockTradeDivElem.Attribute("Currency") != null)
+                                            Currency = Enum.Parse<CurrencyId>((string)stockTradeDivElem.Attribute("Currency"));
+
+                                        trade.Dividents.Add(new SHolding.Divident(PaymentPerUnit, ExDivDate, PaymentDate, CurrencyRate, Currency));
+                                    }
+                                    catch (Exception ex) {
+                                        warnings.Add($"stalker, lost divident {exDivDate} from trade {tId} of {pId} from {sRef} under {pfName} w exception [{ex.Message}]");
+                                    }
+                                }
+                                pf.StockTrades.Add(trade);
+                            }
+                            catch (Exception ex) {
+                                warnings.Add($"stalker, lost trade {tId} of {pId} from {sRef} under {pfName} w exception [{ex.Message}]");
+                            }
+                        }
                     }
                 }
-
-                XElement tradesElement = pfSRefElem.Element("Trades");
-
-                if (tradesElement != null)
-                {
-                    foreach (XElement stockTradesElem in tradesElement.Elements())
-                    {
-                        SHolding trade = new SHolding()
-                        {
-                            SRef = $"{marketId}${symbol}",
-                            PurhaceId = (string)stockTradesElem.Attribute("PId"),
-                            Units = (decimal)stockTradesElem.Attribute("Units"),
-                            PricePerUnit = (decimal)stockTradesElem.Attribute("PPrice"),
-                            FeePerUnit = (decimal)stockTradesElem.Attribute("PFee"),
-                            PurhaceDate = DateOnly.ParseExact((string)stockTradesElem.Attribute("PDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture),
-                            OriginalUnits = (decimal)stockTradesElem.Attribute("OrigUnits"),
-                            PurhaceNote = (string)stockTradesElem.Attribute("PNote"),
-                            CurrencyRate = stockTradesElem.Attribute("PRate") != null ? (decimal)stockTradesElem.Attribute("PRate") : 1,
-                            Sold = null,
-                            Dividents = new(),
-                        };
-
-                        string TradeId = (string)stockTradesElem.Attribute("SId");
-                        decimal SPricePerUnit = (decimal)stockTradesElem.Attribute("SPrice");
-                        decimal SFee = (decimal)stockTradesElem.Attribute("SFee");
-                        string SNote = (string)stockTradesElem.Attribute("SNote");
-                        decimal SRate = stockTradesElem.Attribute("SRate") != null ? (decimal)stockTradesElem.Attribute("SRate") : 1;
-                        DateOnly SDate = DateOnly.ParseExact((string)stockTradesElem.Attribute("SDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture);
-
-                        trade.Sold = new SHolding.Sale(TradeId, SDate, SPricePerUnit, SFee, SRate, SNote);
-
-                        foreach (XElement stockTradeDivElem in stockTradesElem.Elements("Divident"))
-                        {
-                            decimal PaymentPerUnit = (decimal)stockTradeDivElem.Attribute("PayPerUnit");
-                            DateOnly ExDivDate = DateOnly.ParseExact((string)stockTradeDivElem.Attribute("ExDivDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                            DateOnly PaymentDate = DateOnly.ParseExact((string)stockTradeDivElem.Attribute("PaymentDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                            decimal CurrencyRate = stockTradeDivElem.Attribute("Rate") != null ? (decimal)stockTradeDivElem.Attribute("Rate") : 1;
-                            CurrencyId Currency = CurrencyId.Unknown;
-                            if (stockTradeDivElem.Attribute("Currency") != null)
-                                Currency = Enum.Parse<CurrencyId>((string)stockTradeDivElem.Attribute("Currency"));
-
-                            trade.Dividents.Add(new SHolding.Divident(PaymentPerUnit, ExDivDate, PaymentDate, CurrencyRate, Currency));
-                        }
-                        pf.StockTrades.Add(trade);
-                    }
+                catch ( Exception ex ) {
+                    warnings.Add($"stalker, failed add {sRef} to {pfName} w exception [{ex.Message}]");
                 }
             }
         }
 
-        return new OkResult<Imported>(ret);
+        return (data: ret, warnings);
     }
 }

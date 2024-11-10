@@ -87,13 +87,13 @@ public class ClientStalker : StalkerDoCmd, ICmdHandler, IDataOwner
     {
         try
         {
-            Result<StalkerXML.Imported> imported = StalkerXML.ImportXml(content);
+            (StalkerXML.Imported data, List<string> warnings) = StalkerXML.ImportXml(content);
 
-            _portfolios = imported.Data.Portfolios;
-            _stocks = imported.Data.Stocks;
-            _sectors = imported.Data.Sectors;
+            _portfolios = data.Portfolios;
+            _stocks = data.Stocks;
+            _sectors = data.Sectors;
 
-            return new OkResult();
+            return new OkResult(); // !!!TODO!!! No more result, instead warnings.. and no more autom wipe..
         }
         catch ( Exception ex)
         {

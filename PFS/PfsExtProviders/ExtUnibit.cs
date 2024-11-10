@@ -53,8 +53,7 @@ public class ExtUnibit : IExtProvider, IExtDataProvider
      * 
      * Per https://unibit.ai/pricing:
      * - "The general rule of thumb is that you may not resell or redistribute our datasets. Any research, analytics or 
-     *    application built upon our datasets are generally permitted."
-     * => 199U$/Month is bit hefty step counting that doesnt really support wide range of functionalities, but sure does well what does!
+     *    application built upon our datasets are generally permitted." -> actually having server would break this, so hmm, forget 199
      */
 
     // https://unibit.ai/api/docs/V2.0/historical_stock_price
