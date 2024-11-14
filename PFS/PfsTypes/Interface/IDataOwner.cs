@@ -31,7 +31,7 @@ public interface IDataOwner
 
     string CreatePartialBackup(List<string> symbols);
 
-    Result RestoreBackup(string content);
+    List<string> RestoreBackup(string content);
 
     // FE controls saving of all data thru this
     void OnDataSaveStorage();
@@ -54,7 +54,7 @@ public interface IDataOwner
      *        => 'OnDataClearStorage' is removed, not to be used anymore this case!
      * 
      * - Restore backup:
-     *      - 
-     *      - Todo! Saving shouldnt be automatic after this, but instead user controls it.
+     *      - Saving is automatic, as easiest way to load new tuff is to do full reload from memory where
+     *        all data was just stored.. making flow to identical on normal launch, and restore cases.
      */
 }

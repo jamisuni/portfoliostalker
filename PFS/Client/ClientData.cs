@@ -132,9 +132,9 @@ public class ClientData
         return ms.ToArray();
     }
 
-    public Result ImportFromBackupZip(byte[] zip)
+    public List<string> ImportFromBackupZip(byte[] zip)
     {
-        Result ret;
+        List<string> warnings = new();
 
         try
         {
@@ -156,10 +156,9 @@ public class ClientData
 
                                 IDataOwner iRefDO = _dataOwners.FirstOrDefault(d => d.Name == name).Ref;
 
-                                ret = iRefDO.RestoreBackup(content);
+                                List<string> wrns = iRefDO.RestoreBackup(content);
 
-                                if (ret.Ok == false)
-                                    return ret;
+                                warnings.AddRange(wrns);
                             }
                         }
                     }
@@ -172,7 +171,7 @@ public class ClientData
             _unsavedDataStatus = true;
             _pfsStatus.SendPfsClientEvent(PfsClientEventId.StatusUnsavedData, true);
 
-            return new OkResult();
+            return warnings;
         }
         catch (Exception ex)
         {
@@ -180,7 +179,8 @@ public class ClientData
 
             DoInitDataOwners();
 
-            return new FailResult($"Close and reopen application plz! ImportFromBackupZip failed to: {ex.Message}");
+            warnings.Add($"Close and reopen application plz! ImportFromBackupZip failed to: {ex.Message}");
+            return warnings;
         }
     }
 

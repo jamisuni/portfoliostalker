@@ -119,12 +119,10 @@ public class FEAccount : IFEAccount
         _pfsStatus.AllowUseStorage = false;
         _clientReportPreCalcs.InitClean();
 
-        Result res = _clientData.ImportFromBackupZip(zip);
+        List<string> warnings = _clientData.ImportFromBackupZip(zip);
 
-        if ( res.Ok )
-            _pfsStatus.AccountType = AccountTypeId.Demo;
-
-        return res;
+        _pfsStatus.AccountType = AccountTypeId.Demo;
+        return new OkResult();
     }
 
     public IEnumerable<MarketMeta> GetActiveMarketsMeta()
@@ -351,11 +349,12 @@ public class FEAccount : IFEAccount
         return _clientData.ExportAccountBackupAsZip();
     }
 
-    public Result ImportAccountFromZip(byte[] zip)
+    public List<string> ImportAccountFromZip(byte[] zip)
     {
         // This is expected to be done here, as Import atm is only tested to clean account (merging is NOT supported)
         ClearLocally();
 
+        // returns warnings
         return _clientData.ImportFromBackupZip(zip);
     }
 }

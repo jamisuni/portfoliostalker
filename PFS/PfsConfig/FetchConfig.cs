@@ -27,7 +27,7 @@ using Pfs.Types;
 namespace Pfs.Config;
 
 // Fetch configs those define what provider is used for what symbol for market.
-public class FetchConfig : IPfsFetchConfig, ICmdHandler, IDataOwner
+public class FetchConfig : IPfsFetchConfig, ICmdHandler, IDataOwner // identical XML on backup & local storage
 {
     protected const string _componentName = "cfgfetch";
 
@@ -64,6 +64,8 @@ public class FetchConfig : IPfsFetchConfig, ICmdHandler, IDataOwner
      *           specific provider to be used for it... just do problem cases w one provider that works!
      * 
      * !!!LATER!!! "abcd=abc.d Tiingo" -> calls Tiingo but uses different symbol for that provider
+     * 
+     * !!!SOON!!! Add here fetch rule priorities, and improve 'GetUsedProvForStock' to return per those
      */
 
     public FetchConfig(IPfsPlatform platform, IPfsProvConfig provConfigs)
@@ -248,41 +250,21 @@ public class FetchConfig : IPfsFetchConfig, ICmdHandler, IDataOwner
         return string.Empty;
     }
 
-    public Result RestoreBackup(string content)
+    public List<string> RestoreBackup(string content)
     {
-        try
-        {
-            (_ratesCfg, _fetchCfg) = ImportXml(content);
-
-            return new OkResult();
-        }
-        catch (Exception ex)
-        {
-            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
-            return new FailResult($"FetchConfig: Exception: {ex.Message}");
-        }
+        return ImportXml(content);
     }
 
     protected void LoadStorageContent()
     {
-        try
-        {
-            Init();
+        Init();
 
-            string content = _platform.PermRead(_componentName);
+        string content = _platform.PermRead(_componentName);
 
-            if (string.IsNullOrWhiteSpace(content))
-                Init();
-            else
-                (_ratesCfg, _fetchCfg) = ImportXml(content);
-        }
-        catch ( Exception ex )
-        {
-            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
-            Init();
-            // Later! Why actual removal here?
-            _platform.PermRemove(_componentName);
-        }
+        if (string.IsNullOrWhiteSpace(content))
+            return;
+
+        List<string> warnings = ImportXml(content);
     }
 
     protected void BackupToStorage()
@@ -361,37 +343,64 @@ public class FetchConfig : IPfsFetchConfig, ICmdHandler, IDataOwner
         return rootPFS.ToString();
     }
 
-    protected (RatesFetchCfg ratesCfg, ProvFetchCfg[] fetchRules) ImportXml(string xml)
+    protected List<string> ImportXml(string xml)
     {
-        XDocument xmlDoc = XDocument.Parse(xml);
-        XElement rootPFS = xmlDoc.Element("PFS");
-
+        List<string> warnings = new();
         List<ProvFetchCfg> fetchRules = new();
-
-        XElement fetchTopElem = rootPFS.Element("Fetch");
-        if (fetchTopElem != null && fetchTopElem.HasElements)
+        RatesFetchCfg ratesFetchCfg = new RatesFetchCfg(ExtProviderId.Unknown);
+        try
         {
-            foreach (XElement frElem in fetchTopElem.Elements())
-            {
-                MarketId marketId = (MarketId)Enum.Parse(typeof(MarketId), frElem.Name.ToString());
-                List<ExtProviderId> providers = new();
-                foreach (string prov in ((string)frElem.Attribute("Providers")).Split(','))
-                    providers.Add((ExtProviderId)Enum.Parse(typeof(ExtProviderId), prov));
+            XDocument xmlDoc = XDocument.Parse(xml);
+            XElement rootPFS = xmlDoc.Element("PFS");
 
-                if ( frElem.Attribute("Stocks") != null)
-                    fetchRules.Add(new ProvFetchCfg(marketId, (string)frElem.Attribute("Stocks"), providers.ToArray()));
-                else
-                    fetchRules.Add(new ProvFetchCfg(marketId, string.Empty, providers.ToArray()));
+            XElement fetchTopElem = rootPFS.Element("Fetch");
+            if (fetchTopElem != null && fetchTopElem.HasElements)
+            {
+                foreach (XElement frElem in fetchTopElem.Elements())
+                {
+                    string marketName = string.Empty;
+
+                    try
+                    {
+                        marketName = frElem.Name.ToString();
+
+                        MarketId marketId = (MarketId)Enum.Parse(typeof(MarketId), marketName);
+                        List<ExtProviderId> providers = new();
+                        foreach (string prov in ((string)frElem.Attribute("Providers")).Split(','))
+                            providers.Add((ExtProviderId)Enum.Parse(typeof(ExtProviderId), prov));
+
+                        if (frElem.Attribute("Stocks") != null)
+                            fetchRules.Add(new ProvFetchCfg(marketId, (string)frElem.Attribute("Stocks"), providers.ToArray()));
+                        else
+                            fetchRules.Add(new ProvFetchCfg(marketId, string.Empty, providers.ToArray()));
+                    }
+                    catch (Exception ex)
+                    {
+                        string wrnmsg = $"{_componentName}, failed to load fetch rule for {marketName} w exception [{ex.Message}]";
+                        warnings.Add(wrnmsg);
+                        Log.Warning(wrnmsg);
+                    }
+                }
+            }
+
+            ExtProviderId ratesProvider = ExtProviderId.Unknown;
+
+            XElement ratesElem = rootPFS.Element("Rates");
+
+            if (ratesElem != null)
+            {
+                ratesProvider = (ExtProviderId)Enum.Parse(typeof(ExtProviderId), (string)ratesElem.Attribute("Provider"));
+                ratesFetchCfg = new RatesFetchCfg(ratesProvider);
             }
         }
+        catch (Exception ex) {
+            string wrnmsg = $"{_componentName}, failed to load existing configs w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
 
-        ExtProviderId ratesProvider = ExtProviderId.Unknown;
-
-        XElement ratesElem = rootPFS.Element("Rates");
-
-        if (ratesElem != null)
-            ratesProvider = (ExtProviderId)Enum.Parse(typeof(ExtProviderId), (string)ratesElem.Attribute("Provider"));
-
-        return (new RatesFetchCfg(ratesProvider), fetchRules.ToArray());
+        _ratesCfg = ratesFetchCfg;
+        _fetchCfg = fetchRules.ToArray();
+        return warnings;
     }
 }

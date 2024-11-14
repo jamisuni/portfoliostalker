@@ -89,5 +89,5 @@ public interface IFEAccount
 
     byte[] ExportAccountBackupAsZip();
 
-    Result ImportAccountFromZip(byte[] zip);
+    List<string> ImportAccountFromZip(byte[] zip);
 }

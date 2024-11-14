@@ -153,15 +153,22 @@ public partial class DlgImport
         {
             // Note! Atm only bin/zip format supported is out very own PfsExport.. so has dedicated function 
 
-            // This cleans all user data locally, imports new tuff per file, and backups locally.. so all replaced!
-            Result importResult = Pfs.Account().ImportAccountFromZip(ms.ToArray());
+            // This cleans all user data locally, imports new tuff per file, and saves everything.. so all old is lost, even if fails!
+            List<string> importWarnings = Pfs.Account().ImportAccountFromZip(ms.ToArray());
 
-            if (importResult.Ok == false)
+            if (importWarnings.Count > 0)
             {
+                var parameters = new DialogParameters
+                {
+                    { "Title",  "Import did have failures" },
+                    { "Text",  string.Join(Environment.NewLine, importWarnings) }
+                };
 
-                ret = false;
+                DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
+
+                var dialog = Dialog.Show<DlgSimpleTextViewer>("", parameters, maxWidth);
+                var result = await dialog.Result;
             }
-
         }
         else if (_importType == ImportType.WaveAlarms)
         {

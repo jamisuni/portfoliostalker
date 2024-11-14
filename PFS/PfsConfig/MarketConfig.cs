@@ -19,14 +19,13 @@ using System.Text;
 using System.Xml.Linq;
 using System.Collections.Immutable;
 
-using Serilog;
-
 using Pfs.Helpers;
 using Pfs.Types;
+using Serilog;
 
 namespace Pfs.Config;
 
-public class MarketConfig : IMarketMeta, IPfsSetMarketConfig, ICmdHandler, IDataOwner
+public class MarketConfig : IMarketMeta, IPfsSetMarketConfig, ICmdHandler, IDataOwner // identical XML on backup & local storage
 {
     protected const string _componentName = "cfgmarket";
 
@@ -207,47 +206,30 @@ public class MarketConfig : IMarketMeta, IPfsSetMarketConfig, ICmdHandler, IData
         return ExportXml();
     }
 
-    public Result RestoreBackup(string content)
+    public List<string> RestoreBackup(string content)
     {
-        try
-        {
-            _configs = ImportXml(content);
-            RecreateHolidayDateOnlys();
-            return new OkResult();
-        }
-        catch (Exception ex)
-        {
-            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
-            return new FailResult($"MarketConfig: Exception: {ex.Message}");
-        }
+        List<string> warnings = ImportXml(content);
+        RecreateHolidayDateOnlys();
+        return warnings;
     }
 
     protected void LoadStorageContent()
     {
-        try
-        {
-            Init();
+        Init();
 
-            string xml = _platform.PermRead(_componentName);
+        string xml = _platform.PermRead(_componentName);
 
-            if ( string.IsNullOrWhiteSpace(xml) )
-            {   // To simplify taking use, if nothing is stored we default to NYSE/NASDAQ as active
-                _configs.Add(MarketId.NASDAQ,   new MarketUserInfo() { Active = true, });
-                _configs.Add(MarketId.NYSE,     new MarketUserInfo() { Active = true, });
+        if ( string.IsNullOrWhiteSpace(xml) )
+        {   // To simplify taking use, if nothing is stored we default to NYSE/NASDAQ as active
+            _configs.Add(MarketId.NASDAQ,   new MarketUserInfo() { Active = true, });
+            _configs.Add(MarketId.NYSE,     new MarketUserInfo() { Active = true, });
 
-                RecreateHolidayDateOnlys();
-                return;
-            }
-
-            _configs = ImportXml(xml);
             RecreateHolidayDateOnlys();
+            return;
         }
-        catch ( Exception ex )
-        {
-            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
-            Init();
-            _platform.PermRemove(_componentName);
-        }
+
+        List<string> warnings = ImportXml(xml);
+        RecreateHolidayDateOnlys();
     }
 
     protected void BackupToStorage()
@@ -287,35 +269,57 @@ public class MarketConfig : IMarketMeta, IPfsSetMarketConfig, ICmdHandler, IData
         return rootPFS.ToString();
     }
 
-    protected Dictionary<MarketId, MarketUserInfo> ImportXml(string xml)
+    protected List<string> ImportXml(string xml)
     {
-        XDocument xmlDoc = XDocument.Parse(xml);
-        XElement rootPFS = xmlDoc.Element("PFS");
+        List<string> warnings = new();
+        Dictionary<MarketId, MarketUserInfo> cfgs = new();
 
-        Dictionary<MarketId, MarketUserInfo> ret = new();
+        try
+        { 
+            XDocument xmlDoc = XDocument.Parse(xml);
+            XElement rootPFS = xmlDoc.Element("PFS");
 
-        XElement allMarketsElem = rootPFS.Element("Markets");
-        if (allMarketsElem != null && allMarketsElem.HasElements)
-        {
-            foreach (XElement mcElem in allMarketsElem.Elements())
+            XElement allMarketsElem = rootPFS.Element("Markets");
+            if (allMarketsElem != null && allMarketsElem.HasElements)
             {
-                MarketId marketId = (MarketId)Enum.Parse(typeof(MarketId), mcElem.Name.ToString());
+                foreach (XElement mcElem in allMarketsElem.Elements())
+                {
+                    string marketName = mcElem.Name.ToString();
 
-                MarketUserInfo mc = new();
+                    try
+                    {
+                        MarketId marketId = (MarketId)Enum.Parse(typeof(MarketId), marketName);
 
-                if (mcElem.Attribute("Active") != null)
-                    mc.Active = (bool)mcElem.Attribute("Active");
+                        MarketUserInfo mc = new();
 
-                if (mcElem.Attribute("Holidays") != null)
-                    mc.HolidaysStorageFormat = (string)mcElem.Attribute("Holidays");
+                        if (mcElem.Attribute("Active") != null)
+                            mc.Active = (bool)mcElem.Attribute("Active");
 
-                if (mcElem.Attribute("Min") != null)
-                    mc.MinFetchMins = (int)mcElem.Attribute("Min");
+                        if (mcElem.Attribute("Holidays") != null)
+                            mc.HolidaysStorageFormat = (string)mcElem.Attribute("Holidays");
 
-                ret.Add(marketId, mc);
+                        if (mcElem.Attribute("Min") != null)
+                            mc.MinFetchMins = (int)mcElem.Attribute("Min");
+
+                        cfgs.Add(marketId, mc);
+                    }
+                    catch (Exception ex)
+                    {
+                        string wrnmsg = $"{_componentName}, failed to load {marketName} config w exception [{ex.Message}]";
+                        warnings.Add(wrnmsg);
+                        Log.Warning(wrnmsg);
+                    }
+                }
             }
         }
-        return ret;
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, failed to load existing configs w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        _configs = cfgs;
+        return warnings;
     }
 
     public string GetCmdPrefixes() { return _componentName; }                   // ICmdHandler

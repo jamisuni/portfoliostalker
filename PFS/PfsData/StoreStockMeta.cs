@@ -27,7 +27,7 @@ using Pfs.Types;
 namespace Pfs.Data;
 
 // All stock meta, meaning market+symbol+companyName+ISIN is handled here and atm user created
-public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOwner
+public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOwner // identical XML on backup & local storage
 {
     protected const string _componentName = "stockmeta";
     protected readonly IPfsPlatform _platform;
@@ -234,7 +234,7 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
     public void OnDataInit() { Init(); }
 
     public void OnDataSaveStorage() {
-        _platform.PermWrite(_componentName, CreateStorageFormatContent());
+        _platform.PermWrite(_componentName, ExportXml());
     }
 
     public string CreateBackup()
@@ -247,21 +247,10 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
         return ExportXml(symbols);
     }
 
-    public Result RestoreBackup(string content)
+    public List<string> RestoreBackup(string content)
     {
-        try
-        {   
-            _stockMeta = ImportXml(content);
-            return new OkResult();
-        }
-        catch (Exception ex)
-        {
-            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
-            return new FailResult($"StoreStockMeta: Exception: {ex.Message}");
-        }
+        return ImportXml(content);
     }
-
-    // StockMeta - Storage/Backup format: MarketId$Symbol'\x1F'companyName'\x1F'ISIN
 
     public void LoadStorageContent()
     {
@@ -275,14 +264,14 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
                 return;
 
             List<StockMeta> smList = new();
-            using (StringReader reader = new StringReader(stored))
+            using (StringReader reader = new StringReader(stored))          // !!!TODO!!! Remove all this.. going away.. XML is future...
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
                     string[] parts = line.Split('\x1F');
                     if (parts.Length < 2)
-                        continue;
+                        throw new Exception("to be removed");
 
                     var s = StockMeta.ParseSRef(parts[0]);
 
@@ -296,22 +285,17 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
             }
             _stockMeta = smList.ToArray();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
-            Init();
-            _platform.PermRemove(_componentName);
+            Init();                                                     // !!!TODO!!! This is future...
+
+            string content = _platform.PermRead(_componentName);
+
+            if (string.IsNullOrWhiteSpace(content))
+                return;
+
+            List<string> warnings = ImportXml(content);
         }
-    }
-
-    protected string CreateStorageFormatContent()
-    {
-        StringBuilder store = new();
-
-        foreach (StockMeta sm in _stockMeta)
-            store.AppendLine($"{sm.marketId}${sm.symbol}\x1F{sm.name}\u001f{sm.ISIN}");
-
-        return store.ToString();
     }
 
     public string GetCmdPrefixes() { return _componentName; }                                        // ICmdHandler
@@ -399,7 +383,7 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
         return new OkResult<string>("Cmd is OK:" + string.Join(",", parseResp.Data.Select(x => x.Key + "=" + x.Value)));
     }
 
-    protected string ExportXml(List<string> symbols = null) // Only used for BACKUPS
+    protected string ExportXml(List<string> symbols = null)
     {
         XElement rootPFS = new XElement("PFS");
         XElement stockMetaElem = new XElement("StockMeta");
@@ -419,34 +403,46 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
         return rootPFS.ToString();
     }
 
-    protected StockMeta[] ImportXml(string xml)             // Only used for BACKUPS
+    protected List<string> ImportXml(string xml)
     {
-        List<StockMeta> ret = new();
-        XDocument xmlDoc = XDocument.Parse(xml);
-        XElement rootPFS = xmlDoc.Descendants("PFS").First();
-        XElement stockMetaElem = rootPFS.Element("StockMeta");
+        List<string> warnings = new();
+        List<StockMeta> cfgs = new();
 
-        if (stockMetaElem == null)
-            return ret.ToArray();
-
-        foreach (XElement smElem in stockMetaElem.Descendants())
+        try
         {
-            if (smElem.Name.ToString() == "Stock")
+            XDocument xmlDoc = XDocument.Parse(xml);
+            XElement rootPFS = xmlDoc.Descendants("PFS").First();
+            XElement stockMetaElem = rootPFS.Element("StockMeta");
+
+            foreach (XElement smElem in stockMetaElem.Descendants())
             {
-                (MarketId marketId, string symbol) = StockMeta.ParseSRef((string)smElem.Attribute("SRef"));
-                string name = (string)smElem.Attribute("Name");
-                string ISIN = (string)smElem.Attribute("ISIN");
-                ret.Add(new StockMeta(marketId, symbol, name, _marketCurrencies.First(c => c.market == marketId).currency, ISIN));
-            }
-            else // !!!TODO!!! Remove soon, just changing format to avoid symbol on XML Names
-            {
-                string symbol = smElem.Name.ToString();
-                MarketId marketId = (MarketId)Enum.Parse(typeof(MarketId), (string)smElem.Attribute("MarketId"));
-                string name = (string)smElem.Attribute("Name");
-                string ISIN = (string)smElem.Attribute("ISIN");
-                ret.Add(new StockMeta(marketId, symbol, name, _marketCurrencies.First(c => c.market == marketId).currency, ISIN));
+                if (smElem.Name.ToString() == "Stock")
+                {
+                    string sRef = string.Empty;
+
+                    try
+                    {
+                        sRef = (string)smElem.Attribute("SRef");
+                        (MarketId marketId, string symbol) = StockMeta.ParseSRef(sRef);
+                        string name = (string)smElem.Attribute("Name");
+                        string ISIN = (string)smElem.Attribute("ISIN");
+                        cfgs.Add(new StockMeta(marketId, symbol, name, _marketCurrencies.First(c => c.market == marketId).currency, ISIN));
+                    }
+                    catch (Exception ex)
+                    {
+                        string wrnmsg = $"{_componentName}, failed to load {sRef} meta w exception [{ex.Message}]";
+                        warnings.Add(wrnmsg);
+                    }
+                }
             }
         }
-        return ret.ToArray();
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, failed to load metas w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        _stockMeta = cfgs.ToArray();
+        return warnings;
     }
 }

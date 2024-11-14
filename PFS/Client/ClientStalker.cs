@@ -83,7 +83,7 @@ public class ClientStalker : StalkerDoCmd, ICmdHandler, IDataOwner
         return StalkerXML.ExportXml(this, symbols);
     }
 
-    public Result RestoreBackup(string content)
+    public List<string> RestoreBackup(string content)
     {
         try
         {
@@ -93,12 +93,15 @@ public class ClientStalker : StalkerDoCmd, ICmdHandler, IDataOwner
             _stocks = data.Stocks;
             _sectors = data.Sectors;
 
-            return new OkResult(); // !!!TODO!!! No more result, instead warnings.. and no more autom wipe..
+            return warnings;
         }
-        catch ( Exception ex)
+        catch (Exception ex)
         {
-            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
-            return new FailResult($"ClientStalker: Exception: {ex.Message}");
+            List<string> warnings = new();
+            string wrnmsg = $"{_componentName}, failed to load stalker data w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+            return warnings;
         }
     }
 

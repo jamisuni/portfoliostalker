@@ -25,7 +25,7 @@ using Pfs.Types;
 namespace Pfs.Data;
 
 // Storage of user defined report filters
-public class StoreReportFilters : IDataOwner
+public class StoreReportFilters : IDataOwner // identical XML on backup & local storage
 {
     protected const string _componentName = "filters";
     protected readonly IPfsPlatform _platform;
@@ -90,46 +90,27 @@ public class StoreReportFilters : IDataOwner
         return ExportXml();
     }
 
-    public Result RestoreBackup(string content)
+    public List<string> RestoreBackup(string content)
     {
-        try
-        {
-            _stored = ImportXml(content);
-
-            return new OkResult();
-        }
-        catch (Exception ex)
-        {   // Not handled as critical error, as yes params are lost but hopefully nothing else not...
-            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
-            return new OkResult();
-        }
+        return ImportXml(content);
     }
 
     protected void LoadStorageContent()
     {
-        try
-        {
-            string stored = _platform.PermRead(_componentName);
+        string stored = _platform.PermRead(_componentName);
 
-            if (string.IsNullOrWhiteSpace(stored))
-            {
-                Init();
-                return;
-            }
-
-            _stored = ImportXml(stored);
-        }
-        catch (Exception ex)
+        if (string.IsNullOrWhiteSpace(stored))
         {
-            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
             Init();
-            _platform.PermRemove(_componentName);
+            return;
         }
+
+        List<string> warnings = ImportXml(stored);
     }
 
     protected void BackupToStorage()
     {
-        _platform.PermWrite(_componentName, CreateBackup());
+        _platform.PermWrite(_componentName, ExportXml());
     }
 
     protected string ExportXml()
@@ -148,17 +129,27 @@ public class StoreReportFilters : IDataOwner
         return rootPFS.ToString();
     }
 
-    protected ReportFilters[] ImportXml(string xml)
+    protected List<string> ImportXml(string xml)
     {   // Expected to be called from constructor, so fields should be properly set to defaults
+        List<string> warnings = new();
+        List<ReportFilters> filters = new();
 
-        XDocument xmlDoc = XDocument.Parse(xml);
-        XElement allFiltersElem = xmlDoc.Element("PFS").Element("Filters");
+        try
+        { 
+            XDocument xmlDoc = XDocument.Parse(xml);
+            XElement allFiltersElem = xmlDoc.Element("PFS").Element("Filters");
 
-        List<ReportFilters> ret = new();
+            foreach ( XElement filterElem in allFiltersElem.Elements() )
+                filters.Add(new ReportFilters(filterElem));
+        }
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, failed to load filters w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
 
-        foreach ( XElement filterElem in allFiltersElem.Elements() )
-            ret.Add(new ReportFilters(filterElem));
-
-        return ret.OrderBy(p => p.Name).ToArray();
+        _stored = filters.OrderBy(p => p.Name).ToArray();
+        return warnings;
     }
 }

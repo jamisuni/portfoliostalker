@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.en.html>.
  */
 
-using System.Text;
 using System.Xml.Linq;
 
 using Serilog;
@@ -25,7 +24,7 @@ using Pfs.Types;
 namespace Pfs.Data;
 
 // Helper class for StoreStockMeta to handle History part of it. Mainly as wants own storage file for this
-public class StoreStockMetaHist : IDataOwner
+public class StoreStockMetaHist : IDataOwner // identical XML on backup & local storage
 {
     protected const string _componentName = "stockhist";
     protected readonly IPfsPlatform _platform;
@@ -133,7 +132,7 @@ public class StoreStockMetaHist : IDataOwner
     public void OnDataInit() { Init(); }
 
     public void OnDataSaveStorage() {
-        _platform.PermWrite(_componentName, CreateStorageFormatContent());
+        _platform.PermWrite(_componentName, ExportXml());
     }
 
     public string CreateBackup()
@@ -146,21 +145,10 @@ public class StoreStockMetaHist : IDataOwner
         return ExportXml(symbols);
     }
 
-    public Result RestoreBackup(string content)
+    public List<string> RestoreBackup(string content)
     {
-        try
-        {
-            _stockHist = ImportXml(content);
-            return new OkResult();
-        }
-        catch (Exception ex)
-        {
-            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
-            return new FailResult($"StoreStockMetaHist: Exception: {ex.Message}");
-        }
+        return ImportXml(content);
     }
-
-    // StockMetaHist - Storage/Backup format: Type'\x1F'MarketId$Symbol'\x1F'MarketId$Symbol'\x1F'DateOnly\x1F'Comment
 
     public void LoadStorageContent()
     {
@@ -174,14 +162,14 @@ public class StoreStockMetaHist : IDataOwner
                 return;
 
             List<StockMetaHist> shList = new();
-            using (StringReader reader = new StringReader(stored))
+            using (StringReader reader = new StringReader(stored))              // !!!TODO!!! Remove ... moving XML...
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
                     string[] parts = line.Split('\x1F');
                     if (parts.Length != 5)
-                        continue;
+                        throw new Exception("to be gone soon...");
 
                     StockMetaHistType type = Enum.Parse<StockMetaHistType>(parts[0]);
 
@@ -190,22 +178,17 @@ public class StoreStockMetaHist : IDataOwner
             }
             _stockHist = shList.ToArray();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
             Init();
-            _platform.PermRemove(_componentName);
+
+            string content = _platform.PermRead(_componentName);            // !!!TODO!!! New tuff...
+
+            if (string.IsNullOrWhiteSpace(content))
+                return;
+
+            List<string> warnings = ImportXml(content);
         }
-    }
-
-    protected string CreateStorageFormatContent()
-    {
-        StringBuilder store = new();
-
-        foreach (StockMetaHist sh in _stockHist)
-            store.AppendLine($"{sh.Type.ToString()}\x1F{sh.UpdSRef}\x1F{sh.OldSRef}\x1F{sh.Date.ToYMD()}\x1F{sh.Note}");
-
-        return store.ToString();
     }
 
     protected string ExportXml(List<string> symbols = null)
@@ -233,25 +216,34 @@ public class StoreStockMetaHist : IDataOwner
         return rootPFS.ToString();
     }
 
-    protected StockMetaHist[] ImportXml(string xml)     // string newSRef, string oldSRef, DateOnly date, string comment
+    protected List<string> ImportXml(string xml)     // string newSRef, string oldSRef, DateOnly date, string comment
     {
-        List<StockMetaHist> ret = new();
-        XDocument xmlDoc = XDocument.Parse(xml);
-        XElement rootPFS = xmlDoc.Descendants("PFS").First();
-        XElement stockHistElem = rootPFS.Element("StockMetaHist");
+        List<string> warnings = new();
+        List<StockMetaHist> hist = new();
 
-        if (stockHistElem == null)
-            return ret.ToArray();
-
-        foreach (XElement shElem in stockHistElem.Descendants())
+        try
         {
-            DateOnly date = DateOnlyExtensions.ParseYMD(shElem.Name.ToString().Substring(1));
-            StockMetaHistType type = Enum.Parse<StockMetaHistType>((string)shElem.Attribute("Type"));
-            string upd = (string)shElem.Attribute("Upd");
-            string old = (string)shElem.Attribute("Old");
-            string note = (string)shElem.Attribute("Note");
-            ret.Add(new StockMetaHist(type, upd, old, date, note));
+            XDocument xmlDoc = XDocument.Parse(xml);
+            XElement rootPFS = xmlDoc.Descendants("PFS").First();
+            XElement stockHistElem = rootPFS.Element("StockMetaHist");
+
+            foreach (XElement shElem in stockHistElem.Descendants())
+            {
+                DateOnly date = DateOnlyExtensions.ParseYMD(shElem.Name.ToString().Substring(1));
+                StockMetaHistType type = Enum.Parse<StockMetaHistType>((string)shElem.Attribute("Type"));
+                string upd = (string)shElem.Attribute("Upd");
+                string old = (string)shElem.Attribute("Old");
+                string note = (string)shElem.Attribute("Note");
+                hist.Add(new StockMetaHist(type, upd, old, date, note));
+            }
         }
-        return ret.ToArray();
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, failed to load history info w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        _stockHist = hist.ToArray();
+        return warnings;
     }
 }

@@ -27,7 +27,7 @@ using static Pfs.Data.UserEvent;
 namespace Pfs.Data;
 
 // These event's track things are shown user daily as potentially important, like: Triggered Alarms, Order Expires, etc
-public class StoreUserEvents : IUserEvents, IDataOwner
+public class StoreUserEvents : IUserEvents, IDataOwner // No backup plans
 {
     protected const string _componentName = "events";
     protected readonly IPfsPlatform _platform;
@@ -257,11 +257,10 @@ public class StoreUserEvents : IUserEvents, IDataOwner
         return string.Empty;
     }
 
-    public Result RestoreBackup(string content)
+    public List<string> RestoreBackup(string content)
     {
         Init();
-
-        return new OkResult();
+        return new();
     }
 
     protected string CreateStorageFormatContent()

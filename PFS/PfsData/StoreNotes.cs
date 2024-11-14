@@ -18,6 +18,7 @@
 using System.Text;
 
 using Pfs.Types;
+using Serilog;
 
 namespace Pfs.Data;
 
@@ -203,9 +204,11 @@ public class StoreNotes : IDataOwner, IStockNotes
         return sb.ToString();
     }
 
-    public Result RestoreBackup(string content)
+    public List<string> RestoreBackup(string content)
     {   // Note! This doesnt need 'AllowUseStorage' as all called  functions has it
         //       and we do wanna call 'Store' even if not actually storing
+        List<string> warnings = new();
+
         Init();
 
         ClearStorageContent();
@@ -214,17 +217,26 @@ public class StoreNotes : IDataOwner, IStockNotes
 
         foreach (string notestr in split)
         {
-            if (string.IsNullOrWhiteSpace(notestr))
-                continue;
+            try
+            {
+                if (string.IsNullOrWhiteSpace(notestr))
+                    continue;
 
-            (string sRef, Note note, string errMsg) = Note.ParseExportFormat(notestr);
+                (string sRef, Note note, string errMsg) = Note.ParseExportFormat(notestr);
 
-            if (string.IsNullOrEmpty(errMsg) == false)
-                continue;
+                if (string.IsNullOrEmpty(errMsg) == false)
+                    continue;
 
-            Store(sRef, note);
+                Store(sRef, note);
+            }
+            catch (Exception ex)
+            {
+                string wrnmsg = $"{_componentName}, failed to load note w exception [{ex.Message}]";
+                warnings.Add(wrnmsg);
+                Log.Warning(wrnmsg);
+            }
         }
-        return new OkResult();
+        return warnings;
     }
 
     public void ClearStorageContent()

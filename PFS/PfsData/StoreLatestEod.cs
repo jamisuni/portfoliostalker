@@ -24,8 +24,8 @@ using Pfs.Types;
 
 namespace Pfs.Data;
 
-// Blazor specific implementation of EOD storage, and stock data giving. 
-public class StoreLatestEod : IEodLatest, IEodHistory, IDataOwner
+// Blazor specific implementation of EOD storage, providing latest & some history valuations
+public class StoreLatestEod : IEodLatest, IEodHistory, IDataOwner // identical XML on backup & local storage
 {
     protected const string _componentName = "eod";
     protected readonly IPfsPlatform _platform;
@@ -188,42 +188,22 @@ public class StoreLatestEod : IEodLatest, IEodHistory, IDataOwner
         return ExportXml(symbols);
     }
 
-    public Result RestoreBackup(string content)
+    public List<string> RestoreBackup(string content)
     {
-        try
-        {
-            _d = ImportXml(content);
-
-            return new OkResult();
-        }
-        catch ( Exception ex) 
-        {   // Note! This is NOT critical error for Restore - as can just refetch!
-            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
-            Init();
-            return new OkResult();
-        }
+        return ImportXml(content);
     }
 
     protected void LoadStorageContent()
     {
-        try
-        {
-            string stored = _platform.PermRead(_componentName);
+        string stored = _platform.PermRead(_componentName);
 
-            if (string.IsNullOrWhiteSpace(stored))
-            {
-                Init();
-                return;
-            }
-
-            _d = ImportXml(stored);
-        }
-        catch (Exception ex)
+        if (string.IsNullOrWhiteSpace(stored))
         {
-            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
             Init();
-            _platform.PermRemove(_componentName);
+            return;
         }
+
+        List<string> warnings = ImportXml(stored);
     }
 
     protected void BackupToStorage()
@@ -256,37 +236,53 @@ public class StoreLatestEod : IEodLatest, IEodHistory, IDataOwner
         return rootPFS.ToString();
     }
 
-    protected StoreData ImportXml(string xml)
+    protected List<string> ImportXml(string xml)
     {
-        StoreData ret = new();
+        List<string> warnings = new();
+        StoreData data = new();
 
-        XDocument xmlDoc = XDocument.Parse(xml);
-        XElement rootPFS = xmlDoc.Element("PFS");
-
-        XElement topElem = rootPFS.Element("Eod");
-        if (topElem != null && topElem.HasElements)
+        try
         {
-            ret.Date = DateOnlyExtensions.ParseYMD((string)topElem.Attribute("Date"));
+            XDocument xmlDoc = XDocument.Parse(xml);
+            XElement rootPFS = xmlDoc.Element("PFS");
 
-            foreach (XElement stockElem in topElem.Elements("Data"))
+            XElement topElem = rootPFS.Element("Eod");
+            if (topElem != null && topElem.HasElements)
             {
-                try
-                {
-                    StockData sd = new ((string)stockElem.Attribute("EOD"), (string)stockElem.Attribute("Hist"));
+                data.Date = DateOnlyExtensions.ParseYMD((string)topElem.Attribute("Date"));
 
-                    if (sd.IsEmpty() && sd.EOD.Date < _platform.GetCurrentUtcDate().AddMonths(-1))
-                        // there is no history, and last history fetched is over month old -> CLEANUP!
-                        continue;
-
-                    ret.Data.Add((string)stockElem.Attribute("SRef"), sd);
-                }
-                catch ( Exception ex )
+                foreach (XElement stockElem in topElem.Elements("Data"))
                 {
-                    Log.Warning($"{_componentName} ImportXml failed for {(string)stockElem.Attribute("SRef")} to exception: [{ex.Message}]");
+                    string sRef = string.Empty;
+
+                    try
+                    {
+                        sRef = (string)stockElem.Attribute("SRef");
+                        StockData sd = new((string)stockElem.Attribute("EOD"), (string)stockElem.Attribute("Hist"));
+
+                        if (sd.IsEmpty() && sd.EOD.Date < _platform.GetCurrentUtcDate().AddMonths(-1))
+                            // there is no history, and last history fetched is over month old -> CLEANUP!
+                            continue;
+
+                        data.Data.Add(sRef, sd);
+                    }
+                    catch (Exception ex)
+                    {
+                        string wrnmsg = $"{_componentName}, failed to load {sRef} configs w exception [{ex.Message}]";
+                        warnings.Add(wrnmsg);
+                        Log.Warning(wrnmsg);
+                    }
                 }
             }
         }
-        return ret;
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, failed to load existing configs w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        _d = data;
+        return warnings;
     }
 
     // Helper class to handle per stock one month history & latest EOD storing

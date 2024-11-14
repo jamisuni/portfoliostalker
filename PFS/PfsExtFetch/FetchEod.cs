@@ -557,10 +557,10 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
         return string.Empty;
     }
 
-    public Result RestoreBackup(string content)
+    public List<string> RestoreBackup(string content)
     {
         // Its just credit counters atm on backup, so cant see importance of restoring them
-        return new OkResult();
+        return new();
     }
 
     internal Dictionary<ExtProviderId, FetchEodTask.ProvPermInfo> LoadStorageContent()

@@ -44,7 +44,11 @@ public class RRAlarm
                 {   // first or highest
                     Over = alarm.Level;
                     OverP = procent;
-                    OverNote = $"{Over}: {alarm.Note}";
+
+                    if (rcEOD.fullEOD.HasHigh())
+                        OverNote = $"{Over}: {alarm.Note} (days highest {latestHigh.To00()})";
+                    else
+                        OverNote = $"{Over}: {alarm.Note}";
                 }
             }
             else if (alarm.AlarmType.IsUnderType())
@@ -55,7 +59,10 @@ public class RRAlarm
                 {
                     Under = alarm.Level;
                     UnderP = procent;
-                    UnderNote = $"{Under}: {alarm.Note}";
+                    if (rcEOD.fullEOD.HasLow())
+                        UnderNote = $"{Under}: {alarm.Note} (days lowest {latestLow.To00()})";
+                    else
+                        UnderNote = $"{Under}: {alarm.Note}";
                 }
             }
         }

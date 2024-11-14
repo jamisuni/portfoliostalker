@@ -28,7 +28,7 @@ using Pfs.Types;
 
 namespace Pfs.Data;
 
-public class StoreLatesRates : ILatestRates, ICmdHandler, IDataOwner
+public class StoreLatesRates : ILatestRates, ICmdHandler, IDataOwner // identical XML on backup & local storage
 {
     protected const string _componentName = "rates";
     protected readonly string storekey = "rates.json";
@@ -132,28 +132,9 @@ public class StoreLatesRates : ILatestRates, ICmdHandler, IDataOwner
         return ExportXml();
     }
 
-    public Result RestoreBackup(string content)
+    public List<string> RestoreBackup(string content)
     {
-        try
-        {
-            (CurrencyId homeCurrency, DateOnly date, CurrencyRate[] rates) = ImportXml(content);
-
-            if ( homeCurrency == CurrencyId.Unknown )
-                return new FailResult($"StoreLatesRates: Failed to get HomeCurrency");
-
-            if (rates != null)
-                Store(date, rates);
-            else
-                Init();
-
-            _data.HomeCurrency = homeCurrency;
-            return new OkResult();
-        }
-        catch (Exception ex)
-        {
-            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
-            return new FailResult($"StoreLatesRates: Exception: {ex.Message}");
-        }
+        return ImportXml(content);
     }
 
     protected void LoadStorageContent()
@@ -163,26 +144,26 @@ public class StoreLatesRates : ILatestRates, ICmdHandler, IDataOwner
             string stored = _platform.PermRead(storekey);
 
             if (string.IsNullOrWhiteSpace(stored) || stored == "{}")
-            {
-                Init();
-                return;
-            }
+                throw new Exception("wfefwe");
 
-            _data = JsonSerializer.Deserialize<LatestRates>(stored);
+            _data = JsonSerializer.Deserialize<LatestRates>(stored);            // !!!TODO!!! On transition.. remove this... XML is future local
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
             Init();
-            _platform.PermRemove(storekey);
+
+            string content = _platform.PermRead(_componentName);
+
+            if (string.IsNullOrWhiteSpace(content))
+                return;
+
+            List<string> warnings = ImportXml(content);
         }
     }
 
     protected void BackupToStorage()
     {
-        string dataJson = JsonSerializer.Serialize(_data);
-
-        _platform.PermWrite(storekey, dataJson);
+        _platform.PermWrite(_componentName, ExportXml());
     }
 
     public string GetCmdPrefixes() { return _componentName; }                                        // ICmdHandler
@@ -251,16 +232,27 @@ public class StoreLatesRates : ILatestRates, ICmdHandler, IDataOwner
         return rootPFS.ToString();
     }
 
-    protected (CurrencyId homeCurrency, DateOnly date, CurrencyRate[] rates) ImportXml(string xml)
+    protected List<string> ImportXml(string xml)
     {
-        CurrencyId homeCurrency = CurrencyId.Unknown;
-        XDocument xmlDoc = XDocument.Parse(xml);
-        XElement rootPFS = xmlDoc.Descendants("PFS").First();
-        XElement hcElem = rootPFS.Element("HomeCurrency");
-        if (hcElem == null)
-            return (CurrencyId.Unknown, DateOnly.MinValue, null);
+        XElement rootPFS = null;
+        List<string> warnings = new();
 
-        homeCurrency = (CurrencyId)Enum.Parse(typeof(CurrencyId), hcElem.Value);
+        try
+        {
+            XDocument xmlDoc = XDocument.Parse(xml);
+            rootPFS = xmlDoc.Descendants("PFS").First();
+
+            _data.HomeCurrency = (CurrencyId)Enum.Parse(typeof(CurrencyId), rootPFS.Element("HomeCurrency").Value);
+        }
+        catch (Exception ex)
+        {
+            string wrnmsg = $"!!!CRITICAL!!! {_componentName}, failed to load HomeCurrency w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+
+            Init();
+            return warnings;
+        }
 
         try
         {
@@ -275,11 +267,17 @@ public class StoreLatesRates : ILatestRates, ICmdHandler, IDataOwner
                 CurrencyId currencyId = (CurrencyId)Enum.Parse(typeof(CurrencyId), crElem.Name.ToString());
                 rates.Add(new CurrencyRate(currencyId, (decimal)crElem.Attribute("Rate")));
             }
-            return (homeCurrency, date, rates.ToArray());
+
+            SetRatesPer(rates.ToArray());
+            _data.Date = date;
+            return warnings;
         }
-        catch ( Exception )
-        {   // This is still accepted, as really HomeCurrency is only critical information
-            return (homeCurrency, DateOnly.MinValue, null);
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, failed to load currency rates w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+            return warnings;
         }
     }
 }

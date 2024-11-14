@@ -19,15 +19,14 @@ using System.Collections.Immutable;
 using System.Text;
 using System.Xml.Linq;
 
-using Serilog;
-
 using Pfs.Helpers;
 using Pfs.Types;
+using Serilog;
 
 namespace Pfs.Config;
 
 // Stores provider keys and provides access to provider's status and their configured private keys
-public class ProvConfig : IPfsProvConfig, ICmdHandler, IDataOwner
+public class ProvConfig : IPfsProvConfig, ICmdHandler, IDataOwner // identical XML on backup & local storage
 {
     protected const string _componentName = "cfgprov";
     protected IPfsPlatform _platform;
@@ -94,7 +93,7 @@ public class ProvConfig : IPfsProvConfig, ICmdHandler, IDataOwner
         return _configs.Keys.ToList();
     }
 
-    public event EventHandler<string> EventNewUnsavedContent;                   // IDataOwner
+    public event EventHandler<string> EventNewUnsavedContent;               // IDataOwner
     public string GetComponentName() { return _componentName; }
     public void OnDataInit() { Init(); }
     public void OnDataSaveStorage() { BackupToStorage(); }
@@ -109,38 +108,21 @@ public class ProvConfig : IPfsProvConfig, ICmdHandler, IDataOwner
         return string.Empty;
     }
 
-    public Result RestoreBackup(string content)
+    public List<string> RestoreBackup(string content)
     {
-        try
-        {
-            _configs = ImportXml(content);
-
-            return new OkResult();
-        }
-        catch (Exception ex)
-        {
-            Log.Warning($"{_componentName} RestoreBackup failed to exception: [{ex.Message}]");
-            return new FailResult($"ProvConfig: Exception: {ex.Message}");
-        }
+        return ImportXml(content);
     }
 
     protected void LoadStorageContent()
     {
-        try
-        {
-            Init();
+        Init();
 
-            string xml = _platform.PermRead(_componentName);
+        string xml = _platform.PermRead(_componentName);
 
-            if (string.IsNullOrWhiteSpace(xml) == false)
-                _configs = ImportXml(xml);
-        }
-        catch (Exception ex)
-        {
-            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
-            Init();
-            _platform.PermRemove(_componentName);
-        }
+        if (string.IsNullOrWhiteSpace(xml))
+            return;
+
+        List<string> warnings = ImportXml(xml);
     }
 
     protected void BackupToStorage()
@@ -171,26 +153,36 @@ public class ProvConfig : IPfsProvConfig, ICmdHandler, IDataOwner
         return rootPFS.ToString();
     }
 
-    protected Dictionary<ExtProviderId, string> ImportXml(string xml)
+    protected List<string> ImportXml(string xml)
     {
-        XDocument xmlDoc = XDocument.Parse(xml);
-        XElement rootPFS = xmlDoc.Element("PFS");
+        List<string> warnings = new();
+        Dictionary<ExtProviderId, string> cfgs = new();
 
-        Dictionary<ExtProviderId, string> ret = new();
+        try
+        { 
+            XDocument xmlDoc = XDocument.Parse(xml);
+            XElement rootPFS = xmlDoc.Element("PFS");
 
-        XElement allProvElem = rootPFS.Element("Providers");
-        if (allProvElem != null && allProvElem.HasElements)
-        {
-            foreach (XElement pcElem in allProvElem.Elements())
+            XElement allProvElem = rootPFS.Element("Providers");
+            if (allProvElem != null && allProvElem.HasElements)
             {
-                if (Enum.TryParse(pcElem.Name.ToString(), out ExtProviderId provId) == false ||
-                    pcElem.Attribute("PrivKey") == null)
-                    continue;
+                foreach (XElement pcElem in allProvElem.Elements())
+                {
+                    if (Enum.TryParse(pcElem.Name.ToString(), out ExtProviderId provId) == false ||
+                        pcElem.Attribute("PrivKey") == null)
+                        continue;
 
-                ret.Add(provId, (string)pcElem.Attribute("PrivKey"));
+                    cfgs.Add(provId, (string)pcElem.Attribute("PrivKey"));
+                }
             }
         }
-        return ret;
+        catch (Exception ex) {
+            string wrnmsg = $"{_componentName}, failed to load private key configs w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        _configs = cfgs;
+        return warnings;
     }
 
     public string GetCmdPrefixes() { return _componentName; }               // ICmdHandler
