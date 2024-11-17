@@ -66,7 +66,7 @@ public class MarketConfig : IMarketMeta, IPfsSetMarketConfig, ICmdHandler, IData
     {
         _platform = platform;
 
-        LoadStorageContent();
+        Init();
     }
 
     protected void Init()
@@ -193,8 +193,40 @@ public class MarketConfig : IMarketMeta, IPfsSetMarketConfig, ICmdHandler, IData
 
     public event EventHandler<string> EventNewUnsavedContent;                                       // IDataOwner
     public string GetComponentName() { return _componentName; }
-    public void OnDataInit() { Init(); }
-    public void OnDataSaveStorage() { BackupToStorage(); }
+    public void OnInitDefaults() { Init(); }
+
+    public List<string> OnLoadStorage()
+    {
+        List<string> warnings = new();
+
+        try
+        {
+            Init();
+
+            string xml = _platform.PermRead(_componentName);
+
+            if (string.IsNullOrWhiteSpace(xml))
+            {   // To simplify taking use, if nothing is stored we default to NYSE/NASDAQ as active
+                _configs.Add(MarketId.NASDAQ, new MarketUserInfo() { Active = true, });
+                _configs.Add(MarketId.NYSE, new MarketUserInfo() { Active = true, });
+
+                RecreateHolidayDateOnlys();
+                return new();
+            }
+
+            warnings = ImportXml(xml);
+            RecreateHolidayDateOnlys();
+        }
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, OnLoadStorage failed w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        return warnings;
+    }
+
+    public void OnSaveStorage() { BackupToStorage(); }
 
     public string CreateBackup()
     {
@@ -211,25 +243,6 @@ public class MarketConfig : IMarketMeta, IPfsSetMarketConfig, ICmdHandler, IData
         List<string> warnings = ImportXml(content);
         RecreateHolidayDateOnlys();
         return warnings;
-    }
-
-    protected void LoadStorageContent()
-    {
-        Init();
-
-        string xml = _platform.PermRead(_componentName);
-
-        if ( string.IsNullOrWhiteSpace(xml) )
-        {   // To simplify taking use, if nothing is stored we default to NYSE/NASDAQ as active
-            _configs.Add(MarketId.NASDAQ,   new MarketUserInfo() { Active = true, });
-            _configs.Add(MarketId.NYSE,     new MarketUserInfo() { Active = true, });
-
-            RecreateHolidayDateOnlys();
-            return;
-        }
-
-        List<string> warnings = ImportXml(xml);
-        RecreateHolidayDateOnlys();
     }
 
     protected void BackupToStorage()

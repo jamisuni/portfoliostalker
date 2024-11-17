@@ -24,8 +24,14 @@ public interface IDataOwner
 
     string GetComponentName();
 
-    // Used example after CleanUpAll to reinitialize components
-    void OnDataInit();
+    // No loading from anywhere, just 'clean' defaults
+    void OnInitDefaults();
+
+    // Part of startup cycle, does use local stored data or inits to defaults
+    List<string> OnLoadStorage();
+
+    // FE controls saving of all data thru this
+    void OnSaveStorage();
 
     string CreateBackup();
 
@@ -33,13 +39,10 @@ public interface IDataOwner
 
     List<string> RestoreBackup(string content);
 
-    // FE controls saving of all data thru this
-    void OnDataSaveStorage();
-
     /* !!!DOCUMENT!!! Data Handling
      * 
      * - Startup of application:
-     *      - All components are doing init/loading when they get called, no central control
+     *      - Components constructors init to default clear state. They are separately called to load stored content.
      * 
      * - Clean up everything:
      *      - PFS.Client does 'PermClearAll' that deletes all data from local storage

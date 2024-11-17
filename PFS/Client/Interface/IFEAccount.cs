@@ -90,4 +90,6 @@ public interface IFEAccount
     byte[] ExportAccountBackupAsZip();
 
     List<string> ImportAccountFromZip(byte[] zip);
+
+    byte[] ExportStorageDumpAsZip(string startupWarnings);
 }

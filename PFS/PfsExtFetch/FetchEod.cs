@@ -544,8 +544,9 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
 
     public event EventHandler<string> EventNewUnsavedContent; //<= doesnt send dirty event, but trusts that as data is received thats going to get saved together w credits                             
     public string GetComponentName() { return _componentName; }                                 // IDataOwner       -- dont really fit w credits data to model. needs thinking!
-    public void OnDataInit() { /*Init();????*/ }
-    public void OnDataSaveStorage() { BackupToStorage(); }
+    public void OnInitDefaults() { /*Init();????*/ }
+    public List<string> OnLoadStorage() { return new(); }
+    public void OnSaveStorage() { BackupToStorage(); }
 
     public string CreateBackup()
     {

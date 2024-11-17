@@ -357,4 +357,9 @@ public class FEAccount : IFEAccount
         // returns warnings
         return _clientData.ImportFromBackupZip(zip);
     }
+
+    public byte[] ExportStorageDumpAsZip(string startupWarnings)
+    {   // Debug purposes, gets all content of local storage to file
+        return _clientData.ExportStorageDumpAsZip(startupWarnings);
+    }
 }

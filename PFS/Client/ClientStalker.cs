@@ -20,7 +20,6 @@ using Pfs.Data.Stalker;
 using Pfs.Types;
 using System.Collections.Immutable;
 using System.Text;
-using System.Text.Json;
 using Serilog;
 
 namespace Pfs.Client;
@@ -29,9 +28,6 @@ namespace Pfs.Client;
 public class ClientStalker : StalkerDoCmd, ICmdHandler, IDataOwner
 {   // Note! 'StalkerDoCmd' is derived to get access to internals used for storing etc
     protected const string _componentName = "stalker";
-    protected const string storagePortfoliosKey = "PortfoliosJSON";
-    protected const string storageStocksKey = "StocksJSON";
-    protected const string storageSectorsKey = "SectorsJSON";
 
     protected IPfsPlatform _platform;
 
@@ -39,13 +35,12 @@ public class ClientStalker : StalkerDoCmd, ICmdHandler, IDataOwner
     {
         _platform = platform;
 
-        LoadStorageContent();
+        Init();
     }
 
-    protected void Init()
+    protected new void Init()
     {
-        _portfolios = new();
-        _stocks = new();
+        base.Init();
     }
 
     protected readonly static ImmutableArray<string> _cmdTemplates = [
@@ -70,8 +65,37 @@ public class ClientStalker : StalkerDoCmd, ICmdHandler, IDataOwner
 
     public event EventHandler<string> EventNewUnsavedContent;          // IDataOwner
     public string GetComponentName() { return _componentName; }
-    public void OnDataInit() { Init(); }
-    public void OnDataSaveStorage() { BackupToStorage(); }
+    public void OnInitDefaults() { Init(); }
+
+    public List<string> OnLoadStorage()
+    {
+        List<string> warnings = new();
+
+        try
+        {
+            Init();
+
+            string xml = _platform.PermRead(_componentName);
+
+            if (string.IsNullOrWhiteSpace(xml))
+                return new();
+
+            (StalkerXML.Imported data, warnings) = StalkerXML.ImportXml(xml);
+
+            _portfolios = data.Portfolios;
+            _stocks = data.Stocks;
+            _sectors = data.Sectors;
+        }
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, OnLoadStorage failed w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        return warnings;
+    }
+
+    public void OnSaveStorage() { BackupToStorage(); }
 
     public string CreateBackup()
     {
@@ -107,45 +131,7 @@ public class ClientStalker : StalkerDoCmd, ICmdHandler, IDataOwner
 
     protected void BackupToStorage()
     {
-        string portfoliosJSON = JsonSerializer.Serialize(_portfolios);
-        _platform.PermWrite(storagePortfoliosKey, portfoliosJSON);
-
-        string stocksJSON = JsonSerializer.Serialize(_stocks);
-        _platform.PermWrite(storageStocksKey, stocksJSON);
-
-        string sectorsJSON = JsonSerializer.Serialize(_sectors);
-        _platform.PermWrite(storageSectorsKey, sectorsJSON);
-    }
-
-    protected void LoadStorageContent()
-    {
-        try
-        {
-            Init();
-
-            string portfoliosJSON = _platform.PermRead(storagePortfoliosKey);
-
-            if (string.IsNullOrEmpty(portfoliosJSON) == false)
-                _portfolios = JsonSerializer.Deserialize<List<SPortfolio>>(portfoliosJSON);
-
-            string stocksJSON = _platform.PermRead(storageStocksKey);
-
-            if (string.IsNullOrEmpty(stocksJSON) == false)
-                _stocks = JsonSerializer.Deserialize<List<SStock>>(stocksJSON);
-
-            string sectorsJSON = _platform.PermRead(storageSectorsKey);
-
-            if (string.IsNullOrEmpty(sectorsJSON) == false)
-                _sectors = JsonSerializer.Deserialize<SSector[]>(sectorsJSON);
-        }
-        catch (Exception ex)
-        {
-            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
-            Init();
-            _platform.PermRemove(storagePortfoliosKey);
-            _platform.PermRemove(storageStocksKey);
-            _platform.PermRemove(storageSectorsKey);
-        }
+        _platform.PermWrite(_componentName, StalkerXML.ExportXml(this));
     }
 
     public string GetCmdPrefixes() { return _componentName; }                                       // ICmdHandler

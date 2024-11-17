@@ -20,7 +20,6 @@ using Pfs.Data;
 using Pfs.Types;
 using Serilog;
 using static Pfs.Client.IFEClient;
-using Pfs.Data.Stalker;
 
 namespace Pfs.Client;
 
@@ -34,6 +33,14 @@ public class Client : IDisposable, IFEClient
         {
             evPfsClient2PHeader = null;
             evPfsClient2PHeader += value;
+
+            // Note! This is risky for order, but seams to be well as BE side is initialized first.
+            // At startup loading time 'ClientData' initializes all 'IDataOwners' using 'OnLoadStorage'
+            // and collects returned errors those happen on loading locally stored data. These errors
+            // are passed here to UI side PageHeader to be shown for user as means some data was lost!
+            List<string> startupWarnings = _clientData.StartupWarnings;
+            if ( startupWarnings.Count() > 0)
+                _pfsStatus.SendPfsClientEvent(PfsClientEventId.StartupWarnings, startupWarnings);
         }
         remove
         {
@@ -159,6 +166,7 @@ public class Client : IDisposable, IFEClient
                 // These are *not* allowed to be passed for UI
                 break;
 
+            case PfsClientEventId.StartupWarnings:
             case PfsClientEventId.FetchEodsStarted:
             case PfsClientEventId.FetchEodsFinished:
             case PfsClientEventId.StatusUnsavedData:

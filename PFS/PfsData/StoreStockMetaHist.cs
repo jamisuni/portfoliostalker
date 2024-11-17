@@ -35,7 +35,7 @@ public class StoreStockMetaHist : IDataOwner // identical XML on backup & local 
     {
         _platform = pfsPlatform;
 
-        LoadStorageContent();
+        Init();
     }
 
     public void Init()
@@ -129,9 +129,33 @@ public class StoreStockMetaHist : IDataOwner // identical XML on backup & local 
 
     public event EventHandler<string> EventNewUnsavedContent;                                       // IDataOwner
     public string GetComponentName() { return _componentName; }
-    public void OnDataInit() { Init(); }
+    public void OnInitDefaults() { Init(); }
 
-    public void OnDataSaveStorage() {
+    public List<string> OnLoadStorage()
+    {
+        List<string> warnings = new();
+
+        try
+        {
+            Init();
+
+            string content = _platform.PermRead(_componentName);
+
+            if (string.IsNullOrWhiteSpace(content))
+                return new();
+
+            warnings = ImportXml(content);
+        }
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, OnLoadStorage failed w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        return warnings;
+    }
+
+    public void OnSaveStorage() {
         _platform.PermWrite(_componentName, ExportXml());
     }
 
@@ -148,47 +172,6 @@ public class StoreStockMetaHist : IDataOwner // identical XML on backup & local 
     public List<string> RestoreBackup(string content)
     {
         return ImportXml(content);
-    }
-
-    public void LoadStorageContent()
-    {
-        try
-        {
-            Init();
-
-            string stored = _platform.PermRead(_componentName);
-
-            if (string.IsNullOrWhiteSpace(stored))
-                return;
-
-            List<StockMetaHist> shList = new();
-            using (StringReader reader = new StringReader(stored))              // !!!TODO!!! Remove ... moving XML...
-            {
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    string[] parts = line.Split('\x1F');
-                    if (parts.Length != 5)
-                        throw new Exception("to be gone soon...");
-
-                    StockMetaHistType type = Enum.Parse<StockMetaHistType>(parts[0]);
-
-                    shList.Add(new StockMetaHist(type, parts[1], parts[2], DateOnlyExtensions.ParseYMD(parts[3]), parts[4]));
-                }
-            }
-            _stockHist = shList.ToArray();
-        }
-        catch (Exception)
-        {
-            Init();
-
-            string content = _platform.PermRead(_componentName);            // !!!TODO!!! New tuff...
-
-            if (string.IsNullOrWhiteSpace(content))
-                return;
-
-            List<string> warnings = ImportXml(content);
-        }
     }
 
     protected string ExportXml(List<string> symbols = null)

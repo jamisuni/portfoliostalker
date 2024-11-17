@@ -164,6 +164,17 @@ public partial class PageHeader
 
             switch (clientEvId)
             {
+                case PfsClientEventId.StartupWarnings:
+                    {
+                        List<string> warnings = (List<string>)args.Data;
+                        var parameters = new DialogParameters {
+                            { "Warnings",  string.Join(Environment.NewLine, warnings) },
+                        };
+                        DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
+                        _ = Dialog.Show<DlgStartupWarnings>(null, parameters, maxWidth);
+                    }
+                    break;
+
                 case PfsClientEventId.StatusUnsavedData:
                     // This indicates that some component has unsaved data, so refresh display to show save button
                     _unsavedDataStatus = (bool)args.Data;

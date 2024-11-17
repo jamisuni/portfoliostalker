@@ -21,6 +21,7 @@ using System.Text;
 using Serilog;
 
 using Pfs.Types;
+using Pfs.Config;
 
 namespace Pfs.Client;
 
@@ -28,13 +29,20 @@ namespace Pfs.Client;
 public class ClientData
 {
     protected IPfsStatus _pfsStatus;
+    protected IPfsPlatform _pfsPlatform;
+    protected IPfsProvConfig _pfsProvConfig;
 
     protected bool _unsavedDataStatus = false;
     protected DataOwner[] _dataOwners;
 
-    public ClientData(IEnumerable<IDataOwner> dataOwners, IPfsStatus pfsStatus)
+    protected List<string> _startupWarnings = new();
+    public List<string> StartupWarnings { get { List<string> ret = _startupWarnings; _startupWarnings = new(); return ret; } }
+
+    public ClientData(IEnumerable<IDataOwner> dataOwners, IPfsStatus pfsStatus, IPfsPlatform pfsPlatform, IPfsProvConfig pfsProvConfig)
     {
         _pfsStatus = pfsStatus;
+        _pfsPlatform = pfsPlatform;
+        _pfsProvConfig = pfsProvConfig;
 
         List<DataOwner> tempOwners = new();
         foreach (IDataOwner iDo in dataOwners)
@@ -48,6 +56,11 @@ public class ClientData
             iDo.EventNewUnsavedContent += OnEventNewUnsavedContent;
         }
         _dataOwners = tempOwners.ToArray();
+
+        foreach ( DataOwner iDo in _dataOwners)
+        {   // On startup, all loading of locally stored data to 'IDataOwner's happens here!
+            _startupWarnings.AddRange(iDo.Ref.OnLoadStorage());
+        }
     }
 
     public void OnEventNewUnsavedContent(object sender, string cName) // 2024-Apr: Keep this like this!
@@ -66,7 +79,7 @@ public class ClientData
     public void DoSaveData()
     {
         foreach (DataOwner dataOwner in _dataOwners)
-            dataOwner.Ref.OnDataSaveStorage();
+            dataOwner.Ref.OnSaveStorage();
 
         _dataOwners = _dataOwners.Select(o => { o.UnsavedData = false; return o; }).ToArray(); // Later! Atm this 'UnsavedData' is not even used from here!
 
@@ -77,7 +90,7 @@ public class ClientData
     public void DoInitDataOwners()
     {
         foreach (DataOwner dataOwner in _dataOwners)
-            dataOwner.Ref.OnDataInit();
+            dataOwner.Ref.OnInitDefaults();
 
         _pfsStatus.SendPfsClientEvent(PfsClientEventId.StatusUnsavedData, false);
     }
@@ -182,6 +195,45 @@ public class ClientData
             warnings.Add($"Close and reopen application plz! ImportFromBackupZip failed to: {ex.Message}");
             return warnings;
         }
+    }
+
+    public byte[] ExportStorageDumpAsZip(string startupWarnings)
+    {
+        var ms = new MemoryStream();
+
+        using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, true))
+        {
+            if (string.IsNullOrWhiteSpace(startupWarnings) == false)
+            {
+                var notesEntry = zip.CreateEntry("StartupWarnings.txt");
+                using (var writer = new StreamWriter(notesEntry.Open(), Encoding.ASCII))
+                {
+                    writer.WriteLine(startupWarnings);
+                }
+            }
+
+            foreach (string storageKey in _pfsPlatform.PermGetKeys())
+            {
+                string backupContent;
+
+                if (storageKey == ProvConfig._componentName)
+                    backupContent = _pfsProvConfig.GetXmlWithHiddenKeys();
+                else
+                    backupContent = _pfsPlatform.PermRead(storageKey);
+
+                if (string.IsNullOrWhiteSpace(backupContent))
+                    continue;
+
+                var notesEntry = zip.CreateEntry($"{storageKey}.txt");
+                using (var writer = new StreamWriter(notesEntry.Open(), Encoding.ASCII))
+                {
+                    writer.WriteLine(backupContent);
+                }
+            }
+            zip.Dispose();
+        }
+        ms.Seek(0, SeekOrigin.Begin);
+        return ms.ToArray();
     }
 
     protected struct DataOwner

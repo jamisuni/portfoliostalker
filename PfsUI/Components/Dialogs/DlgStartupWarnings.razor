@@ -1,0 +1,17 @@
+﻿@namespace PfsUI.Components
+
+<MudDialog>
+    <TitleContent>
+        <b>Partial failure on startup</b>
+    </TitleContent>
+    <DialogContent>
+
+        <MudTextField T="string" Text="@Warnings" Variant="Variant.Outlined" ReadOnly="true" Lines="10" />
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="DlgDumpAsync">Export Storage</MudButton>
+        <MudButton OnClick="DlgCancel">OK</MudButton>
+    </DialogActions>
+</MudDialog>

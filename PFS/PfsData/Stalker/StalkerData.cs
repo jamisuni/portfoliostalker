@@ -32,6 +32,13 @@ public class StalkerData
     // User sectors definations, giving them name and fields
     protected SSector[] _sectors = new SSector[SSector.MaxSectors];
 
+    public void Init()
+    {
+        _portfolios = new();
+        _stocks = new();
+        _sectors = new SSector[SSector.MaxSectors];
+    }
+
     public static void DeepCopy(StalkerData from, StalkerData to) 
     {
         to._portfolios = new();

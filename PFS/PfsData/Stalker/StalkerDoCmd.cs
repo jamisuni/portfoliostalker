@@ -28,6 +28,12 @@ public class StalkerDoCmd : StalkerData
     // Has ability to collect list of performed transactions, but requires activation
     protected List<string> _actions = null;
 
+    public new void Init()
+    {
+        base.Init();
+        _actions = new List<string>();
+    }
+
     // This is main interface to operate StalkerContent with Action cmdLine -commands, requires Named parameters
     public Result DoAction(string cmdLine)
     {

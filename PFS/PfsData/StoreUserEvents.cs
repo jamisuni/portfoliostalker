@@ -27,7 +27,7 @@ using static Pfs.Data.UserEvent;
 namespace Pfs.Data;
 
 // These event's track things are shown user daily as potentially important, like: Triggered Alarms, Order Expires, etc
-public class StoreUserEvents : IUserEvents, IDataOwner // No backup plans
+public class StoreUserEvents : IUserEvents, IDataOwner // No backup plans, uses custom format locally
 {
     protected const string _componentName = "events";
     protected readonly IPfsPlatform _platform;
@@ -56,7 +56,7 @@ public class StoreUserEvents : IUserEvents, IDataOwner // No backup plans
         _platform = pfsPlatform;
         _pfsStatus = pfsStatus;
 
-        LoadStorageContent();
+        Init();
     }
 
     protected void Init()
@@ -240,9 +240,45 @@ public class StoreUserEvents : IUserEvents, IDataOwner // No backup plans
 
     public event EventHandler<string> EventNewUnsavedContent;                                       // IDataOwner
     public string GetComponentName() { return _componentName; }
-    public void OnDataInit() { Init(); }
+    public void OnInitDefaults() { Init(); }
 
-    public void OnDataSaveStorage()
+    public List<string> OnLoadStorage()
+    {
+        List<string> warnings = new();
+
+        try
+        {
+            Init();
+
+            string stored = _platform.PermRead(_componentName);
+
+            if (string.IsNullOrWhiteSpace(stored))
+                return new();
+
+            using (StringReader reader = new StringReader(stored))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (string.IsNullOrWhiteSpace(line) || line[1] != '#')
+                        continue;
+
+                    UserEventStatus status = EnumExtensions.ConvertBack<UserEventStatus>(line.Substring(0, 1));
+
+                    _events.Add(new UserEventInfo(status, new UserEvent(line.Substring(2))));
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, OnLoadStorage failed w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        return warnings;
+    }
+
+    public void OnSaveStorage()
     {
         _platform.PermWrite(_componentName, CreateStorageFormatContent());
     }
@@ -273,40 +309,6 @@ public class StoreUserEvents : IUserEvents, IDataOwner // No backup plans
 
             store.AppendLine(status + ev.Data.GetStorageFormat());
         }
-
         return store.ToString();
-    }
-
-    public void LoadStorageContent()
-    {
-        try
-        {
-            Init();
-
-            string stored = _platform.PermRead(_componentName);
-
-            if (string.IsNullOrWhiteSpace(stored))
-                return;
-
-            using (StringReader reader = new StringReader(stored))
-            {
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    if (string.IsNullOrWhiteSpace(line) || line[1] != '#')
-                        continue;
-
-                    UserEventStatus status = EnumExtensions.ConvertBack<UserEventStatus>(line.Substring(0, 1));
-
-                    _events.Add(new UserEventInfo(status, new UserEvent(line.Substring(2))));
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Warning($"{_componentName} LoadStorageContent failed to exception: [{ex.Message}]");
-            Init();
-            _platform.PermRemove(_componentName);
-        }
     }
 }

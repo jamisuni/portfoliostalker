@@ -58,22 +58,13 @@ public class StoreNotes : IDataOwner, IStockNotes
         _platform = pfsPlatform;
         _pfsStatus = pfsStatus;
         _stockMetaProv = stockMetaProv;
+
         Init();
     }
 
     protected void Init()
     {
         _cache = new();
-
-        if (_pfsStatus.AllowUseStorage == false)
-            return;
-
-        foreach (string skey in _platform.PermGetKeys().Where(k => k.StartsWith(prefixstorekey)))
-        {
-            string sRef = StoreName2SRef(skey);
-            // Read note, and get it header to be added cache
-            AddToCache(sRef, Get(sRef)?.GetHeader());
-        }
     }
 
     public string GetHeader(string sRef)
@@ -162,8 +153,33 @@ public class StoreNotes : IDataOwner, IStockNotes
 
     public event EventHandler<string> EventNewUnsavedContent;                                       // IDataOwner
     public string GetComponentName() { return _componentName; }
-    public void OnDataInit() { Init(); }
-    public void OnDataSaveStorage() { }
+    public void OnInitDefaults() { Init(); }
+
+    public List<string> OnLoadStorage()
+    {
+        List<string> warnings = new();
+
+        try
+        {
+            Init();
+
+            foreach (string skey in _platform.PermGetKeys().Where(k => k.StartsWith(prefixstorekey)))
+            {
+                string sRef = StoreName2SRef(skey);
+                // Read note, and get it header to be added cache
+                AddToCache(sRef, Get(sRef)?.GetHeader());
+            }
+        }
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, OnLoadStorage failed w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        return warnings;
+    }
+
+    public void OnSaveStorage() { }
 
     public string CreateBackup()
     {

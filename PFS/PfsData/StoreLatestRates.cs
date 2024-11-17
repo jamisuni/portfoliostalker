@@ -51,7 +51,7 @@ public class StoreLatesRates : ILatestRates, ICmdHandler, IDataOwner // identica
     {
         _platform = pfsPlatform;
 
-        LoadStorageContent();
+        Init();
     }
 
     protected void Init()
@@ -119,8 +119,33 @@ public class StoreLatesRates : ILatestRates, ICmdHandler, IDataOwner // identica
 
     public event EventHandler<string> EventNewUnsavedContent;                                       // IDataOwner
     public string GetComponentName() { return _componentName; }
-    public void OnDataInit() { Init(); }
-    public void OnDataSaveStorage() { BackupToStorage(); }
+    public void OnInitDefaults() { Init(); }
+
+    public List<string> OnLoadStorage()
+    {
+        List<string> warnings = new();
+
+        try
+        {
+            Init();
+
+            string content = _platform.PermRead(_componentName);
+
+            if (string.IsNullOrWhiteSpace(content))
+                return new();
+
+            warnings = ImportXml(content);
+        }
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, OnLoadStorage failed w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        return warnings;
+    }
+
+    public void OnSaveStorage() { BackupToStorage(); }
 
     public string CreateBackup()
     {
@@ -137,36 +162,12 @@ public class StoreLatesRates : ILatestRates, ICmdHandler, IDataOwner // identica
         return ImportXml(content);
     }
 
-    protected void LoadStorageContent()
-    {
-        try
-        {
-            string stored = _platform.PermRead(storekey);
-
-            if (string.IsNullOrWhiteSpace(stored) || stored == "{}")
-                throw new Exception("wfefwe");
-
-            _data = JsonSerializer.Deserialize<LatestRates>(stored);            // !!!TODO!!! On transition.. remove this... XML is future local
-        }
-        catch (Exception)
-        {
-            Init();
-
-            string content = _platform.PermRead(_componentName);
-
-            if (string.IsNullOrWhiteSpace(content))
-                return;
-
-            List<string> warnings = ImportXml(content);
-        }
-    }
-
     protected void BackupToStorage()
     {
         _platform.PermWrite(_componentName, ExportXml());
     }
 
-    public string GetCmdPrefixes() { return _componentName; }                                        // ICmdHandler
+    public string GetCmdPrefixes() { return _componentName; }                                       // ICmdHandler
 
     public async Task<Result<string>> CmdAsync(string cmd)                                          // ICmdHandler
     {

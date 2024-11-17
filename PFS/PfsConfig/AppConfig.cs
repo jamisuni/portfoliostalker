@@ -94,7 +94,7 @@ public class AppConfig : ICmdHandler, IDataOwner // identical XML on backup & lo
     {
         _platform = platform;
 
-        LoadStorageContent();
+        Init();
     }
 
     protected void Init()
@@ -127,8 +127,33 @@ public class AppConfig : ICmdHandler, IDataOwner // identical XML on backup & lo
 
     public event EventHandler<string> EventNewUnsavedContent;                                       // IDataOwner
     public string GetComponentName() { return _componentName; }
-    public void OnDataInit() { Init(); }
-    public void OnDataSaveStorage() { BackupToStorage(); }
+    public void OnInitDefaults() { Init(); }
+
+    public List<string> OnLoadStorage()
+    {
+        List<string> warnings = new();
+
+        try
+        {
+            Init();
+
+            string xml = _platform.PermRead(_componentName);
+
+            if (string.IsNullOrWhiteSpace(xml))
+                return new();
+
+            warnings = ImportXml(xml);
+        }
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, OnLoadStorage failed w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        return warnings;
+    }
+
+    public void OnSaveStorage() { BackupToStorage(); }
 
     public string CreateBackup()
     {
@@ -143,18 +168,6 @@ public class AppConfig : ICmdHandler, IDataOwner // identical XML on backup & lo
     public List<string> RestoreBackup(string content)
     {
         return ImportXml(content);
-    }
-
-    protected void LoadStorageContent()
-    {
-        Init();
-
-        string xml = _platform.PermRead(_componentName);
-
-        if (string.IsNullOrWhiteSpace(xml))
-            return;
-
-        List<string> warnings = ImportXml(xml);
     }
 
     protected void BackupToStorage()

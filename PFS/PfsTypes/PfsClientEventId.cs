@@ -21,6 +21,8 @@ public enum PfsClientEventId
 {
     Unknown = 0,
 
+    StartupWarnings,                // (data=List<string>) Something was failing on loading local content on startup
+
     FetchEodsStarted,               // (data=null) Allows different fetch operations to control 'busy' spinner on pageheader
 
     FetchEodsFinished,              // (data=null) Send when last of EOD fetch requests finished -> report instand update for FE

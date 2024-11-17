@@ -44,7 +44,8 @@ public class ClientCmdTerminal : IFECmdTerminal
         "stock sref",
         "destroystock sref",
         "sectors",
-        "partialbackupzip symbols filename"
+        "partialbackupzip symbols filename",
+        "storagedebugzip"
     ];
 
     public ClientCmdTerminal(IEnumerable<ICmdHandler> handlers, IFetchRates ratesProv, IStockMeta stockMetaProv, IStockMetaUpdate stockMetaUpdate, ClientStalker clientStalker, ILatestRates latestRatesProv, ClientData clientData)
@@ -209,6 +210,12 @@ public class ClientCmdTerminal : IFECmdTerminal
 
                     byte[] zip = _clientData.ExportPartialBackupAsZip(symbols.ToList());
 
+                    return new OkResult<string>(Convert.ToBase64String(zip));
+                }
+
+            case "storagedebugzip":
+                {
+                    byte[] zip = _clientData.ExportStorageDumpAsZip(string.Empty);
                     return new OkResult<string>(Convert.ToBase64String(zip));
                 }
         }

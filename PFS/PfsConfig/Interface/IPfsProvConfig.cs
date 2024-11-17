@@ -28,5 +28,8 @@ public interface IPfsProvConfig
     string GetPrivateKey(ExtProviderId provider);
 
     // Returns only those that has key set atm
-    List<ExtProviderId> GetActiveProviders(); 
+    List<ExtProviderId> GetActiveProviders();
+
+    // Used on local storage dump replacement wo revealing keys
+    string GetXmlWithHiddenKeys();
 }

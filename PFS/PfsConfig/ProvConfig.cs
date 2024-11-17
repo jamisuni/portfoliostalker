@@ -28,7 +28,7 @@ namespace Pfs.Config;
 // Stores provider keys and provides access to provider's status and their configured private keys
 public class ProvConfig : IPfsProvConfig, ICmdHandler, IDataOwner // identical XML on backup & local storage
 {
-    protected const string _componentName = "cfgprov";
+    public const string _componentName = "cfgprov";
     protected IPfsPlatform _platform;
 
     public event EventHandler<ExtProviderId> EventProvConfigsChanged;       // IPfsProvConfig
@@ -46,7 +46,7 @@ public class ProvConfig : IPfsProvConfig, ICmdHandler, IDataOwner // identical X
     {
         _platform = platform;
 
-        LoadStorageContent();
+        Init();
     }
 
     protected void Init()
@@ -93,10 +93,40 @@ public class ProvConfig : IPfsProvConfig, ICmdHandler, IDataOwner // identical X
         return _configs.Keys.ToList();
     }
 
+    public string GetXmlWithHiddenKeys()
+    {
+        return ExportXml(false /*includeKeys*/);
+    }
+
     public event EventHandler<string> EventNewUnsavedContent;               // IDataOwner
     public string GetComponentName() { return _componentName; }
-    public void OnDataInit() { Init(); }
-    public void OnDataSaveStorage() { BackupToStorage(); }
+    public void OnInitDefaults() { Init(); }
+
+    public List<string> OnLoadStorage()
+    {
+        List<string> warnings = new();
+
+        try
+        {
+            Init();
+
+            string xml = _platform.PermRead(_componentName);
+
+            if (string.IsNullOrWhiteSpace(xml))
+                return new();
+
+            warnings = ImportXml(xml);
+        }
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, OnLoadStorage failed w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        return warnings;
+    }
+
+    public void OnSaveStorage() { BackupToStorage(); }
 
     public string CreateBackup()
     {
@@ -113,24 +143,12 @@ public class ProvConfig : IPfsProvConfig, ICmdHandler, IDataOwner // identical X
         return ImportXml(content);
     }
 
-    protected void LoadStorageContent()
-    {
-        Init();
-
-        string xml = _platform.PermRead(_componentName);
-
-        if (string.IsNullOrWhiteSpace(xml))
-            return;
-
-        List<string> warnings = ImportXml(xml);
-    }
-
     protected void BackupToStorage()
     {
         _platform.PermWrite(_componentName, ExportXml());
     }
 
-    protected string ExportXml()
+    protected string ExportXml(bool includeKeys = true)
     {
         XElement rootPFS = new XElement("PFS");
 
@@ -145,7 +163,10 @@ public class ProvConfig : IPfsProvConfig, ICmdHandler, IDataOwner // identical X
 
             XElement pcElem = new XElement(pc.Key.ToString());
 
-            pcElem.SetAttributeValue("PrivKey", pc.Value);
+            if ( includeKeys )
+                pcElem.SetAttributeValue("PrivKey", pc.Value);
+            else // when doing local dump thats kind of 'send to developer' file.. leaving exact keys off
+                pcElem.SetAttributeValue("PrivKey", $"Key len={pc.Value.Length} as [{new string(pc.Value.Take(3).ToArray())}...{new string(pc.Value.TakeLast(3).ToArray())}]");
 
             allProvElem.Add(pcElem);
         }

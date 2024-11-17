@@ -68,7 +68,7 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
                 _marketCurrencies[p++] = new MC(marketId, marketMetaProv.Get(marketId).Currency);
         }
 
-        LoadStorageContent();
+        Init();
     }
 
     protected void Init()
@@ -231,9 +231,33 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
 
     public event EventHandler<string> EventNewUnsavedContent;                                                       // IDataOwner
     public string GetComponentName() { return _componentName; }
-    public void OnDataInit() { Init(); }
+    public void OnInitDefaults() { Init(); }
 
-    public void OnDataSaveStorage() {
+    public List<string> OnLoadStorage()
+    {
+        List<string> warnings = new();
+
+        try
+        {
+            Init();
+
+            string content = _platform.PermRead(_componentName);
+
+            if (string.IsNullOrWhiteSpace(content))
+                return new();
+
+            warnings = ImportXml(content);
+        }
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, OnLoadStorage failed w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        return warnings;
+    }
+
+    public void OnSaveStorage() {
         _platform.PermWrite(_componentName, ExportXml());
     }
 
@@ -250,52 +274,6 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
     public List<string> RestoreBackup(string content)
     {
         return ImportXml(content);
-    }
-
-    public void LoadStorageContent()
-    {
-        try
-        {
-            Init();
-
-            string stored = _platform.PermRead(_componentName);
-
-            if (string.IsNullOrWhiteSpace(stored))
-                return;
-
-            List<StockMeta> smList = new();
-            using (StringReader reader = new StringReader(stored))          // !!!TODO!!! Remove all this.. going away.. XML is future...
-            {
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    string[] parts = line.Split('\x1F');
-                    if (parts.Length < 2)
-                        throw new Exception("to be removed");
-
-                    var s = StockMeta.ParseSRef(parts[0]);
-
-                    string ISIN = string.Empty;
-
-                    if (parts.Length == 3)
-                        ISIN = parts[2];
-
-                    smList.Add(new StockMeta(s.marketId, s.symbol, parts[1]/*name*/, _marketCurrencies.First(c => c.market == s.marketId).currency, ISIN));
-                }
-            }
-            _stockMeta = smList.ToArray();
-        }
-        catch (Exception)
-        {
-            Init();                                                     // !!!TODO!!! This is future...
-
-            string content = _platform.PermRead(_componentName);
-
-            if (string.IsNullOrWhiteSpace(content))
-                return;
-
-            List<string> warnings = ImportXml(content);
-        }
     }
 
     public string GetCmdPrefixes() { return _componentName; }                                        // ICmdHandler

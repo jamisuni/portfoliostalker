@@ -36,7 +36,7 @@ public class StoreReportFilters : IDataOwner // identical XML on backup & local 
     {
         _platform = pfsPlatform;
 
-        LoadStorageContent();
+        Init();
     }
 
     protected void Init()
@@ -77,8 +77,34 @@ public class StoreReportFilters : IDataOwner // identical XML on backup & local 
 
     public event EventHandler<string> EventNewUnsavedContent;                                       // IDataOwner
     public string GetComponentName() { return _componentName; }
-    public void OnDataInit() { Init(); }
-    public void OnDataSaveStorage() { BackupToStorage(); }
+    public void OnInitDefaults() { Init(); }
+
+    public List<string> OnLoadStorage()
+    {
+        List<string> warnings = new();
+
+        try
+        {
+            string stored = _platform.PermRead(_componentName);
+
+            if (string.IsNullOrWhiteSpace(stored))
+            {
+                Init();
+                return new();
+            }
+
+            warnings = ImportXml(stored);
+        }
+        catch (Exception ex)
+        {
+            string wrnmsg = $"{_componentName}, OnLoadStorage failed w exception [{ex.Message}]";
+            warnings.Add(wrnmsg);
+            Log.Warning(wrnmsg);
+        }
+        return warnings;
+    }
+
+    public void OnSaveStorage() { BackupToStorage(); }
 
     public string CreateBackup()
     {
@@ -93,19 +119,6 @@ public class StoreReportFilters : IDataOwner // identical XML on backup & local 
     public List<string> RestoreBackup(string content)
     {
         return ImportXml(content);
-    }
-
-    protected void LoadStorageContent()
-    {
-        string stored = _platform.PermRead(_componentName);
-
-        if (string.IsNullOrWhiteSpace(stored))
-        {
-            Init();
-            return;
-        }
-
-        List<string> warnings = ImportXml(stored);
     }
 
     protected void BackupToStorage()
