@@ -87,44 +87,47 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
         _pendingSymbols = new FetchEodPending(fetchConfig);
 
         _provConfig.EventProvConfigsChanged += OnEventProvConfigsChanged;
+    }
 
+    protected void InitProviders()
+    {
         List<FetchEodTask> tasks = new();
 
         Dictionary<ExtProviderId, FetchEodTask.ProvPermInfo> permTaskInfo = LoadStorageContent();
 
         {
-            ExtAlphaVantage alpha = new(pfsStatus);
-            FetchEodTask alphaF = new(pfsStatus, ExtProviderId.AlphaVantage, alpha, alpha, permTaskInfo.TryGetValue(ExtProviderId.AlphaVantage, out var perm_a) ? perm_a : null);
+            ExtAlphaVantage alpha = new(_pfsStatus);
+            FetchEodTask alphaF = new(_pfsStatus, ExtProviderId.AlphaVantage, alpha, alpha, permTaskInfo.TryGetValue(ExtProviderId.AlphaVantage, out var perm_a) ? perm_a : null);
             alphaF.SetPrivKey(_provConfig.GetPrivateKey(ExtProviderId.AlphaVantage));
             tasks.Add(alphaF);
         }
         {
-            ExtPolygon polygon = new(pfsStatus);
-            FetchEodTask polygonF = new(pfsStatus, ExtProviderId.Polygon, polygon, polygon, permTaskInfo.TryGetValue(ExtProviderId.Polygon, out var perm_p) ? perm_p : null);
+            ExtPolygon polygon = new(_pfsStatus);
+            FetchEodTask polygonF = new(_pfsStatus, ExtProviderId.Polygon, polygon, polygon, permTaskInfo.TryGetValue(ExtProviderId.Polygon, out var perm_p) ? perm_p : null);
             polygonF.SetPrivKey(_provConfig.GetPrivateKey(ExtProviderId.Polygon));
             tasks.Add(polygonF);
         }
         {
-            ExtTwelveData twelve = new(pfsStatus);
-            FetchEodTask twelveF = new(pfsStatus, ExtProviderId.TwelveData, twelve, twelve, permTaskInfo.TryGetValue(ExtProviderId.TwelveData, out var perm_t) ? perm_t : null);
+            ExtTwelveData twelve = new(_pfsStatus);
+            FetchEodTask twelveF = new(_pfsStatus, ExtProviderId.TwelveData, twelve, twelve, permTaskInfo.TryGetValue(ExtProviderId.TwelveData, out var perm_t) ? perm_t : null);
             twelveF.SetPrivKey(_provConfig.GetPrivateKey(ExtProviderId.TwelveData));
             tasks.Add(twelveF);
         }
         {
             ExtUnibit unibit = new();
-            FetchEodTask unibitF = new(pfsStatus, ExtProviderId.Unibit, unibit, unibit, permTaskInfo.TryGetValue(ExtProviderId.Unibit, out var perm_u) ? perm_u : null);
+            FetchEodTask unibitF = new(_pfsStatus, ExtProviderId.Unibit, unibit, unibit, permTaskInfo.TryGetValue(ExtProviderId.Unibit, out var perm_u) ? perm_u : null);
             unibitF.SetPrivKey(_provConfig.GetPrivateKey(ExtProviderId.Unibit));
             tasks.Add(unibitF);
         }
         {
-            ExtMarketstack marketstack = new(pfsStatus);
-            FetchEodTask marketstackF = new(pfsStatus, ExtProviderId.Marketstack, marketstack, marketstack, permTaskInfo.TryGetValue(ExtProviderId.Marketstack, out var perm_m) ? perm_m : null);
+            ExtMarketstack marketstack = new(_pfsStatus);
+            FetchEodTask marketstackF = new(_pfsStatus, ExtProviderId.Marketstack, marketstack, marketstack, permTaskInfo.TryGetValue(ExtProviderId.Marketstack, out var perm_m) ? perm_m : null);
             marketstackF.SetPrivKey(_provConfig.GetPrivateKey(ExtProviderId.Marketstack));
             tasks.Add(marketstackF);
         }
         {
-            ExtFmp fmp = new(pfsStatus);
-            FetchEodTask fmpF = new(pfsStatus, ExtProviderId.FMP, fmp, fmp, permTaskInfo.TryGetValue(ExtProviderId.FMP, out var perm_i) ? perm_i : null);
+            ExtFmp fmp = new(_pfsStatus);
+            FetchEodTask fmpF = new(_pfsStatus, ExtProviderId.FMP, fmp, fmp, permTaskInfo.TryGetValue(ExtProviderId.FMP, out var perm_i) ? perm_i : null);
             fmpF.SetPrivKey(_provConfig.GetPrivateKey(ExtProviderId.FMP));
             tasks.Add(fmpF);
         }
@@ -545,7 +548,7 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
     public event EventHandler<string> EventNewUnsavedContent; //<= doesnt send dirty event, but trusts that as data is received thats going to get saved together w credits                             
     public string GetComponentName() { return _componentName; }                                 // IDataOwner       -- dont really fit w credits data to model. needs thinking!
     public void OnInitDefaults() { /*Init();????*/ }
-    public List<string> OnLoadStorage() { return new(); }
+    public List<string> OnLoadStorage() { InitProviders(); return new(); } // here as cant be done before others are ready also
     public void OnSaveStorage() { BackupToStorage(); }
 
     public string CreateBackup()

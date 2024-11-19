@@ -26,3 +26,13 @@
 /PfsUI/obj
 /PFS/PfsData/bin/Debug/net8.0
 /PFS/PfsData/obj
+/PFS/Client/bin/Debug/net9.0
+/PFS/PfsConfig/bin/Debug/net9.0
+/PFS/PfsData/bin/Debug/net9.0
+/PFS/PfsExtFetch/bin/Debug/net9.0
+/PFS/PfsExtProviders/bin/Debug/net9.0
+/PFS/PfsExtTransactions/bin/Debug/net9.0
+/PFS/PfsHelpers/bin/Debug/net9.0
+/PFS/PfsReports/bin/Debug/net9.0
+/PFS/PfsTypes/bin/Debug/net9.0
+/PfsUI/bin/Debug/net9.0
