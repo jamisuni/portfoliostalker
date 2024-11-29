@@ -47,6 +47,7 @@ public partial class DlgAlarmEdit
     protected bool _lvlDisabled = false;
 
     protected string _noteValue = string.Empty;
+    protected string _infoText = string.Empty;
 
     protected decimal _prm1Value = 0;
     protected string _prm1Label = string.Empty;
@@ -116,6 +117,8 @@ public partial class DlgAlarmEdit
                 _prm1Label = "Drop % from high to alarm";
                 _prm1Disabled = false;
 
+                FullEOD eod = Pfs.Account().GetLatestSavedEod(Market, Symbol);
+
                 if (_editExisting)
                 {   // To allow debugging etc on editing show high points value
                     _lvlDisabled = true;
@@ -125,10 +128,16 @@ public partial class DlgAlarmEdit
 
                     _prm1Value = (Alarm as SAlarmTrailingSellP).DropP;
                     _prm2Value = (Alarm as SAlarmTrailingSellP).High;
+
+                    if (eod != null)
+                    {   // As trailing sell alarms are to be triggered when eod is down DropP amount from High
+                        // here we calculate CurrentDropP... not % distance to it, but current
+                        decimal currDtopP = (_prm2Value - eod.Close) / _prm2Value * 100;
+                        _infoText = $"Eod {eod.Close.To00()} drop atm {currDtopP.To0()}%";
+                    }
                 }
                 else
                 {   // On creating new one, its editable but normally should use latest closing as level
-                    FullEOD eod = Pfs.Account().GetLatestSavedEod(Market, Symbol);
                     _lvlValue = eod?.Close ?? 0;
 
                     _prm1Value = Pfs.Account().GetAppCfg(AppCfgId.DefTrailingSellP);

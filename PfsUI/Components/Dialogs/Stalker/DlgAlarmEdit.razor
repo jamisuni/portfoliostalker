@@ -9,7 +9,7 @@
 
     <DialogContent>
 
-        <MudSelect T="SAlarmType" @bind-Value="@EditType" Label="Select Type" Required ReadOnly=@(EditType != SAlarmType.Unknown ? true : false)>
+        <MudSelect T="SAlarmType" @bind-Value="@EditType" Label="Select Type" Required Disabled=@(EditType != SAlarmType.Unknown ? true : false)>
             @foreach (AlarmItem item in _alarmTypeSel)
             {
                 <MudSelectItem Value="@item.Type">@($"{item.Type} ({item.Desc})")</MudSelectItem>
@@ -27,6 +27,10 @@
         }
 
         <MudTextField @bind-Value="_noteValue" Label="Alarm Note" Variant="Variant.Outlined" />
+
+        @if (string.IsNullOrEmpty(_infoText) == false) {
+            <MudTextField @bind-Value="_infoText" Label="Info" Variant="Variant.Text" Disabled="true" />
+        }
 
     </DialogContent>
 
