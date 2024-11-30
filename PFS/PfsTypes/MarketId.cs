@@ -29,6 +29,7 @@ public enum MarketId : int
     OMX,
     LSE,
     XETRA,
+    TSXV
 }
 
 /* !!!DOCUMENT!!! MarketId.CLOSED / Stock closing for M&A

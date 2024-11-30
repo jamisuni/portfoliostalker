@@ -32,7 +32,9 @@
                         }
                         else if (context.State == FetchProvider.StateId.failed)
                         {
-                            <MudIconButton Icon="@Icons.Material.Filled.ThumbDown" Color="Color.Warning" @onclick="@(() => ShowErrorMsgAsync(context.ErrorMsg))" />
+                            <MudTooltip Text="@context.ErrorMsg" Inline="false">
+                                <MudIconButton Icon="@Icons.Material.Filled.ThumbDown" Color="Color.Warning" Disabled="true" />
+                            </MudTooltip>
                         }
                         else if (context.State == FetchProvider.StateId.older)
                         {

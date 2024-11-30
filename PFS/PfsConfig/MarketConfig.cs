@@ -404,6 +404,7 @@ public class MarketConfig : IMarketMeta, IPfsSetMarketConfig, ICmdHandler, IData
         new MarketDef(new MarketMeta(MarketId.NYSE,     "XNYS",  "New York Stock Exchange", CurrencyId.USD), 16, 0,  "America/New_York"),   // 0930-1600 (EDT)
         new MarketDef(new MarketMeta(MarketId.AMEX,     "XNYS",  "American Stock Exchange", CurrencyId.USD), 16, 0,  "America/New_York"),
         new MarketDef(new MarketMeta(MarketId.TSX,      "XTSE",  "Toronto Stock Exchange",  CurrencyId.CAD), 16, 0,  "America/Toronto"),    // 0930-1600 (EDT) -> 1630-2300
+        new MarketDef(new MarketMeta(MarketId.TSXV,     "XTSX",  "TSX Venture Exchange",    CurrencyId.CAD), 16, 0,  "America/Toronto"),    // 0930-1600 (EDT) -> 1630-2300
         new MarketDef(new MarketMeta(MarketId.OMXH,     "XHEL",  "Helsinki Stock Exchange", CurrencyId.EUR), 18, 30, "Europe/Helsinki"),    // 1000-1830
         new MarketDef(new MarketMeta(MarketId.OMX,      "XSTO",  "Stockholm Stock Exchange",CurrencyId.SEK), 17, 30, "Europe/Stockholm"),   // 0900-1730       -> 1000-1830
         new MarketDef(new MarketMeta(MarketId.LSE,      "XLON",  "London Stock Exchange",   CurrencyId.GBP), 16, 30, "Europe/London"),      // 0800-1630 (BST) -> 1000-1830

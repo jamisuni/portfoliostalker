@@ -97,6 +97,8 @@ public partial class DlgTestStockFetch
 
     protected async Task OnTestStockFetchAsync()
     {
+        Symbol = Symbol.ToUpper();
+
         List<ExtProviderId> useProviders = _availableProviders.Where(fp => fp.Use && fp.State == FetchProvider.StateId.selection).Select(fp => fp.ProvId).ToList();
 
         if (useProviders.Count == 0)
@@ -151,11 +153,6 @@ public partial class DlgTestStockFetch
         Pfs.Config().SetEodFetchDedicatedProviderForSymbol(Market, Symbol, fp.ProvId);
 
         await Dialog.ShowMessageBox("Fetch Rule Added!", $"{Market}${Symbol} on future is fetched wih {fp.ProvId}", yesText: "TY");
-    }
-
-    protected async Task ShowErrorMsgAsync(string errorMsg)
-    {
-        await Dialog.ShowMessageBox("Provider Failed!", errorMsg, yesText: "Dang");
     }
 
     private void DlgCancel()

@@ -96,6 +96,7 @@ public class ExtFmp : IExtProvider, IExtDataProvider
             case MarketId.NYSE:
             case MarketId.AMEX:
             case MarketId.TSX:
+            case MarketId.TSXV:
             case MarketId.XETRA:
             case MarketId.OMXH:
             case MarketId.OMX:
@@ -122,82 +123,7 @@ public class ExtFmp : IExtProvider, IExtDataProvider
     public async Task<Dictionary<string, FullEOD>> GetIntradayAsync(MarketId marketId, List<string> tickers)
     {
         _error = string.Empty;
-#if false
-        if (string.IsNullOrEmpty(_fmpApiKey) == true)
-        {
-            _error = "FMP::GetIntradayAsync() Missing private access key!";
-            return null;
-        }
 
-        int amountOfReqTickers = tickers.Count();
-
-        string iexcloudJoinedTickers = JoinPfsTickers(marketId, tickers);
-
-        if (string.IsNullOrEmpty(iexcloudJoinedTickers) == true)
-        {
-            _error = "Failed, too many tickers!";
-            Log.Warning("FMP::GetIntradayAsync() " + _error);
-            return null;
-        }
-
-        try
-        {
-            HttpClient tempHttpClient = new HttpClient();
-            HttpResponseMessage resp = await tempHttpClient.GetAsync(_iexcloudUrl + $"tops?symbols={iexcloudJoinedTickers}&token={_fmpApiKey}&format=csv");
-
-            if (resp.IsSuccessStatusCode == false)
-            {
-                _error = $"iexcloud failed: {resp.StatusCode} for [[{iexcloudJoinedTickers}]]";
-                Log.Warning("FMP::GetIntradayAsync() " + _error);
-                return null;
-            }
-
-            string content = await resp.Content.ReadAsStringAsync();
-            var csv = new CsvReader(new StringReader(content), CultureInfo.InvariantCulture);
-            var dailyItems = csv.GetRecords<IexcloudIntradayFormat>().ToList();
-
-            if (dailyItems == null || dailyItems.Count() == 0)
-            {
-                _error = $"Failed, empty data: {resp.StatusCode} for [[{iexcloudJoinedTickers}]]";
-                Log.Warning("FMP::GetIntradayAsync() " + _error);
-                return null;
-            }
-            else if (dailyItems.Count() < amountOfReqTickers)
-            {
-                _error = $"Warning, requested {amountOfReqTickers} got just {dailyItems.Count()} for [[{iexcloudJoinedTickers}]]";
-                Log.Warning("FMP::GetIntradayAsync() " + _error);
-
-                // This is just warning, still got data so going to go processing it...
-            }
-
-            // All seams to be enough well so lets convert data to PFS format
-
-            Dictionary<string, FullEOD> ret = new Dictionary<string, FullEOD>();
-
-            foreach (var item in dailyItems)
-            {
-                string pfsTicker = TrimToPfsTicker(marketId, item.symbol);
-
-                ret[pfsTicker] = new FullEOD()
-                {
-                    Date = DateOnly.FromDateTime(DateTime.UnixEpoch.AddMilliseconds(item.lastSaleTime)),
-                    Close = item.lastSalePrice,
-                    High = item.lastSalePrice,
-                    Low = item.lastSalePrice,
-                    Open = item.lastSalePrice,
-                    PrevClose = -1,
-                    Volume = (int)(item.volume),
-                };
-            }
-
-            return ret;
-        }
-        catch (Exception e)
-        {
-            _error = $"Failed! Connection exception {e.Message} for [[{iexcloudJoinedTickers}]]";
-            Log.Warning("FMP::GetIntradayAsync() " + _error);
-        }
-#endif
         return null;
     }
 
@@ -236,7 +162,7 @@ public class ExtFmp : IExtProvider, IExtDataProvider
 
                     if (resp.IsSuccessStatusCode == false)
                     {
-                        _error = $"iexcloud failed: {resp.StatusCode} for [[{marketId}]]";
+                        _error = $"FMP failed: {resp.StatusCode} for [[{marketId}]]";
                         Log.Warning("FMP::GetEodLatestAsync() " + _error);
                         return null;
                     }
@@ -346,84 +272,7 @@ public class ExtFmp : IExtProvider, IExtDataProvider
     public async Task<Dictionary<string, List<FullEOD>>> GetEodHistoryAsync(MarketId marketId, List<string> tickers, DateTime startDay, DateTime endDay)
     {
         _error = string.Empty;
-#if false
-        if (string.IsNullOrEmpty(_fmpApiKey) == true)
-        {
-            _error = "FMP::GetEodHistoryAsync() Missing private access key!";
-            return null;
-        }
 
-        if (tickers.Count != 1)
-        {
-            _error = "Failed, limiting history for 1 ticker on time!";
-            Log.Warning("FMP::GetEodLatestAsync() " + _error);
-            return null;
-        }
-
-        string ticker = ExpandToIexcloudTicker(marketId, tickers[0]);
-
-        string start = string.Empty; 
-
-        if ( startDay.AddDays(14) >= DateTime.UtcNow )
-            // If max 2 weeks requested then we just get that.. otherwise go max.. => As of 2021-Oct-20 returns still full year (not sure from cost)
-            start = startDay.ToString("yyyyMMdd");
-
-        try
-        {
-            // "Filter Results" allows to light up download size, by limiting responses fields to only interesting ones
-            // string fields = "symbol,date,open,high,low,close,volume"; <== As of 2021-Oct-20 doesnt work w CSV, returns always as JSON! So bah...
-
-            HttpClient tempHttpClient = new HttpClient();
-            HttpResponseMessage resp;
-            
-            if ( start == string.Empty )
-                resp = await tempHttpClient.GetAsync(_iexcloudUrl + $"stock/{ticker}/chart/max?token={_fmpApiKey}&format=csv");
-            else
-                // Note! if less than few weeks requested then well get w exact date... still seams to return everything for that year...
-                resp = await tempHttpClient.GetAsync(_iexcloudUrl + $"stock/{ticker}/chart/{start}?token={_fmpApiKey}&chartByDay=true&format=csv");
-
-            if (resp.IsSuccessStatusCode == false)
-            {
-                _error = $"Failed: {resp.StatusCode} for [[{tickers[0]}]]";
-                Log.Warning("iexcloud:GetEodHistoryAsync() " + _error);
-                return null;
-            }
-
-            string content = await resp.Content.ReadAsStringAsync();
-            var csv = new CsvReader(new StringReader(content), CultureInfo.InvariantCulture);
-            var historyResp = csv.GetRecords<IexcloudHistoryFormat>().ToList();
-
-            if (historyResp == null || historyResp.Count() == 0)
-            {
-                _error = $"Failed, empty data: {resp.StatusCode} for [[{tickers[0]}]]";
-                Log.Warning("FMP::GetEodHistoryAsync() " + _error);
-                return null;
-            }
-
-            Dictionary<string, List<FullEOD>> ret = new Dictionary<string, List<FullEOD>>();
-
-            List<FullEOD> ext = historyResp.ConvertAll(s => new FullEOD()
-            {
-                Date = DateOnly.FromDateTime(s.date),
-                Close = s.close,
-                High = s.high,
-                Low = s.low,
-                Open = s.open,
-                PrevClose = -1,
-                Volume = (int)(s.volume),
-            });
-
-            //ext.Reverse();
-            ret.Add(tickers[0], ext);
-
-            return ret;
-        }
-        catch (Exception e)
-        {
-            _error = $"Failed, connection exception {e.Message} for [[{tickers[0]}]]";
-            Log.Warning("FMP::GetEodHistoryAsync() " + _error);
-        }
-#endif
         return null;
     }
 
@@ -437,6 +286,7 @@ public class ExtFmp : IExtProvider, IExtDataProvider
 
             case MarketId.TSX:
             case MarketId.XETRA:
+            case MarketId.TSXV:
                 return true; // maybe, lets see
 
             case MarketId.LSE:
@@ -453,6 +303,7 @@ public class ExtFmp : IExtProvider, IExtDataProvider
             case MarketId.OMX: return ".ST";
             case MarketId.OMXH: return ".HE";
             case MarketId.TSX: return ".TO";
+            case MarketId.TSXV: return ".V";
             case MarketId.XETRA: return ".F";
         }
         return "";
@@ -466,6 +317,7 @@ public class ExtFmp : IExtProvider, IExtDataProvider
             case MarketId.OMX: return "STO";
             case MarketId.OMXH: return "HEL";
             case MarketId.TSX: return "TSX";
+            case MarketId.TSXV: return "TSXV";
             case MarketId.XETRA: return "XETRA";
         }
         return "";

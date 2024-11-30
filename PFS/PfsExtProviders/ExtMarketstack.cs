@@ -69,6 +69,7 @@ public class ExtMarketstack : IExtProvider, IExtDataProvider
             case MarketId.NYSE:
             case MarketId.AMEX:
             case MarketId.TSX:
+            case MarketId.TSXV:
             case MarketId.OMXH:
             case MarketId.OMX:
             case MarketId.XETRA:
@@ -550,6 +551,8 @@ public class ExtMarketstack : IExtProvider, IExtDataProvider
                 return "XETRA";
             case MarketId.LSE:
                 return "XLON";
+            case MarketId.TSXV:
+                return "XTSX";
         }
         return null;
     }

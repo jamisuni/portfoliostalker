@@ -73,6 +73,9 @@ public partial class StockMgmtNote
             case MarketId.TSX:
                 return url + Symbol + ":TSE";
 
+            case MarketId.TSXV:
+                return url + Symbol + ":CVE";
+
             case MarketId.NYSE:
             case MarketId.NASDAQ:
                 return url + Symbol + ":" + Market.ToString();
@@ -95,6 +98,7 @@ public partial class StockMgmtNote
         switch (Market)
         {
             case MarketId.TSX:
+            case MarketId.TSXV:
             case MarketId.NYSE:
             case MarketId.NASDAQ:
             case MarketId.AMEX:
@@ -120,6 +124,9 @@ public partial class StockMgmtNote
 
             case MarketId.TSX:
                 return url + Symbol + ".TO";
+
+            case MarketId.TSXV:
+                return url + Symbol + ".V";
 
             case MarketId.OMXH:
                 return url + Symbol + ".HE";

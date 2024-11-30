@@ -87,6 +87,7 @@ public class ExtAlphaVantage : IExtProvider, IExtDataProvider
             case MarketId.NYSE:
             case MarketId.AMEX:
             case MarketId.TSX:
+            case MarketId.TSXV:
             case MarketId.XETRA:
             case MarketId.LSE:
                 return true;
@@ -273,6 +274,7 @@ public class ExtAlphaVantage : IExtProvider, IExtDataProvider
         switch (marketId)
         {
             case MarketId.TSX: return ticker + ".TRT";
+            case MarketId.TSXV: return ticker + ".V";
             case MarketId.XETRA: return ticker + ".DEX"; // checked OK at 2024-Jul
             case MarketId.LSE: return ticker + ".LON";
         }

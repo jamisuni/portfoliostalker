@@ -100,6 +100,7 @@ public class ExtUnibit : IExtProvider, IExtDataProvider
             case MarketId.NYSE:
             case MarketId.AMEX:
             case MarketId.TSX:
+            case MarketId.TSXV:
             case MarketId.OMX:
             case MarketId.OMXH:
             case MarketId.XETRA:    // but no ETFs
@@ -387,6 +388,7 @@ public class ExtMarketSuppUNIBIT
             case MarketId.TSX: return ".TO";
             case MarketId.XETRA: return ".DE";
             case MarketId.LSE: return ".L";
+            case MarketId.TSXV: return ".V";
         }
         return "";
     }
