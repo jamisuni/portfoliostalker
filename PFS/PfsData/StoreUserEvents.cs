@@ -95,6 +95,12 @@ public class StoreUserEvents : IUserEvents, IDataOwner // No backup plans, uses 
                 evPrms.Add(EvFieldId.AlarmDropP, (alarm as SAlarmTrailingSellP).DropP);
                 break;
 
+            case SAlarmType.TrailingBuyP:
+                evPrms.Add(EvFieldId.Type, UserEventType.OrderTrailingBuy);
+
+                evPrms.Add(EvFieldId.AlarmRecoverP, (alarm as SAlarmTrailingBuyP).RecoverP);
+                break;
+
             default:
                 return;
         }

@@ -84,6 +84,8 @@ public class AppConfig : ICmdHandler, IDataOwner // identical XML on backup & lo
 
         { AppCfgId.DefTrailingSellP,                new AppCfgDef(7) },     // def 7% from top is sell alarm
 
+        { AppCfgId.DefTrailingBuyP,                 new AppCfgDef(14) },    // def 14% recovery from bottom as buy alarm
+
         { AppCfgId.UseBetaFeatures,                 new AppCfgDef(0) },     // 0 == off, 1 is on
 
     }.ToImmutableDictionary();

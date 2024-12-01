@@ -111,6 +111,9 @@ public abstract class SAlarm
 
             case SAlarmType.TrailingSellP:
                 return SAlarmTrailingSellP.Create(level, note, prms);
+
+            case SAlarmType.TrailingBuyP:
+                return SAlarmTrailingBuyP.Create(level, note, prms);
         }
         return null;
     }
@@ -232,12 +235,64 @@ public class SAlarmTrailingSellP : SAlarm
     }
 }
 
+public class SAlarmTrailingBuyP : SAlarm
+{
+    public override SAlarmType AlarmType { get; set; } = SAlarmType.TrailingBuyP;
+    public override decimal Level { get; set; } // Used as ID so needs some stabile value, so keep one where we start
+    public override string Note { get; set; }
+    public override string Prms { get { return CreatePrms(RecoverP, Low); } internal set { ParsePrms(value); } }
+
+    public decimal RecoverP { get; internal set; } = 0; // Recovery % for 'Low' triggers alarm
+    public decimal Low { get; internal set; } = 0;  // Whats lowest stock valuation on tracking time
+
+    public override bool IsAlarmTriggered(FullEOD eod)
+    {
+        if (eod.Close < Low)
+        {   // This is dynamic alarm, and actually updating one of its prms
+            Low = eod.Close;
+        }
+        else if (eod.Close > Low && (eod.Close - Low) / eod.Close * 100 >= RecoverP)
+            return true;
+
+        return false;
+    }
+
+    public override decimal? GetAlarmDistance(decimal latestClose)
+    {   // lets see later if makes sence to show distance as its most time so close to trigger
+        return null;
+    }
+
+    public static SAlarmTrailingBuyP Create(decimal level, string note, string prms)
+    {
+        var alarm = new SAlarmTrailingBuyP()
+        {
+            Level = level,
+            Note = note,
+            Prms = prms,
+        };
+        return alarm;
+    }
+
+    protected void ParsePrms(string prms)
+    {
+        string[] split = prms.Split(';');
+        RecoverP = decimal.Parse(split[0]);
+        Low = decimal.Parse(split[1]);
+    }
+
+    public static string CreatePrms(decimal recoverP, decimal low)
+    {
+        return $"{recoverP.To()};{low.To000()}";
+    }
+}
+
 public enum SAlarmType : int
 {
     Unknown = 0,
     Under,
     Over,
     TrailingSellP,
+    TrailingBuyP,
 }
 
 public static class SAlarmTypeExtensions
@@ -335,6 +390,10 @@ public class SAlarmJsonConverter : JsonConverter<SAlarm>    // !!!CODE!!!
         else if (value is SAlarmTrailingSellP sAlarmTrailingSellP)
         {
             JsonSerializer.Serialize(writer, sAlarmTrailingSellP, options);
+        }
+        else if (value is SAlarmTrailingBuyP sAlarmTrailingBuyP)
+        {
+            JsonSerializer.Serialize(writer, sAlarmTrailingBuyP, options);
         }
         else
         {

@@ -62,7 +62,8 @@ public partial class DlgAlarmEdit
     protected AlarmItem[] _alarmTypeSel = [         // !!!CODE!!! Init [] table with records
         new AlarmItem(SAlarmType.Over,  "Sell"),
         new AlarmItem(SAlarmType.Under, "Buy"),
-//        new AlarmItem(SAlarmType.TrailingSellP, "Sell 'max'"),        still Beta
+        new AlarmItem(SAlarmType.TrailingSellP, "Sell 'max'"),
+//        new AlarmItem(SAlarmType.TrailingBuyP, "Buy 'bottom'"),        still Beta
         ]; // Later add "Cut", "Profit" for tracking type alarms
 
     public SAlarmType EditType              
@@ -93,7 +94,7 @@ public partial class DlgAlarmEdit
             _title = "Add Alarm";
 
         if (Pfs.Account().GetAppCfg(AppCfgId.UseBetaFeatures) > 0)
-            _alarmTypeSel = [.. _alarmTypeSel, new AlarmItem(SAlarmType.TrailingSellP, "Sell 'max'")];
+            _alarmTypeSel = [.. _alarmTypeSel, new AlarmItem(SAlarmType.TrailingBuyP, "Buy 'bottom'")];
 
         AlarmTypeSelectionChanged();
     }
@@ -113,34 +114,69 @@ public partial class DlgAlarmEdit
                 break;
 
             case SAlarmType.TrailingSellP:
-                // On creation/editing can tune trigger procentage how much drop is allowed
-                _prm1Label = "Drop % from high to alarm";
-                _prm1Disabled = false;
+                {
+                    // On creation/editing can tune trigger procentage how much drop is allowed
+                    _prm1Label = "Drop % from high to alarm";
+                    _prm1Disabled = false;
 
-                FullEOD eod = Pfs.Account().GetLatestSavedEod(Market, Symbol);
+                    FullEOD eod = Pfs.Account().GetLatestSavedEod(Market, Symbol);
 
-                if (_editExisting)
-                {   // To allow debugging etc on editing show high points value
-                    _lvlDisabled = true;
+                    if (_editExisting)
+                    {   // To allow debugging etc on editing show high points value
+                        _lvlDisabled = true;
 
-                    _prm2Label = "High";
-                    _prm2Disabled = true;
+                        _prm2Label = "High";
+                        _prm2Disabled = true;
 
-                    _prm1Value = (Alarm as SAlarmTrailingSellP).DropP;
-                    _prm2Value = (Alarm as SAlarmTrailingSellP).High;
+                        _prm1Value = (Alarm as SAlarmTrailingSellP).DropP;
+                        _prm2Value = (Alarm as SAlarmTrailingSellP).High;
 
-                    if (eod != null)
-                    {   // As trailing sell alarms are to be triggered when eod is down DropP amount from High
-                        // here we calculate CurrentDropP... not % distance to it, but current
-                        decimal currDtopP = (_prm2Value - eod.Close) / _prm2Value * 100;
-                        _infoText = $"Eod {eod.Close.To00()} drop atm {currDtopP.To0()}%";
+                        if (eod != null)
+                        {   // As trailing sell alarms are to be triggered when eod is down DropP amount from High
+                            // here we calculate CurrentDropP... not % distance to it, but current
+                            decimal currDtopP = (_prm2Value - eod.Close) / _prm2Value * 100;
+                            _infoText = $"Eod {eod.Close.To00()} drop atm {currDtopP.To0()}%";
+                        }
+                    }
+                    else
+                    {   // On creating new one, its editable but normally should use latest closing as level
+                        _lvlValue = eod?.Close ?? 0;
+
+                        _prm1Value = Pfs.Account().GetAppCfg(AppCfgId.DefTrailingSellP);
                     }
                 }
-                else
-                {   // On creating new one, its editable but normally should use latest closing as level
-                    _lvlValue = eod?.Close ?? 0;
+                break;
 
-                    _prm1Value = Pfs.Account().GetAppCfg(AppCfgId.DefTrailingSellP);
+            case SAlarmType.TrailingBuyP:
+                {
+                    // On creation/editing can tune trigger procentage how much drop is allowed
+                    _prm1Label = "Recover % from low to alarm";
+                    _prm1Disabled = false;
+
+                    FullEOD eod = Pfs.Account().GetLatestSavedEod(Market, Symbol);
+
+                    if (_editExisting)
+                    {   // To allow debugging etc on editing show high points value
+                        _lvlDisabled = true;
+
+                        _prm2Label = "Low";
+                        _prm2Disabled = true;
+
+                        _prm1Value = (Alarm as SAlarmTrailingBuyP).RecoverP;
+                        _prm2Value = (Alarm as SAlarmTrailingBuyP).Low;
+
+                        if (eod != null)
+                        {   // As trailing buy alarms are to be triggered when eod is up RecoverP amount from Low
+                            decimal currRecoverP = (eod.Close - _prm2Value) / eod.Close * 100;
+                            _infoText = $"Eod {eod.Close.To00()} recover atm {currRecoverP.To0()}%";
+                        }
+                    }
+                    else
+                    {   // On creating new one, its editable but normally should use latest closing as level
+                        _lvlValue = eod?.Close ?? 0;
+
+                        _prm1Value = Pfs.Account().GetAppCfg(AppCfgId.DefTrailingBuyP);
+                    }
                 }
                 break;
         }
@@ -155,6 +191,10 @@ public partial class DlgAlarmEdit
         {
             case SAlarmType.TrailingSellP: // limited edit for this type, just note & dropP allowed to change
                 prms = SAlarmTrailingSellP.CreatePrms(_prm1Value, _lvlValue);
+                break;
+
+            case SAlarmType.TrailingBuyP:
+                prms = SAlarmTrailingBuyP.CreatePrms(_prm1Value, _lvlValue);
                 break;
         }
 

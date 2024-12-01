@@ -43,6 +43,8 @@ public enum AppCfgId : int
 
     DefTrailingSellP,           // what % is proposed by default as sell trigger
 
+    DefTrailingBuyP,            // what % is proposed by default as buy trigger
+
     UseBetaFeatures,
 }
 

@@ -35,6 +35,8 @@ public enum UserEventType : int
     AlarmUnder,
     [EnumMember(Value = "TS")]
     OrderTrailingSell,
+    [EnumMember(Value = "TP")]
+    OrderTrailingBuy,
     [EnumMember(Value = "O")]
     AlarmOver,
     [EnumMember(Value = "N")]

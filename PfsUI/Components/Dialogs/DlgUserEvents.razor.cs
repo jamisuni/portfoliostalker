@@ -108,6 +108,11 @@ public partial class DlgUserEvents
                     outData.Desc = $"{inData.PfName} {inData.StockMeta.GetSRef()} [{inData.StockMeta.name}] trailing sell is triggered by drop% of {inData.Alarm.AlarmDropP.Value.To00()} from highs!";
                     outData.Operation1 = null;
                     break;
+
+                case UserEventType.OrderTrailingBuy:
+                    outData.Desc = $"{inData.PfName} {inData.StockMeta.GetSRef()} [{inData.StockMeta.name}] trailing buy is triggered by recover% of {inData.Alarm.AlarmRecoverP.Value.To00()} from lows!";
+                    outData.Operation1 = null;
+                    break;
             }
 
             // Get Icon per Event Mode

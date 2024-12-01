@@ -312,6 +312,7 @@ public class FEAccount : IFEAccount
                 case UserEventType.AlarmOver:
                 case UserEventType.AlarmUnder:
                 case UserEventType.OrderTrailingSell:
+                case UserEventType.OrderTrailingBuy:
                     entry.Alarm = new()
                     {
                         AlarmValue = (decimal)prms[EvFieldId.Value],
@@ -326,6 +327,9 @@ public class FEAccount : IFEAccount
 
                     if (prms.ContainsKey(EvFieldId.AlarmDropP))
                         entry.Alarm.AlarmDropP = (decimal)prms[EvFieldId.AlarmDropP];
+
+                    if (prms.ContainsKey(EvFieldId.AlarmRecoverP))
+                        entry.Alarm.AlarmRecoverP = (decimal)prms[EvFieldId.AlarmRecoverP];
 
                     break;
             }

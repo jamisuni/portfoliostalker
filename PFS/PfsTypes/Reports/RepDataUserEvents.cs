@@ -37,6 +37,7 @@ public class RepDataUserEvents
         public decimal? DayLow { get; set; } = null;
         public decimal? DayHigh { get; set; } = null;
         public decimal? AlarmDropP { get; set; } = null;
+        public decimal? AlarmRecoverP { get; set; } = null;
     }
 
     public class OrderInfo
