@@ -43,7 +43,7 @@ public partial class StockMgmtOrders
     }
 
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
 
     [Parameter] public MarketId Market { get; set; }
     [Parameter] public string Symbol { get; set; }
@@ -93,7 +93,7 @@ public partial class StockMgmtOrders
             { "Edit", false }
         };
 
-        var dialog = Dialog.Show<DlgOrderEdit>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgOrderEdit>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -115,7 +115,7 @@ public partial class StockMgmtOrders
             { "Edit", true }
         };
 
-        var dialog = Dialog.Show<DlgOrderEdit>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgOrderEdit>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)

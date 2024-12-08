@@ -26,7 +26,7 @@ namespace PfsUI.Components;
 
 public partial class OverviewGroups
 {
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
 
     private EventHandler<SelChangedEvArgs> evSelChanged;

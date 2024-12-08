@@ -26,7 +26,7 @@ namespace PfsUI.Components;
 partial class SettFetch // Shows list of all EOD fetch rules, with: Market, opt Symbols effected, and one/many providers to handle fetching
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
 
     protected List<ViewRule> _view = new();
 
@@ -81,7 +81,7 @@ partial class SettFetch // Shows list of all EOD fetch rules, with: Market, opt 
 
     protected async Task OnBtnAddNewRuleAsync()
     {
-        var dialog = Dialog.Show<SettFetchDlg>("");
+        var dialog = await LaunchDialog.ShowAsync<SettFetchDlg>("");
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -104,7 +104,7 @@ partial class SettFetch // Shows list of all EOD fetch rules, with: Market, opt 
             { "Cfg", cfg },
         };
 
-        var dialog = Dialog.Show<SettFetchDlg>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<SettFetchDlg>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -124,7 +124,7 @@ partial class SettFetch // Shows list of all EOD fetch rules, with: Market, opt 
     {
         if (cfg.symbols != null && cfg.symbols.Count() > 0 )
         {
-            bool? result = await Dialog.ShowMessageBox("Sure?", "Going to remove also symbols!", yesText: "Remove", cancelText: "Cancel");
+            bool? result = await LaunchDialog.ShowMessageBox("Sure?", "Going to remove also symbols!", yesText: "Remove", cancelText: "Cancel");
 
             if (result.HasValue == false || result.Value == false)
                 return;
@@ -150,13 +150,13 @@ partial class SettFetch // Shows list of all EOD fetch rules, with: Market, opt 
         if ( cfg.symbols.Count() == 1)
             parameters["Symbol"] = cfg.symbols[0];
 
-        var dialog = Dialog.Show<DlgTestStockFetch>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgTestStockFetch>("", parameters);
         await dialog.Result;
     }
 
     protected async Task OnTestFetchBtnAsync()
     {
-        var dialog = Dialog.Show<DlgTestStockFetch>("Test Fetch");
+        var dialog = await LaunchDialog.ShowAsync<DlgTestStockFetch>("Test Fetch");
         var result = await dialog.Result;
 
         if (!result.Canceled)

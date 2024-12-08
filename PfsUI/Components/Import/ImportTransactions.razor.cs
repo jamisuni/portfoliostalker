@@ -31,7 +31,7 @@ namespace PfsUI.Components;
 // Complicated piece of multi-step UI, allowing user to import external CSV etc records from Bank/Broker to PFS 
 public partial class ImportTransactions
 {
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 
@@ -210,14 +210,14 @@ public partial class ImportTransactions
         };
     }
 
-    protected void OnBtnExpandAll()
+    protected async Task OnBtnExpandAll()
     {
-        _expPanels.ExpandAll();
+        await _expPanels.ExpandAllAsync();
     }
 
-    protected void OnBtnCollapseAll()
+    protected async Task OnBtnCollapseAll()
     {
-        _expPanels.CollapseAll();
+        await _expPanels.CollapseAllAsync();
     }
 
     protected async Task OnBtnExportFlaggedAsync()
@@ -278,7 +278,7 @@ public partial class ImportTransactions
 
         if (Local_ConvertRawData2BrokerTransactions() == false )
         {
-            await Dialog.ShowMessageBox("Failed!", "Conversion of content failed with selected broker/content format", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", "Conversion of content failed with selected broker/content format", yesText: "Ok");
             return;
         }
 
@@ -507,7 +507,7 @@ public partial class ImportTransactions
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
 
-        var dialog = Dialog.Show<DlgMapCompany>("", parameters, maxWidth);
+        var dialog = await LaunchDialog.ShowAsync<DlgMapCompany>("", parameters, maxWidth);
 
         var result = await dialog.Result;
 
@@ -536,6 +536,8 @@ public partial class ImportTransactions
     // 4/5 is setup by running all 'acceptable' state un-filtered transactions as dry run against stalker => ready, err, duplicate etc
     private async Task OnBtnViewTestRunAsync()
     {
+        await Task.CompletedTask;
+
         _progress = Progress.ViewTestRun;
 
         StalkerDoCmd dryContent = Pfs.Stalker().GetCopyOfStalker();
@@ -622,7 +624,7 @@ public partial class ImportTransactions
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium };
 
-        var dialog = Dialog.Show<DlgFetchRates>("", parameters, maxWidth);
+        var dialog = await LaunchDialog.ShowAsync<DlgFetchRates>("", parameters, maxWidth);
 
         var result = await dialog.Result;
 
@@ -635,7 +637,7 @@ public partial class ImportTransactions
         }
     }
 
-    protected void OnBtnViewTransaction(ViewBtAction entry)
+    protected async Task OnBtnViewTransaction(ViewBtAction entry)
     {
         StringBuilder sb = new();
 
@@ -661,10 +663,10 @@ public partial class ImportTransactions
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
 
-        Dialog.Show<DlgSimpleTextViewer>("", parameters, maxWidth);
+        await LaunchDialog.ShowAsync<DlgSimpleTextViewer>("", parameters, maxWidth);
     }
 
-    protected void OnBtnOriginalBTA(ViewBtAction entry)
+    protected async Task OnBtnOriginalBTA(ViewBtAction entry)
     {
         var parameters = new DialogParameters
         {
@@ -674,7 +676,7 @@ public partial class ImportTransactions
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
 
-        Dialog.Show<DlgSimpleTextViewer>("", parameters, maxWidth);
+        await LaunchDialog.ShowAsync<DlgSimpleTextViewer>("", parameters, maxWidth);
     }
 
     protected void OnBtnDeleteBTA(ViewBtAction entry)
@@ -685,7 +687,7 @@ public partial class ImportTransactions
         StateHasChanged();
     }
 
-    protected void OnBtnErrorBTA(ViewBtAction entry)
+    protected async Task OnBtnErrorBTA(ViewBtAction entry)
     {
         var parameters = new DialogParameters
         {
@@ -695,7 +697,7 @@ public partial class ImportTransactions
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
 
-        Dialog.Show<DlgSimpleTextViewer>("", parameters, maxWidth);
+        await LaunchDialog.ShowAsync<DlgSimpleTextViewer>("", parameters, maxWidth);
     }
 
     protected void OnBtnFlagCompBTA(string mapCompRef)
@@ -836,7 +838,7 @@ public partial class ImportTransactions
         LogNoCompanyInfo();
 
         _viewRawTextual = sb.ToString();
-        await Dialog.ShowMessageBox("Success!", "All transactions acceptable transactions added now to account", yesText: "Ok");
+        await LaunchDialog.ShowMessageBox("Success!", "All transactions acceptable transactions added now to account", yesText: "Ok");
         return;
 
         void LogDetails()

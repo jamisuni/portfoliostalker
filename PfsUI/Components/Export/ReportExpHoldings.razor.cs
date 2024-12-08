@@ -30,7 +30,7 @@ namespace PfsUI.Components;
 // This report is specially targeted to more public/exportable holdings report generation
 public partial class ReportExpHoldings
 {
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 

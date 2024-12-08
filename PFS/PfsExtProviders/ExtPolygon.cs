@@ -122,6 +122,8 @@ public class ExtPolygon : IExtProvider, IExtDataProvider, IExtCurrencyProvider
 
     public async Task<Dictionary<string, FullEOD>> GetIntradayAsync(MarketId marketId, List<string> tickers)
     {
+        await Task.CompletedTask;
+
         _error = "GetIntradayAsync() - Not supported!";
         return null;
     }

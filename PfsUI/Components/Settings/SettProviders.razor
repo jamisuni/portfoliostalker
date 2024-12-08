@@ -18,8 +18,8 @@
 
 <MudCard Outlined="true">
     <MudCardContent>
-        <MudContainer Style="max-height: 260px; overflow-y: scroll">
-            <MudList Clickable="true" SelectedValueChanged="@OnProviderChanged" >
+        <MudContainer Style="max-height: 135px; overflow-y: scroll">
+            <MudList T="ExtProviderId" Dense="true" SelectedValueChanged="OnProviderChanged">
                 @foreach (ExtProviderId provider in _providerKeys.Keys.ToList())
                 {
                     <MudListItem Value="@provider" Text="@_description[provider].Name" />
@@ -29,8 +29,7 @@
 
         @if (_selectedProvider != ExtProviderId.Unknown)
         {
-            <MudText Typo="Typo.body2">Registeration: </MudText>
-            <MudLink Href="@_description[_selectedProvider].Addr" Target=_blank Underline="Underline.Always">@_description[_selectedProvider].Addr</MudLink>
+            <MudLink Href="@_description[_selectedProvider].Addr" Target=_blank Underline="Underline.Always">Click to Register</MudLink>
 
             <MudCardContent>
                 <MudTextField T="string" FullWidth="true" ReadOnly="true" Lines="5" @bind-Value="@_providerDesc" />
@@ -42,16 +41,13 @@
     <MudCardActions>
         @if (_selectedProvider != ExtProviderId.Unknown )
         {
-            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="OnKeySaveAsync">Save</MudButton>
-
-            @if (string.IsNullOrWhiteSpace(_providerKeys[_selectedProvider]) == false  )
+            @if (string.IsNullOrWhiteSpace(_providerKeys[_selectedProvider]) == false && _providerTestSupport == TestSupport.StockMSFT)
             {
-                @if (_providerTestSupport == TestSupport.StockMSFT)
-                {
-                    <MudSpacer />
-                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled._360" Color="Color.Primary" OnClick="OnBtnManualTestAsync">TEST $MSFT</MudButton>
-                }
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled._360" Color="Color.Primary" OnClick="OnBtnManualTestAsync">TEST $MSFT</MudButton>
             }
+
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="OnKeySaveAsync">Save</MudButton>
         }
     </MudCardActions>
 </MudCard>

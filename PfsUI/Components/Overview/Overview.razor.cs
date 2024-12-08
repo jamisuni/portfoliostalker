@@ -26,7 +26,7 @@ namespace PfsUI.Components;
 public partial class Overview
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
 
     protected OverviewGroups _childGroups;
     protected OverviewStocks _childStocks;

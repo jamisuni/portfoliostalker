@@ -25,8 +25,8 @@ namespace PfsUI.Components;
 public partial class DlgUserEvents
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] IDialogService Dialog { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     protected override void OnInitialized()
     {
@@ -132,7 +132,7 @@ public partial class DlgUserEvents
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true };
 
-        var dialog = Dialog.Show<StockMgmtDlg>("", parameters, maxWidth);
+        var dialog = await LaunchDialog.ShowAsync<StockMgmtDlg>("", parameters, maxWidth);
         var result = await dialog.Result;
     }
 
@@ -160,7 +160,7 @@ public partial class DlgUserEvents
                         { "Edit",   false }
                     };
 
-                    var dialog = Dialog.Show<DlgOrderEdit>("", parameters);
+                    var dialog = await LaunchDialog.ShowAsync<DlgOrderEdit>("", parameters);
                     var result = await dialog.Result;
 
                     if (!result.Canceled)
@@ -191,7 +191,7 @@ public partial class DlgUserEvents
                         { "Edit", false },
                     };
 
-                    var dialog = Dialog.Show<DlgHoldingsEdit>("", parameters);
+                    var dialog = await LaunchDialog.ShowAsync<DlgHoldingsEdit>("", parameters);
                     var result = await dialog.Result;
 
                     if (!result.Canceled)
@@ -220,7 +220,7 @@ public partial class DlgUserEvents
                     };
 
                     // Ala Sale Holding operation == finishing trade of buy holding, and now sell holding(s)
-                    var dialog = Dialog.Show<DlgSale>("", parameters);
+                    var dialog = await LaunchDialog.ShowAsync<DlgSale>("", parameters);
                     var result = await dialog.Result;
 
                     if (!result.Canceled)
@@ -287,7 +287,7 @@ public partial class DlgUserEvents
         StateHasChanged();
 
         if (_viewReport.Count() == 0)
-            MudDialog.Cancel();
+            MudDialog.Close(DialogResult.Cancel());
     }
 
     protected class ViewReportUserEventsData

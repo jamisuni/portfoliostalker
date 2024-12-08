@@ -28,9 +28,9 @@ namespace PfsUI.Components;
 public partial class DlgMapCompany
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     [Parameter] public MapCompany[] Companies { get; set; } = null;
 
@@ -74,6 +74,8 @@ public partial class DlgMapCompany
 
     protected async Task FindCompanies()
     {
+        await Task.CompletedTask;
+
         bool allowAdd = false;
         _isBusy = true;
 
@@ -109,11 +111,11 @@ public partial class DlgMapCompany
 
     protected async Task OnTestFetchBtnAsync()
     {
-        var dialog = Dialog.Show<DlgTestStockFetch>("Test Fetch");
+        var dialog = await LaunchDialog.ShowAsync<DlgTestStockFetch>("Test Fetch");
         await dialog.Result;
     }
 
-    protected void OnBtnCompanyBTAAsync(ViewCompanies company)
+    protected async Task OnBtnCompanyBTAAsync(ViewCompanies company)
     {
         StringBuilder sb = new();
 
@@ -140,14 +142,14 @@ public partial class DlgMapCompany
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
 
-        Dialog.Show<DlgSimpleTextViewer>("", parameters, maxWidth);
+        await LaunchDialog.ShowAsync<DlgSimpleTextViewer>("", parameters, maxWidth);
     }
 
     protected async Task OnBtnAutomOffAsync(ViewCompanies company)
     {
         if( company.Company.IsMatchingISIN() )
         {
-            bool? result = await Dialog.ShowMessageBox("Are you sure sure?", "ISIN's are matching, its pretty sure looking match! Do manual?", yesText: "YES", cancelText: "Cancel");
+            bool? result = await LaunchDialog.ShowMessageBox("Are you sure sure?", "ISIN's are matching, its pretty sure looking match! Do manual?", yesText: "YES", cancelText: "Cancel");
 
             if (result.HasValue == false || result.Value == false)
                 return;
@@ -182,7 +184,7 @@ public partial class DlgMapCompany
 
     protected async Task OnBtnEnforceManualMatchAsync(ViewCompanies company)
     {
-        var dialog = Dialog.Show<DlgStockSelect>("", new DialogOptions() { });
+        var dialog = await LaunchDialog.ShowAsync<DlgStockSelect>("", new DialogOptions() { });
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -229,7 +231,7 @@ public partial class DlgMapCompany
     {
         if (company.ManualMarket != MarketId.Unknown && Pfs.Stalker().GetStockMeta(company.ManualMarket, company.Company.ExtSymbol) != null)
         {
-            await Dialog.ShowMessageBox("Duplicate!", "This symbol already exists for this market, press remapping", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Duplicate!", "This symbol already exists for this market, press remapping", yesText: "Ok");
             return;
         }
 
@@ -237,7 +239,7 @@ public partial class DlgMapCompany
 
         if (extSm == null || extSm.Length == 0)
         {
-            await Dialog.ShowMessageBox("Couldnt find match", "Maybe different market? Or create manually", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Couldnt find match", "Maybe different market? Or create manually", yesText: "Ok");
             return;
         }
 
@@ -246,7 +248,7 @@ public partial class DlgMapCompany
 
         if (extSm.Length == 0)
         {
-            await Dialog.ShowMessageBox("Couldnt find match", "Maybe different market? Or create manually", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Couldnt find match", "Maybe different market? Or create manually", yesText: "Ok");
             return;
         }
 
@@ -262,14 +264,14 @@ public partial class DlgMapCompany
 
             if (extSm.Length > 1)
             {
-                await Dialog.ShowMessageBox("Many markets!", $"Select one of {string.Join(',', extSm.Select(s => s.marketId))} and try again", yesText: "Ok");
+                await LaunchDialog.ShowMessageBox("Many markets!", $"Select one of {string.Join(',', extSm.Select(s => s.marketId))} and try again", yesText: "Ok");
                 return;
             }
         }
 
         if (Pfs.Stalker().GetStockMeta(extSm[0].marketId, extSm[0].symbol) != null)
         {
-            await Dialog.ShowMessageBox("Duplicate!", $"This already exists as only match was {extSm[0].marketId}${extSm[0].symbol}", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Duplicate!", $"This already exists as only match was {extSm[0].marketId}${extSm[0].symbol}", yesText: "Ok");
             return;
         }
 
@@ -321,14 +323,14 @@ public partial class DlgMapCompany
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 
     private async Task DlgDoneAsync()
     {
         if (_viewCompanies.Any(c => c.Company.StockMeta == null && c.ManualMarket.IsReal() && string.IsNullOrWhiteSpace(c.ManualCompany) == false))
         {
-            bool? result = await Dialog.ShowMessageBox("Unsaved companies?", "By continuing those get saved permanently for tracked stocks", yesText: "Save", cancelText: "Cancel");
+            bool? result = await LaunchDialog.ShowMessageBox("Unsaved companies?", "By continuing those get saved permanently for tracked stocks", yesText: "Save", cancelText: "Cancel");
 
             if (result.HasValue == false || result.Value == false)
                 return;

@@ -10,29 +10,30 @@
             <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Warning" OnClick="DoSaveData" />
         }
 
-        @if ( string.IsNullOrEmpty(_popupNavMenuLoc) == false)
+        @if (string.IsNullOrEmpty(_pfMenuLabel) == false)
         {
             <MudIconButton Icon="@Icons.Material.Filled.Home" Color="Color.Primary" OnClick="NavigateToHome" />
         }
 
     </MudButtonGroup>
 
-    @* POPUP NAVIGATION MENU *@
-
-    <MudPopover Open="@_popupNavMenuVisible" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopCenter">
-		<div class="d-flex flex-column pa-1">
-			<WidgMenu @ref="_childWidgMenu"  EvNavLocChanged="OnEvNavLocChanged" />
-		</div>
-	</MudPopover>
-
-    @if (_popupNavMenuLoc == string.Empty)
-    {
-        <MudFab StartIcon="@Icons.Material.Filled.MenuOpen" Color="Color.Default" IconColor="Color.Primary" Size="Size.Medium" Label="@($"PFS v{Pfs.PfsClientVersionNumber}")" OnClick="OnBtnPopupNavMenu" />
-    }
-    else
-    {
-        <MudFab StartIcon="@Icons.Material.Filled.MenuOpen" Color="Color.Default" IconColor="Color.Primary" Size="Size.Medium" Label="@_popupNavMenuLoc" OnClick="OnBtnPopupNavMenu" />
-    }
+    @* POPUP PORTFOLIO MENU *@
+    <MudMenu ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+        <ActivatorContent>
+            @if (string.IsNullOrEmpty(_pfMenuLabel)) {
+                <MudChip T="string" Icon="@Icons.Material.Filled.MenuOpen" Color="Color.Primary">@($"PFS v{Pfs.PfsClientVersionNumber}")</MudChip>
+            }
+            else {
+                <MudChip T="string" Icon="@Icons.Material.Filled.MenuOpen" Color="Color.Primary">@_pfMenuLabel</MudChip>
+            }
+        </ActivatorContent>
+        <ChildContent>
+            @foreach (string pf in _pfNames)
+            {
+                <MudMenuItem @onclick="@(() => OnBtnPfChanged(@pf))">@pf</MudMenuItem>
+            }
+        </ChildContent>
+    </MudMenu>
 
     @* Speed Operation (mainly 'Add Stock') *@
 
@@ -118,11 +119,10 @@
             <MudMenuItem OnClick="OnExportAccountBackupZipFile">Export Backup</MudMenuItem>
         }
 
-        @if (_popupNavMenuLoc == string.Empty)
+        @if (string.IsNullOrEmpty(_pfMenuLabel))
         {
             <MudMenuItem OnClick="OnAboutAsync">About</MudMenuItem>
         }
-
     </MudMenu>
 
 </MudAppBar>

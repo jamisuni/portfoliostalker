@@ -26,8 +26,8 @@ public partial class DlgFetchStats
 {
     [Parameter] public int PendingAmount { get; set; }  // Given by caller to indicate amount of non-fetched as those pending 'MinFetchMins'
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] IDialogService Dialog { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
     protected int _maxProgress { get; set; } = 1;       // How many symbols is under fetching
     protected int _totalProgress { get; set; } = 0;     // How many fetched so far from max
     protected int _failedProgress { get; set; } = 0;
@@ -36,6 +36,8 @@ public partial class DlgFetchStats
 
     protected override async Task OnInitializedAsync()
     {
+        await Task.CompletedTask;
+
         OnUpdate(this, null);
 
         var timer = new System.Timers.Timer(1000);
@@ -70,11 +72,11 @@ public partial class DlgFetchStats
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
 
-        Dialog.Show<DlgSimpleTextViewer>("", parameters, maxWidth);
+        await LaunchDialog.ShowAsync<DlgSimpleTextViewer>("", parameters, maxWidth);
     }
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 }

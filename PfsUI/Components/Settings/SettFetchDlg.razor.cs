@@ -27,9 +27,9 @@ public partial class SettFetchDlg
     // Decision! Dont try enforce limits on editing time, just give error on saving if symbols rule try have many providers
 
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     [Parameter] public ProvFetchCfg Cfg { get; set; } = null;
 
@@ -58,6 +58,8 @@ public partial class SettFetchDlg
 
     protected override async Task OnInitializedAsync()
     {
+        await Task.CompletedTask;
+
         _availableMarkets = Pfs.Account().GetActiveMarketsMeta();
 
         if ( Cfg != null )
@@ -68,17 +70,15 @@ public partial class SettFetchDlg
         }
     }
 
-    protected void OnFullScreenChanged(bool fullscreen)
+    protected async Task OnFullScreenChanged(bool fullscreen)
     {
         _fullscreen = fullscreen;
-
-        MudDialog.Options.FullWidth = _fullscreen;
-        MudDialog.SetOptions(MudDialog.Options);
+        await MudDialog.SetOptionsAsync(MudDialog.Options with { FullScreen = fullscreen });
     }
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 
     private async Task OnBtnSaveAsync()
@@ -88,7 +88,7 @@ public partial class SettFetchDlg
 
         if (string.IsNullOrWhiteSpace(_editStocks) == false && _editProviders.Count() > 1)
         {
-            await Dialog.ShowMessageBox("Cant do!", "Rule that defines symbol(s) cant have multiple providers!", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Cant do!", "Rule that defines symbol(s) cant have multiple providers!", yesText: "Ok");
             return;
         }
 

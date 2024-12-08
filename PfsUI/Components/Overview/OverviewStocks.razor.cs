@@ -25,7 +25,7 @@ namespace PfsUI.Components;
 
 public partial class OverviewStocks
 {
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
 
     protected List<OverviewStocksData> _reportData = null;  // Contains absolute all stocks those can be included any pages
@@ -217,7 +217,7 @@ public partial class OverviewStocks
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true };
 
-        var dialog = Dialog.Show<StockMgmtDlg>("", parameters, maxWidth);
+        var dialog = await LaunchDialog.ShowAsync<StockMgmtDlg>("", parameters, maxWidth);
         var result = await dialog.Result;
 
         if (!result.Canceled)

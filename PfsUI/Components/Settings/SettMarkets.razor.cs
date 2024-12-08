@@ -26,7 +26,7 @@ namespace PfsUI.Components;
 partial class SettMarkets
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
 
     // Decision! Not showing last/next closing times on UI, but look them on CmdTerminal
 
@@ -121,6 +121,8 @@ partial class SettMarkets
 
     private async Task OnRowClickedAsync(TableRowClickEventArgs<ViewMarket> data)
     {
+        await Task.CompletedTask;
+
         if ( _editing == data.Item.Meta.ID )
         {
             _editing = MarketId.Unknown;
@@ -165,7 +167,7 @@ partial class SettMarkets
 
         if (Pfs.Config().SetMarketCfg(_editing, cfg) == false )
         {
-            await Dialog.ShowMessageBox("Cant do!", "Invalid holiday string format?", yesText: "I'll check it");
+            await LaunchDialog.ShowMessageBox("Cant do!", "Invalid holiday string format?", yesText: "I'll check it");
             return;
         }
 

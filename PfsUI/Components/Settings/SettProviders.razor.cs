@@ -27,7 +27,7 @@ namespace PfsUI.Components;
 public partial class SettProviders
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
 
     protected static readonly ReadOnlyDictionary<ExtProviderId, DlgProviderCfg> _description = new ReadOnlyDictionary<ExtProviderId, DlgProviderCfg>(new Dictionary<ExtProviderId, DlgProviderCfg>
     {
@@ -81,10 +81,10 @@ public partial class SettProviders
         },
         [ExtProviderId.Marketstack] = new DlgProviderCfg()
         {
-            Name = "Marketstack (requires 9U$ subscription)",
-            Addr = "https://marketstack.com/?utm_source=FirstPromoter&utm_medium=Affiliate&fpr=pfs",
-            Desc = "Supports all markets. Requires 9$/month account minimum! They do NOT provide functional free account as no HTTPS." + Environment.NewLine
-                 + "9$/month gives 10,000 Req/mo. Thats enough for personal use for few hundred stocks with normal using."
+            Name = "Marketstack",
+            Addr = "https://marketstack.com/",
+            Desc = "Supports all markets, but often issues w smaller markets. Has free account but limited 100 stocks per month" + Environment.NewLine
+                 + "9$/month gives 10,000 Req/mo, thats not bad but often more 'rarely used' markets stuck and dont get updates."
         },
         [ExtProviderId.FMP] = new DlgProviderCfg()
         {
@@ -114,7 +114,7 @@ public partial class SettProviders
         _providerKeys = Pfs.Config().GetProvPrivKeys();
     }
 
-    protected void OnProviderChanged(object provider)
+    protected void OnProviderChanged(ExtProviderId provider)
     {
         _selectedProvider = (ExtProviderId)Enum.Parse(typeof(ExtProviderId), provider.ToString());
         _providerDesc = _description[_selectedProvider].Desc;
@@ -123,6 +123,8 @@ public partial class SettProviders
 
     protected async Task OnKeySaveAsync()
     {
+        await Task.CompletedTask;
+
         string updKey = _providerKeys[_selectedProvider];
 
         if (string.IsNullOrWhiteSpace(updKey))
@@ -138,7 +140,7 @@ public partial class SettProviders
     {
         if (_providerKeys[_selectedProvider] != Pfs.Config().GetProvPrivKeys()[_selectedProvider])
         {
-            await Dialog.ShowMessageBox("Plz save!", "U need to save edited key, before clicking here", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Plz save!", "U need to save edited key, before clicking here", yesText: "Ok");
             return;
         }
 
@@ -152,9 +154,9 @@ public partial class SettProviders
             Result<FullEOD> res = fetchResult[_selectedProvider];
 
             if (res.Ok)
-                await Dialog.ShowMessageBox("Ok!", $"For NASDAQ$MSFT got {res.Data.Close.ToString("0.00")}", yesText: "Ok");
+                await LaunchDialog.ShowMessageBox("Ok!", $"For NASDAQ$MSFT got {res.Data.Close.ToString("0.00")}", yesText: "Ok");
             else
-                await Dialog.ShowMessageBox("Failed!", $"Failed to error: {(res as FailResult<FullEOD>).Message}", yesText: "Ok");
+                await LaunchDialog.ShowMessageBox("Failed!", $"Failed to error: {(res as FailResult<FullEOD>).Message}", yesText: "Ok");
         }
     }
 

@@ -280,6 +280,8 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
 
     public async Task<Result<string>> CmdAsync(string cmd)                                          // ICmdHandler
     {
+        await Task.CompletedTask;
+
         MarketId marketId;
         var parseResp = CmdParser.Parse(cmd, _cmdTemplates);
 
@@ -353,6 +355,8 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
 
     public async Task<Result<string>> HelpMeAsync(string cmd)                                       // ICmdHandler
     {
+        await Task.CompletedTask;
+
         var parseResp = CmdParser.Parse(cmd, _cmdTemplates);
 
         if (parseResp.Fail) // parser gives per templates a proper fail w help

@@ -27,8 +27,8 @@ namespace PfsUI.Components;
 public partial class DlgTestStockFetch
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] IDialogService Dialog { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
     [Parameter] public MarketId Market { get; set; } = MarketId.Unknown;
     [Parameter] public string Symbol { get; set; } = string.Empty;
     [Parameter] public ExtProviderId[] AvailableProviders { get; set; } = null;     // optional
@@ -152,11 +152,11 @@ public partial class DlgTestStockFetch
     {
         Pfs.Config().SetEodFetchDedicatedProviderForSymbol(Market, Symbol, fp.ProvId);
 
-        await Dialog.ShowMessageBox("Fetch Rule Added!", $"{Market}${Symbol} on future is fetched wih {fp.ProvId}", yesText: "TY");
+        await LaunchDialog.ShowMessageBox("Fetch Rule Added!", $"{Market}${Symbol} on future is fetched wih {fp.ProvId}", yesText: "TY");
     }
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 }

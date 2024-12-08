@@ -26,7 +26,7 @@ namespace PfsUI.Pages;
 
 public partial class Portfolio
 {
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
     [Inject] PfsUiState PfsUiState { get; set; }
     [Parameter] public string PfName { get; set; }
@@ -112,7 +112,7 @@ public partial class Portfolio
 
                     case PfPageMenuID.PF_DELETE:
                         {
-                            bool? result = await Dialog.ShowMessageBox("Are you sure?", "Delete portfolio from account?", yesText: "Ok", cancelText: "Cancel");
+                            bool? result = await LaunchDialog.ShowMessageBox("Are you sure?", "Delete portfolio from account?", yesText: "Ok", cancelText: "Cancel");
 
                             if (result.HasValue == false || result.Value == false)
                                 return;
@@ -121,7 +121,7 @@ public partial class Portfolio
 
                             if (stalkerResult.Fail)
                             {
-                                await Dialog.ShowMessageBox("Delete failed!", "Cant delete portfolios those has ANY content / references!", yesText: "Ok");
+                                await LaunchDialog.ShowMessageBox("Delete failed!", "Cant delete portfolios those has ANY content / references!", yesText: "Ok");
                             }
                             else
                             {
@@ -137,7 +137,7 @@ public partial class Portfolio
                             {
                                 { "EditCurrPfName", PfName }
                             };
-                            var dialog = Dialog.Show<DlgPortfolioEdit>("", parameters);
+                            var dialog = await LaunchDialog.ShowAsync<DlgPortfolioEdit>("", parameters);
                             var result = await dialog.Result;
 
                             if (!result.Canceled)
@@ -201,12 +201,12 @@ public partial class Portfolio
     {
         if (Pfs.Account().AccountType == AccountTypeId.Demo)
         {
-            await Dialog.ShowMessageBox("Not supported!", "Sorry, demo account doesnt support adding new stocks.", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Not supported!", "Sorry, demo account doesnt support adding new stocks.", yesText: "Ok");
             return;
         }
 
         // !!!NOTE!!! MainLayout has default's for DialogOptions
-        var dialog = Dialog.Show<DlgStockSelect>("", new DialogOptions() { });
+        var dialog = await LaunchDialog.ShowAsync<DlgStockSelect>("", new DialogOptions() { });
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -217,7 +217,7 @@ public partial class Portfolio
             Result stalkerResult = Pfs.Stalker().DoAction($"Follow-Portfolio PfName=[{PfName}] SRef=[{selStock.marketId}${selStock.symbol}]");
 
             if (stalkerResult.Fail)
-                await Dialog.ShowMessageBox("Operation failed!", (stalkerResult as FailResult).Message, yesText: "Ok");
+                await LaunchDialog.ShowMessageBox("Operation failed!", (stalkerResult as FailResult).Message, yesText: "Ok");
             else
             {   // Stock added, so lets make sure stock table is up to date (Later! Could add checking that its visible atm)
                 _reportPfStocks.ReloadReport();

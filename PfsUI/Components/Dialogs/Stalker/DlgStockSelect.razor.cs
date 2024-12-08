@@ -16,7 +16,6 @@
  */
 
 using Microsoft.AspNetCore.Components;
-
 using MudBlazor;
 
 using Pfs.Types;
@@ -28,7 +27,7 @@ public partial class DlgStockSelect
 {
     [Inject] PfsClientAccess PfsClientAccess { get; set; }
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     protected bool _fullscreen { get; set; } = false;
 
@@ -37,7 +36,6 @@ public partial class DlgStockSelect
     string _search = "";
 
     MarketMeta _selMarket = null;
-    object _selStock; // really StockMeta, but razor side @bind-SelectedValue requires this as object
 
     protected override void OnInitialized()
     {
@@ -73,25 +71,19 @@ public partial class DlgStockSelect
             _viewedStocks = resp.ToList();
     }
 
-
-    protected void OnFullScreenChanged(bool fullscreen)
+    protected async Task OnFullScreenChanged(bool fullscreen)
     {
         _fullscreen = fullscreen;
+        await MudDialog.SetOptionsAsync(MudDialog.Options with { FullScreen = fullscreen });
+    }
 
-        MudDialog.Options.FullWidth = _fullscreen;
-        MudDialog.SetOptions(MudDialog.Options);
+    protected void OnStockSelected(StockMeta stock)
+    {
+        MudDialog.Close(DialogResult.Ok(stock));
     }
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
-    }
-
-    private async Task DlgSelectStock()
-    {
-        if (_selStock == null)
-            return;
-
-        MudDialog.Close(DialogResult.Ok(_selStock as StockMeta));
+        MudDialog.Close(DialogResult.Cancel());
     }
 }

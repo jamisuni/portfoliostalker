@@ -43,7 +43,7 @@ public partial class StockMgmtAlarms
         }
     }
 
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
     [Inject] PfsClientAccess PfsClientAccess { get; set; }
 
     [Parameter] public MarketId Market { get; set; }
@@ -100,7 +100,7 @@ public partial class StockMgmtAlarms
             { "Alarm", alarm }
         };
 
-        var dialog = Dialog.Show<DlgAlarmEdit>("Alarms", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgAlarmEdit>("Alarms", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)

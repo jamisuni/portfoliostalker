@@ -289,8 +289,8 @@ public class FetchConfig : IPfsFetchConfig, ICmdHandler, IDataOwner // identical
 
     public async Task<Result<string>> CmdAsync(string cmd)                                          // ICmdHandler
     {
-        List<ProvFetchCfg> all;
-        MarketId marketId;
+        await Task.CompletedTask;
+
         var parseResp = CmdParser.Parse(cmd, _cmdTemplates);
 
         if (parseResp.Fail) // parser gives per templates a proper fail w help
@@ -322,6 +322,8 @@ public class FetchConfig : IPfsFetchConfig, ICmdHandler, IDataOwner // identical
 
     public async Task<Result<string>> HelpMeAsync(string cmd)                                       // ICmdHandler
     {
+        await Task.CompletedTask;
+
         var parseResp = CmdParser.Parse(cmd, _cmdTemplates);
 
         if (parseResp.Fail) // parser gives per templates a proper fail w help

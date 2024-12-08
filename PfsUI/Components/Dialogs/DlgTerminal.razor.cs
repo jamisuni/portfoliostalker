@@ -28,10 +28,10 @@ namespace PfsUI.Components;
 public partial class DlgTerminal
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     private string _cmdLine;
     private string _logText;

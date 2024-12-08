@@ -127,7 +127,10 @@ public class StoreStockMetaHist : IDataOwner // identical XML on backup & local 
         _stockHist = currHist.ToArray();
     }
 
+#pragma warning disable 0067
     public event EventHandler<string> EventNewUnsavedContent;                                       // IDataOwner
+#pragma warning restore 0067
+
     public string GetComponentName() { return _componentName; }
     public void OnInitDefaults() { Init(); }
 

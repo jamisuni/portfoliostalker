@@ -22,19 +22,17 @@
             }
         </MudSelect>
 
-        <MudTextField @bind-Value="_search" Label="Search" Variant="Variant.Outlined" Adornment="Adornment.End" 
+        <MudTextField T="string" @bind-Value="_search" Label="Search" Variant="Variant.Outlined" Adornment="Adornment.End" 
                       AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Secondary" 
                       DebounceInterval="500" OnDebounceIntervalElapsed="OnSearchChanged" />
 
         @if (_viewedStocks != null)
         {
             <MudContainer Style="max-height: 300px; overflow-y: scroll">
-                <MudList Clickable="true" @bind-SelectedValue="@_selStock">
-                    @{
-                        foreach (StockMeta stock in _viewedStocks)
-                        {
-                            <MudListItem Value="@stock"> @stock.symbol @stock.name </MudListItem>
-                        }
+                <MudList T="StockMeta" SelectedValueChanged="OnStockSelected" >
+                    @foreach (StockMeta stock in _viewedStocks)
+                    {
+                        <MudListItem Value="@stock"> @stock.symbol @stock.name </MudListItem>
                     }
                 </MudList>
             </MudContainer>
@@ -44,6 +42,5 @@
     <DialogActions>
 
         <MudButton OnClick="DlgCancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="DlgSelectStock">Select</MudButton>
     </DialogActions>
 </MudDialog>

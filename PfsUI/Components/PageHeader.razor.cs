@@ -30,7 +30,7 @@ namespace PfsUI.Components;
 public partial class PageHeader
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
 
     [Parameter] public EventCallback<EvArgs> EvFromPageHeaderAsync { get; set; }    // All outgoing events are w this!
     public record EvArgs(EvId ID, object data);
@@ -56,30 +56,30 @@ public partial class PageHeader
 
     protected string _btnLabelSpeedOperation = String.Empty;
 
-    protected bool _premSrvEnabled = false;
-    protected bool _premSrvConnected = false;
-    protected bool _recording = false;
     protected AccountTypeId _accountTypeID = AccountTypeId.Unknown;
 
     protected UserEventAmounts _userEvAmounts = null;
 
-    protected WidgMenu _childWidgMenu = null;               // Fully and only owned by PageHeader, that controls it as Popup -menu
     protected List<MenuItem> _customSettMenuItems = null;   // Items those specific page wants to add to main menu of application
-    protected string _popupNavMenuLoc = string.Empty;
-    protected bool _popupNavMenuVisible = false;   // menu itself is most time hidden, and just popped up to change location
 
     // 'Stock Status' shows if local client has latest assumed eod data for stock this users account is tracking
     protected string _stockStatusText = "uninitialized";
     protected bool _stockStatusDisable = true;
     protected bool _stockStatusBusy = false;
 
+    // For portfolio selection menu, has all PfName's and non-empty PfName if specific PF is selected
+    protected List<string> _pfNames = new();
+    protected string _pfMenuLabel = "";
+
     protected override void OnInitialized()
     {   // Cant be on 'OnParametersSet'
         _userEvAmounts = Pfs.Account().GetUserEventAmounts();
 
-        PfsUiState.OnMenuUpdated += OnMenuUpdated;
+        PfsUiState.OnMenuUpdated += OnPfMenuUpdated;
 
         Pfs.Client().EventPfsClient2PHeader += OnEventPfsClient;
+
+        ReloadPfMenu();
     }
 
     protected static bool _wizardRunAlready = false;
@@ -92,7 +92,7 @@ public partial class PageHeader
         UpdateStockStatus();
 
         if (Pfs.Config().HomeCurrency == CurrencyId.Unknown && _wizardRunAlready == false)
-        {
+        {   // On startup a wizard is run one time if looks like PFS is not setup yet on use
             _wizardRunAlready = true;
             _ = OnRunSetupWizardAsync();
         }
@@ -102,8 +102,30 @@ public partial class PageHeader
             var ratesInfo = Pfs.Account().GetLatestRatesInfo();
 
             if (ratesInfo.date < Pfs.Platform().GetCurrentLocalDate().AddDays(-1))
+                // Automatically fetch latest currency rates if new one should be now available
                 _ = Pfs.Account().RefetchLatestRates();
         }
+    }
+
+    protected void ReloadPfMenu()
+    {
+        _pfNames = Pfs.Stalker().GetPortfolios().Select(p => p.Name).ToList();
+    }
+
+    protected void OnPfMenuUpdated()
+    {
+        ReloadPfMenu();
+        StateHasChanged();
+    }
+
+    public void OnBtnPfChanged(string pfName)
+    {
+        if (_pfMenuLabel == pfName)
+            return;
+
+        _pfMenuLabel = pfName;
+
+        NavigationManager.NavigateTo(NavigationManager.BaseUri + "Portfolio/" + pfName);
     }
 
     protected void UpdateStockStatus()
@@ -146,14 +168,14 @@ public partial class PageHeader
                     { "PendingAmount",  pendingAmount },
                 };
 
-                _ = Dialog.Show<DlgFetchStats>(null, parameters, options);
+                _ = LaunchDialog.ShowAsync<DlgFetchStats>(null, parameters, options);
             }
         }
         else
         {   // If busy fetching currently ala spinning then allow reopen dialog
             UpdateStockStatus();
             StateHasChanged();
-            _ = Dialog.Show<DlgFetchStats>(null, new DialogParameters(), options);
+            _ = LaunchDialog.ShowAsync<DlgFetchStats>(null, new DialogParameters(), options);
         }
     }
 
@@ -171,7 +193,7 @@ public partial class PageHeader
                             { "Warnings",  string.Join(Environment.NewLine, warnings) },
                         };
                         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
-                        _ = Dialog.Show<DlgStartupWarnings>(null, parameters, maxWidth);
+                        _ = LaunchDialog.ShowAsync<DlgStartupWarnings>(null, parameters, maxWidth);
                     }
                     break;
 
@@ -242,7 +264,7 @@ public partial class PageHeader
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true };
         var parameters = new DialogParameters();
 
-        var dialog = Dialog.Show<DlgUserEvents>("User Events", parameters, options);
+        var dialog = await LaunchDialog.ShowAsync<DlgUserEvents>("User Events", parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -252,7 +274,6 @@ public partial class PageHeader
 
     protected async Task OnCustomSettMenuSelAsync(string menuItemId)
     {
-        NavigateMenuHide();
         // From PageHeader -> MainLayout -> Page itself as a Layout.EvCustomMenuItemSelAsync
         await EvFromPageHeaderAsync.InvokeAsync(new EvArgs(EvId.MenuSel, (object)menuItemId));
     }
@@ -269,8 +290,7 @@ public partial class PageHeader
 
     public void NavigateToHome() // Note! This is only for mild version, do not call here if wants logout enforced sametime
     {
-        _popupNavMenuVisible = false;
-        _popupNavMenuLoc = string.Empty;
+        _pfMenuLabel = string.Empty;
         NavigationManager.NavigateTo(NavigationManager.BaseUri);
     }
 
@@ -304,7 +324,7 @@ public partial class PageHeader
                 { "Filters", Pfs.Report().GetReportFilters(ReportFilters.CurrentTag) }
             };
 
-            var dialog = Dialog.Show<DlgReportFilters>("Filters", parameters, options);
+            var dialog = await LaunchDialog.ShowAsync<DlgReportFilters>("Filters", parameters, options);
             var result = await dialog.Result;
 
             LoadCustomReportFilters(); // can happen either case as separate save btn
@@ -325,36 +345,6 @@ public partial class PageHeader
 
     //********************************
 
-    protected void OnBtnPopupNavMenu()
-    {
-        _popupNavMenuVisible = !_popupNavMenuVisible;
-    }
-
-    public void NavigateMenuHide()
-    {
-        _popupNavMenuVisible = false;
-        StateHasChanged();
-    }
-
-    protected void OnMenuUpdated()
-    {
-        NavigateMenuHide();
-    }
-
-    protected void OnEvNavLocChanged(WidgMenu.EvNavLocArgs args)
-    {
-        _popupNavMenuVisible = false;
-        _customSettMenuItems = null;
-        _btnLabelSpeedOperation = string.Empty;
-
-        switch (args.Type)
-        {
-            case MenuEntryType.Portfolio: _popupNavMenuLoc = $"{args.Selection}"; break;
-
-            default: _popupNavMenuLoc = string.Empty; break;
-        }
-    }
-
     public void SetCustomMenuItems(List<PageHeader.MenuItem> menuItems)
     {
         _customSettMenuItems = menuItems;
@@ -366,7 +356,7 @@ public partial class PageHeader
 
         var parameters = new DialogParameters();
 
-        var dialog = Dialog.Show<DlgSetupWizard>("", parameters, maxWidth);
+        var dialog = await LaunchDialog.ShowAsync<DlgSetupWizard>("", parameters, maxWidth);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -374,16 +364,16 @@ public partial class PageHeader
             PfsUiState.UpdateNavMenu();
             StateHasChanged();
 
-            bool? msgRes = await Dialog.ShowMessageBox("Wanna import your transactions?", "Has support for very limited amount of brokers/banks atm, but " +
+            bool? msgRes = await LaunchDialog.ShowMessageBox("Wanna import your transactions?", "Has support for very limited amount of brokers/banks atm, but " +
                                                         "happy to add more if yours is missing. Want try import your own actions from banks CSV export file?", yesText: "Ok", cancelText: "Cancel");
 
             if (msgRes.HasValue == false || msgRes.Value == false)
                 return;
 
-            var options2 = new DialogOptions { FullScreen = true, CloseButton = true, DisableBackdropClick = true };
+            var options2 = new DialogOptions { FullScreen = true, CloseButton = true, BackdropClick = false };
             var parameters2 = new DialogParameters();
 
-            var dialog2 = Dialog.Show<ImportTransactions>("Import Transactions", parameters2, options2);
+            var dialog2 = await LaunchDialog.ShowAsync<ImportTransactions>("Import Transactions", parameters2, options2);
             var result2 = await dialog.Result;
 
             if (!result2.Canceled)
@@ -394,7 +384,7 @@ public partial class PageHeader
 
     protected async Task OnUsernameClickedAsync()
     {
-        var dialog = Dialog.Show<DlgLogin>();
+        var dialog = await LaunchDialog.ShowAsync<DlgLogin>();
         var result = await dialog.Result;
 
         if (result.Canceled)
@@ -423,7 +413,7 @@ public partial class PageHeader
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true };
 
-        var dialog = Dialog.Show<DlgAbout>("", parameters, maxWidth);
+        var dialog = await LaunchDialog.ShowAsync<DlgAbout>("", parameters, maxWidth);
         await dialog.Result;
     }
 
@@ -433,7 +423,7 @@ public partial class PageHeader
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true };
 
-        var dialog = Dialog.Show<SettingsDlg>("", parameters, maxWidth);
+        var dialog = await LaunchDialog.ShowAsync<SettingsDlg>("", parameters, maxWidth);
         await dialog.Result;
     }
 

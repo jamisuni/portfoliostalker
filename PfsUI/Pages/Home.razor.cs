@@ -29,7 +29,7 @@ public partial class Home
 {
     [Inject] PfsClientAccess Pfs { get; set; }
     [Inject] PfsUiState PfsUiState { get; set; }                    // !!!TODO!!! See if this can be removed and do same w existing alternatives!
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
     [Inject] NavigationManager NavigationManager { get; set; }
     [CascadingParameter] public MainLayout Layout { get; set; }
 
@@ -175,7 +175,7 @@ public partial class Home
                 {
                     case HomePageMenuID.PF_ADD:
                         {
-                            var dialog = Dialog.Show<DlgPortfolioEdit>();
+                            var dialog = await LaunchDialog.ShowAsync<DlgPortfolioEdit>();
                             var result = await dialog.Result;
 
                             if (!result.Canceled)
@@ -231,11 +231,11 @@ public partial class Home
     {
         if (Pfs.Account().AccountType == AccountTypeId.Demo)
         {
-            await Dialog.ShowMessageBox("Not supported!", "Sorry, demo account doesnt support adding new stocks.", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Not supported!", "Sorry, demo account doesnt support adding new stocks.", yesText: "Ok");
             return;
         }
 
-        var dialog = Dialog.Show<DlgAddNewStockMeta>("", new DialogOptions() { });
+        var dialog = await LaunchDialog.ShowAsync<DlgAddNewStockMeta>("", new DialogOptions() { });
         var result = await dialog.Result;
 
         if (!result.Canceled)

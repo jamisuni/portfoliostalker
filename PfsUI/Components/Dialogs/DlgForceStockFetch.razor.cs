@@ -27,8 +27,8 @@ namespace PfsUI.Components;
 public partial class DlgForceStockFetch
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] IDialogService Dialog { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     protected List<MarketId> _allActiveMarkets = null;
     protected List<ExtProviderId> _availableProviders = new();
@@ -92,6 +92,6 @@ public partial class DlgForceStockFetch
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 }

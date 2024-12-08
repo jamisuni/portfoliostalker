@@ -83,11 +83,11 @@
                         <div class="col-md-8">
                             @if ( _currencyProviderId == ExtProviderId.CurrencyAPI )
                             {
-                                <MudButton Link="https://currencyapi.com/" Target="_blank" Variant="Variant.Filled" Color="Color.Primary">Launch [currencyapi.com]</MudButton>
+                                <MudLink Href="https://currencyapi.com/" Target="_blank" Underline="Underline.Always" Color="Color.Primary">Launch [currencyapi.com]</MudLink>
                             }
-                                    else if (_currencyProviderId == ExtProviderId.TwelveData)
+                            else if (_currencyProviderId == ExtProviderId.TwelveData)
                             {
-                                <MudButton Link="https://twelvedata.com/" Target="_blank" Variant="Variant.Filled" Color="Color.Primary">Launch [twelvedata.com]</MudButton>
+                                <MudLink Href="https://twelvedata.com/" Target="_blank" Underline="Underline.Always" Color="Color.Primary">Launch [twelvedata.com]</MudLink>
                             }
                         </div>
                         <div class="col-md-3">
@@ -118,19 +118,19 @@
                         <div class="row">
                             @if ( _providerId == ExtProviderId.Unibit )
                             {
-                                <MudButton Link="https://unibit.ai/signup" Target="_blank" Variant="Variant.Filled" Color="Color.Primary">Launch [unibit.ai]</MudButton>
+                                <MudLink Href="https://unibit.ai/signup" Target="_blank" Underline="Underline.Always" Color="Color.Primary">Launch [unibit.ai]</MudLink>
                             }
                             else if (_providerId == ExtProviderId.TwelveData)
                             {
-                                <MudButton Link="https://twelvedata.com/" Target="_blank" Variant="Variant.Filled" Color="Color.Primary">Launch [twelvedata.com]</MudButton>
+                                <MudLink Href="https://twelvedata.com/" Target="_blank" Underline="Underline.Always" Color="Color.Primary">Launch [twelvedata.com]</MudLink>
                             }
                             else if (_providerId == ExtProviderId.AlphaVantage)
                             {
-                                <MudButton Link="https://www.alphavantage.co/support/#api-key" Target="_blank" Variant="Variant.Filled" Color="Color.Primary">Launch [alphavantage.co]</MudButton>
+                                <MudLink Href="https://www.alphavantage.co/support/#api-key" Target="_blank" Underline="Underline.Always" Color="Color.Primary">Launch [alphavantage.co]</MudLink>
                             }
                             else if (_providerId == ExtProviderId.Polygon)
                             {
-                                <MudButton Link="https://polygon.io/dashboard/signup" Target="_blank" Variant="Variant.Filled" Color="Color.Primary">Launch [polygon.io]</MudButton>
+                                <MudLink Href="https://polygon.io/dashboard/signup" Target="_blank" Underline="Underline.Always" Color="Color.Primary">Launch [polygon.io]</MudLink>
                             }
                         </div>
                         <div class="row">

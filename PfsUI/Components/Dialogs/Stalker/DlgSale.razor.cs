@@ -27,9 +27,9 @@ namespace PfsUI.Components;
 public partial class DlgSale
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     [Parameter] public MarketId Market { get; set; }
     [Parameter] public string Symbol { get; set; }
@@ -92,12 +92,10 @@ public partial class DlgSale
             _header = $"Sale of {Symbol} as FIFO under {PfName}";
     }
 
-    protected void OnFullScreenChanged(bool fullscreen)
+    protected async Task OnFullScreenChanged(bool fullscreen)
     {
         _fullscreen = fullscreen;
-
-        MudDialog.Options.FullWidth = _fullscreen;
-        MudDialog.SetOptions(MudDialog.Options);
+        await MudDialog.SetOptionsAsync(MudDialog.Options with { FullScreen = fullscreen });
     }
 
     protected async Task OnBtnGetCurrencyAsync()
@@ -113,7 +111,7 @@ public partial class DlgSale
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 
     private async Task OnBtnSaleAsync()
@@ -137,6 +135,6 @@ public partial class DlgSale
         if (result.Ok)
             MudDialog.Close();
         else
-            await Dialog.ShowMessageBox("Failed!", (result as FailResult).Message, yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", (result as FailResult).Message, yesText: "Ok");
     }
 }

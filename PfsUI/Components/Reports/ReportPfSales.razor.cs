@@ -26,7 +26,7 @@ public partial class ReportPfSales
 {
     [Parameter] public string PfName { get; set; } = string.Empty;
 
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
 
     private List<ViewSaleEntry> _viewReport = null;
@@ -147,7 +147,7 @@ public partial class ReportPfSales
             { "Default", data.d.Holding.PurhaceNote }
         };
 
-        var dialog = Dialog.Show<DlgSimpleEditField>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgSimpleEditField>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -163,7 +163,7 @@ public partial class ReportPfSales
                 StateHasChanged();
             }
             else
-                await Dialog.ShowMessageBox("Failed!", "Carefull with special characters, strict filtering", yesText: "Ok");
+                await LaunchDialog.ShowMessageBox("Failed!", "Carefull with special characters, strict filtering", yesText: "Ok");
         }
     }
 
@@ -176,7 +176,7 @@ public partial class ReportPfSales
             { "Default", data.d.TradeNote }
         };
 
-        var dialog = Dialog.Show<DlgSimpleEditField>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgSimpleEditField>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -192,13 +192,13 @@ public partial class ReportPfSales
                 StateHasChanged();
             }
             else
-                await Dialog.ShowMessageBox("Failed!", $"Carefull with special characters: {(stalkerRes as FailResult).Message}", yesText: "Ok");
+                await LaunchDialog.ShowMessageBox("Failed!", $"Carefull with special characters: {(stalkerRes as FailResult).Message}", yesText: "Ok");
         }
     }
 
     protected async Task OnBtnRemoveTradeAsync(ViewSaleEntry data)
     {
-        bool? result = await Dialog.ShowMessageBox("Please confirm!", 
+        bool? result = await LaunchDialog.ShowMessageBox("Please confirm!", 
                 "Removing trade changes everything as it was before, with holdings owned again " + Environment.NewLine + 
                 "be very carefull with this as FIFO logic of sales gets easily confused if rolling back" + Environment.NewLine +
                 "old sales. Only use this if just made sale and need to fix some type on it by redoing it",
@@ -218,7 +218,7 @@ public partial class ReportPfSales
             StateHasChanged();
         }
         else
-            await Dialog.ShowMessageBox("Failed!", $"Error: {(stalkerRes as FailResult).Message}", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", $"Error: {(stalkerRes as FailResult).Message}", yesText: "Ok");
     }
 
     protected async Task DoAddDividentAsync(ViewSaleEntry entry)
@@ -230,7 +230,7 @@ public partial class ReportPfSales
             { "Holding", null },
         };
 
-        var dialog = Dialog.Show<DlgDividentAdd>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgDividentAdd>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -247,7 +247,7 @@ public partial class ReportPfSales
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true };
 
-        var dialog = Dialog.Show<StockMgmtDlg>("", parameters, maxWidth);
+        var dialog = await LaunchDialog.ShowAsync<StockMgmtDlg>("", parameters, maxWidth);
         var result = await dialog.Result;
 
         if (!result.Canceled)

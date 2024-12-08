@@ -28,8 +28,8 @@ public partial class StockMgmtDlg
     [Parameter] public MarketId Market { get; set; }
     [Parameter] public string Symbol { get; set; }
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
 
     protected const string _btnNoteEdit = "Edit";
@@ -139,6 +139,6 @@ public partial class StockMgmtDlg
         if (_somethingIsChanged)
             MudDialog.Close();
         else
-            MudDialog.Cancel();
+            MudDialog.Close(DialogResult.Cancel());
     }
 }

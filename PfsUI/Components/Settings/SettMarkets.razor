@@ -13,7 +13,7 @@
             </ColGroup>
             <HeaderContent>
 
-                <MudTh><MudSwitch Color="Color.Success" UnCheckedColor="Color.Info" Checked="@_listActivesOnly" T="bool" CheckedChanged="OnChangedBetwAllAndActive"></MudSwitch></MudTh>
+                <MudTh><MudSwitch T="bool" Color="Color.Success" UnCheckedColor="Color.Info" Value="@_listActivesOnly" ValueChanged="OnChangedBetwAllAndActive" ></MudSwitch></MudTh>
                 <MudTh>ID</MudTh>
                 <MudTh>Name</MudTh>
                 <MudTh>Close</MudTh>
@@ -33,7 +33,7 @@
     <MudCardActions>
         @if (_editing != MarketId.Unknown)
         {
-            <MudSwitch Color="Color.Success" UnCheckedColor="Color.Info" Checked="@_editActive" T="bool" CheckedChanged="OnChangeEditActive">Use @(_editing)?</MudSwitch>
+            <MudSwitch T="bool" Color="Color.Success" UnCheckedColor="Color.Info" Value="@_editActive" ValueChanged="OnChangeEditActive">Use @(_editing)?</MudSwitch>
 
             <MudNumericField @bind-Value="_editMinFetchMins" Label="Min Fetch Mins" Variant="Variant.Outlined" Min="1" Max="360" HideSpinButtons="true" />
 

@@ -25,9 +25,9 @@ namespace PfsUI.Components;
 public partial class DlgReportFilters
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     [Parameter] public ReportFilters Filters { get; set; } = null;
     [Parameter] public ReportId ReportId { get; set; } = ReportId.Unknown;
@@ -73,12 +73,10 @@ public partial class DlgReportFilters
         _customAll = Pfs.Report().ListReportFilters();
     }
 
-    protected void OnFullScreenChanged(bool fullscreen)
+    protected async Task OnFullScreenChanged(bool fullscreen)
     {
         _fullscreen = fullscreen;
-
-        MudDialog.Options.FullWidth = _fullscreen;
-        MudDialog.SetOptions(MudDialog.Options);
+        await MudDialog.SetOptionsAsync(MudDialog.Options with { FullScreen = fullscreen });
     }
 
     protected void OnBtnLoadCustom(string customName)
@@ -93,7 +91,7 @@ public partial class DlgReportFilters
 
         if (filter.IsEmpty())
         {
-            await Dialog.ShowMessageBox("Failed!", $"Not going to save empty filter, just use -default-", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", $"Not going to save empty filter, just use -default-", yesText: "Ok");
             return;
         }
 
@@ -115,7 +113,7 @@ public partial class DlgReportFilters
 
     protected void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 
     protected void Get(ReportFilters filter)
@@ -200,6 +198,8 @@ public partial class DlgReportFilters
 
     protected async Task OnBtnUseAsync()
     {
+        await Task.CompletedTask;
+
         MudDialog.Close(DialogResult.Ok(Set(Filters)));
     }
 }

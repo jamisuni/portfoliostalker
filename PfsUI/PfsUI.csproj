@@ -5,7 +5,7 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-    <Version>2.0.2.9</Version>
+    <Version>2.0.3.0</Version>
     <UserSecretsId>b32f4308-1db8-4eaf-be0f-e7a6c8ebcc48</UserSecretsId>
   </PropertyGroup>
 
@@ -15,7 +15,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.0" PrivateAssets="all" />
-    <PackageReference Include="MudBlazor" Version="6.19.1" />
+    <PackageReference Include="MudBlazor" Version="8.0.0-preview.5" />
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Sinks.BrowserConsole" Version="8.0.0" />
   </ItemGroup>

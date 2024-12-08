@@ -219,6 +219,7 @@ public class ExtUnibit : IExtProvider, IExtDataProvider
 
     public async Task<Dictionary<string, List<FullEOD>>> GetEodHistoryAsync(MarketId marketId, List<string> tickers, DateTime startDay, DateTime endDay)    // !!!IMPORTANT!!! Pricy as heck, should not be used!!!
     {
+        await Task.CompletedTask;
 #if false
         _creditCost = 0;
         _error = string.Empty;

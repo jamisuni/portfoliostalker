@@ -25,9 +25,9 @@ namespace PfsUI.Components;
 public partial class DlgAddNewStockMeta
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     protected MarketId _market = MarketId.Unknown;
     protected string _symbol = string.Empty;
@@ -52,7 +52,7 @@ public partial class DlgAddNewStockMeta
 
         if (_market != MarketId.Unknown && Pfs.Stalker().GetStockMeta(_market, _symbol) != null)
         {
-            await Dialog.ShowMessageBox("Duplicate!", "This already exists.", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Duplicate!", "This already exists.", yesText: "Ok");
             return;
         }
 
@@ -69,13 +69,13 @@ public partial class DlgAddNewStockMeta
 
         if (extSm.Length > 1)
         {
-            await Dialog.ShowMessageBox("Many markets!", $"Select one of {string.Join(',', extSm.Select(s => s.marketId))} and try again", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Many markets!", $"Select one of {string.Join(',', extSm.Select(s => s.marketId))} and try again", yesText: "Ok");
             return;
         }
 
         if (Pfs.Stalker().GetStockMeta(extSm[0].marketId, extSm[0].symbol) != null)
         {
-            await Dialog.ShowMessageBox("Duplicate!", $"This already exists as only match was {extSm[0].marketId}${extSm[0].symbol}", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Duplicate!", $"This already exists as only match was {extSm[0].marketId}${extSm[0].symbol}", yesText: "Ok");
             return;
         }
 
@@ -91,7 +91,7 @@ public partial class DlgAddNewStockMeta
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 
     private bool IsReady()
@@ -117,6 +117,6 @@ public partial class DlgAddNewStockMeta
             MudDialog.Close(DialogResult.Ok(sm));
         }
         else
-            await Dialog.ShowMessageBox("Failed!", "duplicate?", yesText: "Dang");
+            await LaunchDialog.ShowMessageBox("Failed!", "duplicate?", yesText: "Dang");
     }
 }

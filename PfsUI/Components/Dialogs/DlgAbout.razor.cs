@@ -23,13 +23,13 @@ namespace PfsUI.Components;
 public partial class DlgAbout
 {
     [Inject] PfsClientAccess PfsClientAccess { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     [Parameter] public string Title { get; set; }
     [Parameter] public string Text { get; set; }
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 }

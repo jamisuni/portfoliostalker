@@ -25,9 +25,9 @@ namespace PfsUI.Components;
 public partial class DlgOrderEdit
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     [Parameter] public MarketId Market { get; set; }            // Mandatory
     [Parameter] public string Symbol { get; set; }              // Mandatory
@@ -71,17 +71,15 @@ public partial class DlgOrderEdit
         return;
     }
 
-    protected void OnFullScreenChanged(bool fullscreen)
+    protected async Task OnFullScreenChanged(bool fullscreen)
     {
         _fullscreen = fullscreen;
-
-        MudDialog.Options.FullWidth = _fullscreen;
-        MudDialog.SetOptions(MudDialog.Options);
+        await MudDialog.SetOptionsAsync(MudDialog.Options with { FullScreen = fullscreen });
     }
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 
     protected void DlgDeleteOrder()
@@ -111,7 +109,7 @@ public partial class DlgOrderEdit
         if (result.Ok)
             MudDialog.Close();
         else
-            await Dialog.ShowMessageBox("Failed!", (result as FailResult).Message, yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", (result as FailResult).Message, yesText: "Ok");
     }
 
 
@@ -134,7 +132,7 @@ public partial class DlgOrderEdit
                 { "Edit", false }
             };
 
-            var dialog = Dialog.Show<DlgHoldingsEdit>("", parameters);
+            var dialog = await LaunchDialog.ShowAsync<DlgHoldingsEdit>("", parameters);
             var result = await dialog.Result;
 
             if (!result.Canceled)
@@ -153,7 +151,7 @@ public partial class DlgOrderEdit
             };
 
             // Ala Sale Holding operation == finishing trade of buy holding, and now sell holding(s)
-            var dialog = Dialog.Show<DlgSale>("", parameters);
+            var dialog = await LaunchDialog.ShowAsync<DlgSale>("", parameters);
             var result = await dialog.Result;
 
             if (!result.Canceled)
@@ -165,7 +163,7 @@ public partial class DlgOrderEdit
     {
         if (_order.Type == SOrder.OrderType.Unknown || _order.PricePerUnit <= 0.01M || _order.Units <= 0.01M)
         {
-            await Dialog.ShowMessageBox("Cant do!", "Please select Type, and fill fields!", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Cant do!", "Please select Type, and fill fields!", yesText: "Ok");
             return false;
         }
         return true;
@@ -184,7 +182,7 @@ public partial class DlgOrderEdit
         if (result.Ok)
             MudDialog.Close();
         else
-            await Dialog.ShowMessageBox("Failed!", (result as FailResult).Message, yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", (result as FailResult).Message, yesText: "Ok");
     }
 
     private async Task DlgEditOrderAsync()
@@ -201,6 +199,6 @@ public partial class DlgOrderEdit
         if (result.Ok)
             MudDialog.Close();
         else
-            await Dialog.ShowMessageBox("Failed!", (result as FailResult).Message, yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", (result as FailResult).Message, yesText: "Ok");
     }
 }

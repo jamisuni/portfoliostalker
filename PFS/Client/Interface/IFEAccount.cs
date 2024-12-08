@@ -25,7 +25,6 @@ public interface IFEAccount
 
     int GetAppCfg(AppCfgId id);
 
-    List<MenuEntry> GetMenuData();
     void SaveData();
 
     void ClearLocally();

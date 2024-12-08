@@ -26,8 +26,8 @@ namespace PfsUI.Components;
 public partial class DlgHoldingsEdit
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     [Parameter] public MarketId Market { get; set; }
     [Parameter] public string Symbol { get; set; }
@@ -93,12 +93,10 @@ public partial class DlgHoldingsEdit
         }
     }
 
-    protected void OnFullScreenChanged(bool fullscreen)
+    protected async Task OnFullScreenChanged(bool fullscreen)
     {
         _fullscreen = fullscreen;
-
-        MudDialog.Options.FullWidth = _fullscreen;
-        MudDialog.SetOptions(MudDialog.Options);
+        await MudDialog.SetOptionsAsync(MudDialog.Options with { FullScreen = fullscreen });
     }
 
     protected async Task OnBtnGetCurrencyAsync()
@@ -114,7 +112,7 @@ public partial class DlgHoldingsEdit
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 
     private async Task OnBtnDeleteAsync()
@@ -130,7 +128,7 @@ public partial class DlgHoldingsEdit
         if (result.Ok)
             MudDialog.Close();
         else
-            await Dialog.ShowMessageBox("Failed!", (result as FailResult).Message, yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", (result as FailResult).Message, yesText: "Ok");
     }
 
     private async Task OnBtnEditAsync()
@@ -151,7 +149,7 @@ public partial class DlgHoldingsEdit
         if (result.Ok)
             MudDialog.Close();
         else
-            await Dialog.ShowMessageBox("Failed!", (result as FailResult).Message, yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", (result as FailResult).Message, yesText: "Ok");
     }
 
     private async Task OnBtnAddAsync()
@@ -173,6 +171,6 @@ public partial class DlgHoldingsEdit
         if (result.Ok)
             MudDialog.Close();
         else
-            await Dialog.ShowMessageBox("Failed!", (result as FailResult).Message, yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", (result as FailResult).Message, yesText: "Ok");
     }
 }

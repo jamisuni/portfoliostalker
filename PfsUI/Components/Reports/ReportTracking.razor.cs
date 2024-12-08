@@ -26,7 +26,7 @@ namespace PfsUI.Components;
 public partial class ReportTracking
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
 
     private List<ViewTrackingData> _allData;
     private List<ViewTrackingData> _viewData;
@@ -121,7 +121,7 @@ public partial class ReportTracking
             { "Symbol", stock.symbol }
         };
 
-        var dialog = Dialog.Show<DlgTestStockFetch>(sRef, parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgTestStockFetch>(sRef, parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -130,7 +130,7 @@ public partial class ReportTracking
 
     protected async Task OnTestFetchBtnAsync()
     {
-        var dialog = Dialog.Show<DlgTestStockFetch>("Test Fetch");
+        var dialog = await LaunchDialog.ShowAsync<DlgTestStockFetch>("Test Fetch");
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -140,7 +140,7 @@ public partial class ReportTracking
     protected async Task OnForceFetchBtnAsync()
     {
         DialogOptions widerOpt = new DialogOptions() { MaxWidth = MaxWidth.Medium, CloseButton = true };
-        var dialog = Dialog.Show<DlgForceStockFetch>("Force Fetch", new DialogParameters(), widerOpt);
+        var dialog = await LaunchDialog.ShowAsync<DlgForceStockFetch>("Force Fetch", new DialogParameters(), widerOpt);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -149,7 +149,7 @@ public partial class ReportTracking
 
     private async Task DoDeleteStockAsync(ViewTrackingData entry)
     {
-        bool? result = await Dialog.ShowMessageBox("Sure?", "Going to remove stock totally!", yesText: "Aye", cancelText: "Cancel");
+        bool? result = await LaunchDialog.ShowMessageBox("Sure?", "Going to remove stock totally!", yesText: "Aye", cancelText: "Cancel");
 
         if (result.HasValue == false || result.Value == false)
             return;
@@ -174,7 +174,7 @@ public partial class ReportTracking
             { "Symbol", stock.symbol }
         };
 
-        var dialog = Dialog.Show<DlgStockMeta>(sRef, parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgStockMeta>(sRef, parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -193,7 +193,7 @@ public partial class ReportTracking
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true };
 
-        var dialog = Dialog.Show<StockMgmtDlg>("", parameters, maxWidth);
+        var dialog = await LaunchDialog.ShowAsync<StockMgmtDlg>("", parameters, maxWidth);
         var result = await dialog.Result;
 
         if (!result.Canceled)

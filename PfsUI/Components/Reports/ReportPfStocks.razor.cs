@@ -36,8 +36,8 @@ public partial class ReportPfStocks
      */
 
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] IDialogService Dialog { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     [Parameter] public string PfName { get; set; } // Atm this report is supported only under Portfolio so this must be set
 
@@ -135,7 +135,7 @@ public partial class ReportPfStocks
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true };
 
-        var dialog = Dialog.Show<StockMgmtDlg>("", parameters, maxWidth);
+        var dialog = await LaunchDialog.ShowAsync<StockMgmtDlg>("", parameters, maxWidth);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -152,7 +152,7 @@ public partial class ReportPfStocks
             { "Edit", false }
         };
 
-        var dialog = Dialog.Show<DlgOrderEdit>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgOrderEdit>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -169,7 +169,7 @@ public partial class ReportPfStocks
             { "Edit", false }
         };
 
-        var dialog = Dialog.Show<DlgHoldingsEdit>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgHoldingsEdit>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -187,7 +187,7 @@ public partial class ReportPfStocks
         };
 
         // Ala Sale Holding operation == finishing trade of buy holding, and now sell holding(s)
-        var dialog = Dialog.Show<DlgSale>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgSale>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -203,7 +203,7 @@ public partial class ReportPfStocks
             { "Holding", null },
         };
 
-        var dialog = Dialog.Show<DlgDividentAdd>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgDividentAdd>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -212,7 +212,7 @@ public partial class ReportPfStocks
 
     protected async Task DoRemoveStockTrackingAsync(ViewReportEntry entry)
     {
-        bool? result = await Dialog.ShowMessageBox("Untrack", "Remove from this PF stock list?", yesText: "Ok", cancelText: "Cancel");
+        bool? result = await LaunchDialog.ShowMessageBox("Untrack", "Remove from this PF stock list?", yesText: "Ok", cancelText: "Cancel");
 
         if (result.HasValue == false || result.Value == false)
             return;
@@ -224,7 +224,7 @@ public partial class ReportPfStocks
         if (stalkerResp.Ok)
             ReloadReport();
         else
-            await Dialog.ShowMessageBox("Failed!", (stalkerResp as FailResult).Message, cancelText: "Dang");
+            await LaunchDialog.ShowMessageBox("Failed!", (stalkerResp as FailResult).Message, cancelText: "Dang");
     }
 }
 

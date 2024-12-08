@@ -122,6 +122,8 @@ public class ExtFmp : IExtProvider, IExtDataProvider
 
     public async Task<Dictionary<string, FullEOD>> GetIntradayAsync(MarketId marketId, List<string> tickers)
     {
+        await Task.CompletedTask;
+
         _error = string.Empty;
 
         return null;
@@ -271,6 +273,8 @@ public class ExtFmp : IExtProvider, IExtDataProvider
 
     public async Task<Dictionary<string, List<FullEOD>>> GetEodHistoryAsync(MarketId marketId, List<string> tickers, DateTime startDay, DateTime endDay)
     {
+        await Task.CompletedTask;
+
         _error = string.Empty;
 
         return null;

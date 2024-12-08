@@ -131,6 +131,8 @@ public class Client : IDisposable, IFEClient
 
     protected async Task OnPfsClientEventHandlerAsync(PfsClientEventArgs args)  // Only consumer of PfsClientLib side events!
     {
+        await Task.CompletedTask;
+
         switch (args.ID)                              // *** Maps events from PfsLibComp to operations/etc ***
         {
             case PfsClientEventId.FetchEodsFinished:

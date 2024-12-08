@@ -44,7 +44,7 @@ public partial class StockMgmtHistory
     [Parameter] public MarketId Market { get; set; }
     [Parameter] public string Symbol { get; set; }
 
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
 
     protected List<ViewEntry> _viewReport;

@@ -24,8 +24,8 @@ namespace PfsUI.Components;
 public partial class SettingsDlg
 {
     [Inject] PfsClientAccess PfsClientAccess { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-    [Inject] IDialogService Dialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
 
     protected PageHeader _childPageHeader;
 
@@ -36,10 +36,9 @@ public partial class SettingsDlg
 
     protected async Task OnOpenDlgTerminalAsync()
     {
-        var options = new DialogOptions { FullScreen = true, CloseButton = true, DisableBackdropClick = true };
-        var parameters = new DialogParameters();
+        var options = new DialogOptions { FullScreen = true, CloseButton = true, BackdropClick = false };
 
-        var dialog = Dialog.Show<DlgTerminal>("Terminal", parameters, options);
+        var dialog = await LaunchDialog.ShowAsync<DlgTerminal>("Terminal", options);
         var result = await dialog.Result;
 
         if (!result.Canceled)

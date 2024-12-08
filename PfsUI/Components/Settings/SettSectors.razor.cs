@@ -26,7 +26,7 @@ namespace PfsUI.Components;
 partial class SettSectors
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
 
     protected ViewRow[] _viewRow = new ViewRow[SSector.MaxFields + 1];
 
@@ -138,7 +138,7 @@ partial class SettSectors
             }
 
             if ( failed)
-                await Dialog.ShowMessageBox("Failed!", "Saving failed at least partially, carefull w special chars!", yesText: "Ok");
+                await LaunchDialog.ShowMessageBox("Failed!", "Saving failed at least partially, carefull w special chars!", yesText: "Ok");
 
             _sectorEdit[secID] = false;
             Reload();

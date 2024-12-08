@@ -28,9 +28,9 @@ namespace PfsUI.Components;
 public partial class DlgSetupWizard
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
     [Inject] NavigationManager NavigationManager { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     protected bool _fullscreen { get; set; } = false;
 
@@ -86,6 +86,8 @@ public partial class DlgSetupWizard
 
     protected async Task DlgLaunchDemoAsync(int demoRef)
     {
+        await Task.CompletedTask;
+
         if (Pfs.Account().AccountType != AccountTypeId.Offline)
             return;
 
@@ -286,17 +288,15 @@ public partial class DlgSetupWizard
 
     #endregion
 
-    protected void OnFullScreenChanged(bool fullscreen)
+    protected async Task OnFullScreenChanged(bool fullscreen)
     {
         _fullscreen = fullscreen;
-
-        MudDialog.Options.FullWidth = _fullscreen;
-        MudDialog.SetOptions(MudDialog.Options);
+        await MudDialog.SetOptionsAsync(MudDialog.Options with { FullScreen = fullscreen });
     }
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 
     private async Task OnBtnNext()
@@ -312,7 +312,7 @@ public partial class DlgSetupWizard
 
                     if (marketIDs == null || marketIDs.Count() > 4)
                     {
-                        await Dialog.ShowMessageBox("Lets keep this simple!", "Max 4 selections, as you can add later more", yesText: "Ok");
+                        await LaunchDialog.ShowMessageBox("Lets keep this simple!", "Max 4 selections, as you can add later more", yesText: "Ok");
                         return;
                     }
 
@@ -345,13 +345,13 @@ public partial class DlgSetupWizard
                 {
                     if (_requireCurrencyProvider == true && _currencyProviderKey.Length != GetKeyLength(_currencyProviderId))
                     {
-                        await Dialog.ShowMessageBox("Missing key!", "For this market / currency selection we do need that key, please.", yesText: "Ok");
+                        await LaunchDialog.ShowMessageBox("Missing key!", "For this market / currency selection we do need that key, please.", yesText: "Ok");
                         return;
                     }
 
                     if (SetProviderProposal() == false)
                     {
-                        await Dialog.ShowMessageBox("Coding error!", "Please report case for developers, interesting failure...", yesText: "Ok");
+                        await LaunchDialog.ShowMessageBox("Coding error!", "Please report case for developers, interesting failure...", yesText: "Ok");
                         return;
                     }
 
@@ -375,7 +375,7 @@ public partial class DlgSetupWizard
                 {
                     if (_providerKey.Length != GetKeyLength(_providerId))
                     {
-                        await Dialog.ShowMessageBox("Missing key!", "Need to give that key, as this application uses it on your browser session to fetch stock valuations.", yesText: "Ok");
+                        await LaunchDialog.ShowMessageBox("Missing key!", "Need to give that key, as this application uses it on your browser session to fetch stock valuations.", yesText: "Ok");
                         return;
                     }
 
@@ -401,7 +401,7 @@ public partial class DlgSetupWizard
 
                     if ( _addStockToMarket == MarketId.Unknown || string.IsNullOrWhiteSpace(_addStockSymbol) && string.IsNullOrWhiteSpace(_addStockName) )
                     {
-                        await Dialog.ShowMessageBox("Select stock!", "Lets get one stock selected so have something to start with.", yesText: "Ok");
+                        await LaunchDialog.ShowMessageBox("Select stock!", "Lets get one stock selected so have something to start with.", yesText: "Ok");
                         return;
                     }
 

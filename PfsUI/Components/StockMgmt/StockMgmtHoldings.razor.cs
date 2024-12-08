@@ -44,7 +44,7 @@ public partial class StockMgmtHoldings
     [Parameter] public MarketId Market { get; set; }
     [Parameter] public string Symbol { get; set; }
 
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
 
     protected List<ViewReportHoldingsData> _viewReport;
@@ -115,7 +115,7 @@ public partial class StockMgmtHoldings
             { "Default", data.d.Holding.PurhaceNote }
         };
 
-        var dialog = Dialog.Show<DlgSimpleEditField>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgSimpleEditField>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -131,7 +131,7 @@ public partial class StockMgmtHoldings
                 StateHasChanged();
             }
             else
-                await Dialog.ShowMessageBox("Failed!", "Carefull with special characters, strict filtering", yesText: "Ok");
+                await LaunchDialog.ShowMessageBox("Failed!", "Carefull with special characters, strict filtering", yesText: "Ok");
         }
     }
 
@@ -147,7 +147,7 @@ public partial class StockMgmtHoldings
         };
 
         // Ala Sale Holding operation == finishing trade of buy holding, and now sell holding(s)
-        var dialog = Dialog.Show<DlgSale>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgSale>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -168,7 +168,7 @@ public partial class StockMgmtHoldings
             { "Edit", true }
         };
 
-        var dialog = Dialog.Show<DlgHoldingsEdit>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgHoldingsEdit>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -189,7 +189,7 @@ public partial class StockMgmtHoldings
             { "Holding", data.d.Holding },
         };
 
-        var dialog = Dialog.Show<DlgDividentAdd>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgDividentAdd>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -202,7 +202,7 @@ public partial class StockMgmtHoldings
 
     protected async Task OnBtnDeleteDividentAsync(ViewReportHoldingsData data, RRHoldingDivident divyData)
     {
-        bool? result = await Dialog.ShowMessageBox("Sure?", "Going to remove divident from this holding, and potential sold trades (but not from other holdings)", yesText: "Delete", cancelText: "Cancel");
+        bool? result = await LaunchDialog.ShowMessageBox("Sure?", "Going to remove divident from this holding, and potential sold trades (but not from other holdings)", yesText: "Delete", cancelText: "Cancel");
 
         if (result.HasValue == false || result.Value == false)
             return;
@@ -218,7 +218,7 @@ public partial class StockMgmtHoldings
             StateHasChanged();
         }
         else
-            await Dialog.ShowMessageBox("Failed!", (stalkerRes as FailResult).Message, yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", (stalkerRes as FailResult).Message, yesText: "Ok");
     }
 
     public async Task FromOwner_DoAddHoldinAsync()
@@ -231,7 +231,7 @@ public partial class StockMgmtHoldings
             { "Edit", false }
         };
 
-        var dialog = Dialog.Show<DlgHoldingsEdit>("", parameters);
+        var dialog = await LaunchDialog.ShowAsync<DlgHoldingsEdit>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled)

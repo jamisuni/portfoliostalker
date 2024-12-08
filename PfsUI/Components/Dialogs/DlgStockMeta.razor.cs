@@ -25,9 +25,9 @@ namespace PfsUI.Components;
 public partial class DlgStockMeta
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     [Parameter] public MarketId Market { get; set; } = MarketId.Unknown;
     [Parameter] public string Symbol { get; set; }
@@ -49,6 +49,8 @@ public partial class DlgStockMeta
 
     protected override async Task OnInitializedAsync()
     {
+        await Task.CompletedTask;
+
         _activeMarkets = Pfs.Account().GetActiveMarketsMeta();
 
         Set();
@@ -64,12 +66,10 @@ public partial class DlgStockMeta
         _editISIN = sm.ISIN;
     }
 
-    protected void OnFullScreenChanged(bool fullscreen)
+    protected async Task OnFullScreenChanged(bool fullscreen)
     {
         _fullscreen = fullscreen;
-
-        MudDialog.Options.FullWidth = _fullscreen;
-        MudDialog.SetOptions(MudDialog.Options);
+        await MudDialog.SetOptionsAsync(MudDialog.Options with { FullScreen = fullscreen });
     }
 
     protected void OnTabChanged(int tabID)
@@ -88,7 +88,7 @@ public partial class DlgStockMeta
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 
     private async Task OnBtnSaveAsync()
@@ -116,7 +116,7 @@ public partial class DlgStockMeta
         if (string.IsNullOrWhiteSpace(errMsg))
             MudDialog.Close();
         else
-            await Dialog.ShowMessageBox("Failed!", errMsg, yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", errMsg, yesText: "Ok");
         return;
 
 

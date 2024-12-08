@@ -224,6 +224,8 @@ public class ClientCmdTerminal : IFECmdTerminal
 
     public async Task<Result<string>> ClientHelpMeAsync(string cmd)
     {
+        await Task.CompletedTask;
+
         var parseResp = CmdParser.Parse(cmd, _cmdTemplates);
 
         if (parseResp.Fail) // parser gives per templates a proper fail w help

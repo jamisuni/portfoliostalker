@@ -19,13 +19,12 @@ using Microsoft.AspNetCore.Components;
 
 using MudBlazor;
 using Pfs.Types;
-using static PfsUI.Components.OverviewStocks;
 
 namespace PfsUI.Components;
 
 public partial class ReportInvested
 {
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
 
     private List<ViewReportInvestedData> _viewReport = null;
@@ -121,7 +120,7 @@ public partial class ReportInvested
 
         DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true };
 
-        var dialog = Dialog.Show<StockMgmtDlg>("", parameters, maxWidth);
+        var dialog = await LaunchDialog.ShowAsync<StockMgmtDlg>("", parameters, maxWidth);
         var result = await dialog.Result;
 
         if (!result.Canceled)

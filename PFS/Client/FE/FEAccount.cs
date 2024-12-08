@@ -71,33 +71,6 @@ public class FEAccount : IFEAccount
         return _pfsStatus.GetAppCfg(id);
     }
 
-    public List<MenuEntry> GetMenuData()
-    {
-        List<MenuEntry> ret = new List<MenuEntry>();
-
-        ret.Add(new MenuEntry()
-        {
-            Name = "Home",
-            Type = MenuEntryType.Home,
-            ParentName = "",
-            Path = "/",
-        });
-
-        List<SPortfolio> portfolios = _clientStalker.Portfolios();
-
-        foreach (SPortfolio pf in portfolios)
-        {
-            ret.Add(new MenuEntry()
-            {
-                Name = pf.Name,
-                Type = MenuEntryType.Portfolio,
-                ParentName = "Home",
-                Path = "/Home/",
-            });
-        }
-        return ret;
-    }
-
     public void SaveData()
     {
         _clientData.DoSaveData();

@@ -33,9 +33,9 @@ namespace PfsUI.Components;
 public partial class DlgImport
 {
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
     [Inject] NavigationManager NavigationManager { get; set; }
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 
@@ -113,7 +113,7 @@ public partial class DlgImport
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 
     protected async Task DlgOkAsync()
@@ -123,7 +123,7 @@ public partial class DlgImport
 
         if (_selectedFile == null)
         {
-            bool? result = await Dialog.ShowMessageBox("Failed!", "Hmm, I thnk I need file for this? Could you select one for me plz?", yesText: "Ok");
+            bool? result = await LaunchDialog.ShowMessageBox("Failed!", "Hmm, I thnk I need file for this? Could you select one for me plz?", yesText: "Ok");
             return;
         }
 
@@ -166,7 +166,7 @@ public partial class DlgImport
 
                 DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
 
-                var dialog = Dialog.Show<DlgSimpleTextViewer>("", parameters, maxWidth);
+                var dialog = await LaunchDialog.ShowAsync<DlgSimpleTextViewer>("", parameters, maxWidth);
                 var result = await dialog.Result;
             }
         }
@@ -241,7 +241,7 @@ public partial class DlgImport
         }
         else
         {
-            bool? result = await Dialog.ShowMessageBox("Failed!", failedMsg, yesText: "Ok");
+            bool? result = await LaunchDialog.ShowMessageBox("Failed!", failedMsg, yesText: "Ok");
         }
     }
 

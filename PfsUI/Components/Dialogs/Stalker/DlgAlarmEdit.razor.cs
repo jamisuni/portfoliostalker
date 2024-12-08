@@ -25,8 +25,8 @@ namespace PfsUI.Components;
 
 public partial class DlgAlarmEdit
 {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
 
     [Parameter] public MarketId Market { get; set; }
@@ -101,7 +101,7 @@ public partial class DlgAlarmEdit
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 
     public void AlarmTypeSelectionChanged()
@@ -210,7 +210,7 @@ public partial class DlgAlarmEdit
         if (stalkerResult.Ok)
             MudDialog.Close();
         else
-            await Dialog.ShowMessageBox("Operation failed!", (stalkerResult as FailResult).Message, yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Operation failed!", (stalkerResult as FailResult).Message, yesText: "Ok");
     }
 
     protected async Task DlgDeleteAsync()
@@ -223,6 +223,6 @@ public partial class DlgAlarmEdit
         if (stalkerResult.Ok)
             MudDialog.Close();
         else
-            await Dialog.ShowMessageBox("Operation failed!", (stalkerResult as FailResult).Message, yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Operation failed!", (stalkerResult as FailResult).Message, yesText: "Ok");
     }
 }

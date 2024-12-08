@@ -24,9 +24,9 @@ namespace PfsUI.Components;
 public partial class DlgPortfolioEdit
 {
     [Inject] PfsClientAccess PfsClientAccess { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
 
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     [Parameter] public string EditCurrPfName { get; set; } = string.Empty; 
 
@@ -38,17 +38,15 @@ public partial class DlgPortfolioEdit
         _editPfName = EditCurrPfName;
     }
 
-    protected void OnFullScreenChanged(bool fullscreen)
+    protected async Task OnFullScreenChanged(bool fullscreen)
     {
         _fullscreen = fullscreen;
-
-        MudDialog.Options.FullWidth = _fullscreen;
-        MudDialog.SetOptions(MudDialog.Options);
+        await MudDialog.SetOptionsAsync(MudDialog.Options with { FullScreen = fullscreen });
     }
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 
     private async Task OnBtnEditAsync()
@@ -64,7 +62,7 @@ public partial class DlgPortfolioEdit
             MudDialog.Close();
         else
         {
-            await Dialog.ShowMessageBox("Failed!", string.Format("Error: {0}", (resp as FailResult<string>).Message), yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", string.Format("Error: {0}", (resp as FailResult<string>).Message), yesText: "Ok");
         }
     }
 
@@ -80,7 +78,7 @@ public partial class DlgPortfolioEdit
             MudDialog.Close();
         else
         {
-            await Dialog.ShowMessageBox("Failed!", string.Format("Error: {0}", (resp as FailResult<string>).Message), yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", string.Format("Error: {0}", (resp as FailResult<string>).Message), yesText: "Ok");
         }
     }
 }

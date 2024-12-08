@@ -30,7 +30,7 @@ namespace PfsUI.Components;
 // Exports single row per each divident payed on specific time period
 public partial class ReportExpDividents
 {
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 

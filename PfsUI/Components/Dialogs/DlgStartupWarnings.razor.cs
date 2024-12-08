@@ -27,7 +27,7 @@ public partial class DlgStartupWarnings
 {
     [Inject] PfsClientAccess Pfs { get; set; }
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
     [Parameter] public string Warnings { get; set; }
 
     protected async Task DlgDumpAsync()
@@ -40,6 +40,6 @@ public partial class DlgStartupWarnings
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 }

@@ -23,7 +23,7 @@ namespace PfsUI.Components;
 public partial class DlgSimpleEditField
 {
     [Inject] PfsClientAccess PfsClientAccess { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     [Parameter] public string Title { get; set; }
     [Parameter] public string Label { get; set; }
@@ -36,6 +36,6 @@ public partial class DlgSimpleEditField
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 }

@@ -30,7 +30,7 @@ namespace PfsUI.Components;
 // Exports single row per each holding traded/sold off for specific time period
 public partial class ReportExpSales
 {
-    [Inject] IDialogService Dialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 

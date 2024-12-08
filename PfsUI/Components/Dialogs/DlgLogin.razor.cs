@@ -25,9 +25,9 @@ namespace PfsUI.Components;
 
 public partial class DlgLogin
 {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
     [Inject] NavigationManager NavigationManager { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
     [Inject] PfsUiState PfsUiState { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
 
@@ -68,6 +68,8 @@ public partial class DlgLogin
 
     protected async Task DlgLaunchDemoAsync(int demoRef)
     {
+        await Task.CompletedTask;
+
         if (Pfs.Account().AccountType != AccountTypeId.Offline)
             return;
 
@@ -76,7 +78,7 @@ public partial class DlgLogin
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 
     private async Task DlgOkAsync()
@@ -86,7 +88,7 @@ public partial class DlgLogin
         if (string.IsNullOrWhiteSpace(_userinfo.Username) == true)
         {
             // Must have username
-            await Dialog.ShowMessageBox("Failed!", "Give username", yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Failed!", "Give username", yesText: "Ok");
             return;
         }
 
@@ -95,7 +97,7 @@ public partial class DlgLogin
             if (_userinfo.Username.ToUpper().Contains("DEMO") == false)
             {
                 // Must have password if not previous 'Remember Me' active
-                await Dialog.ShowMessageBox("Failed!", "Give password", yesText: "Ok");
+                await LaunchDialog.ShowMessageBox("Failed!", "Give password", yesText: "Ok");
                 return;
             }
         }
@@ -114,7 +116,7 @@ public partial class DlgLogin
         }
         else
         {
-            await Dialog.ShowMessageBox("Login Failed!", errorMsg, yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Login Failed!", errorMsg, yesText: "Ok");
             StateHasChanged();
         }
     }

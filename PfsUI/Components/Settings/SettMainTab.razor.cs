@@ -28,7 +28,7 @@ public partial class SettMainTab
 {
     [Inject] PfsClientAccess Pfs { get; set; }
     [Inject] PfsUiState PfsUiState { get; set; }
-    [Inject] private IDialogService Dialog { get; set; }
+    [Inject] private IDialogService LaunchDialog { get; set; }
     [Inject] IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
     [Inject] NavigationManager NavigationManager { get; set; }
 
@@ -42,6 +42,8 @@ public partial class SettMainTab
     // To be used on Init and after ClearAll/RestoreBackup
     protected async Task UpdateAllSettingsAsync()
     {
+        await Task.CompletedTask;
+
         _accountTypeId = Pfs.Account().AccountType;
 
         UpdateCurrencyFields();
@@ -71,7 +73,7 @@ public partial class SettMainTab
         Result resp = Pfs.Account().RefetchLatestRates();
 
         if (resp.Ok == false)
-            await Dialog.ShowMessageBox("Cant do!", (resp as FailResult).Message, yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Cant do!", (resp as FailResult).Message, yesText: "Ok");
         else
         {
             _currencyFetchOnGoing = true;
@@ -90,7 +92,7 @@ public partial class SettMainTab
         Result resp = Pfs.Config().SetActiveRatesProvider(provider);
 
         if (resp.Ok == false)
-            await Dialog.ShowMessageBox("Cant do!", (resp as FailResult).Message, yesText: "Ok");
+            await LaunchDialog.ShowMessageBox("Cant do!", (resp as FailResult).Message, yesText: "Ok");
         else
         {
             _selCurrencyProvider = provider;
@@ -108,7 +110,7 @@ public partial class SettMainTab
 
     protected async Task OnBtnImportDlgAsync()
     {
-        var dialog = Dialog.Show<DlgImport>("", new DialogOptions() { CloseButton = true, FullWidth = true });
+        var dialog = await LaunchDialog.ShowAsync<DlgImport>("", new DialogOptions() { CloseButton = true, FullWidth = true });
         var result = await dialog.Result;
 
         if (!result.Canceled)
@@ -122,7 +124,7 @@ public partial class SettMainTab
 
     protected async Task OnBtnClearAllAsync()
     {
-        bool? result = await Dialog.ShowMessageBox("Are you sure sure?", "Clears all locally, wiping this applications Local Storage in browser. Make sure you have backup! Clear all data from application?", yesText: "CLEAR", cancelText: "Cancel");
+        bool? result = await LaunchDialog.ShowMessageBox("Are you sure sure?", "Clears all locally, wiping this applications Local Storage in browser. Make sure you have backup! Clear all data from application?", yesText: "CLEAR", cancelText: "Cancel");
 
         if (result.HasValue == false || result.Value == false)
             return;
@@ -135,10 +137,10 @@ public partial class SettMainTab
 
     protected async Task OnBtnImportTransactionsDlgAsync()
     {
-        var options = new DialogOptions { FullScreen = true, CloseButton = true, DisableBackdropClick = true };
+        var options = new DialogOptions { FullScreen = true, CloseButton = true, BackdropClick = false };
         var parameters = new DialogParameters();
 
-        var dialog = Dialog.Show<ImportTransactions>("Import Transactions", parameters, options);
+        var dialog = await LaunchDialog.ShowAsync<ImportTransactions>("Import Transactions", parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)

@@ -25,8 +25,8 @@ public partial class DlgFetchRates
 {
     [Parameter] public List<Fetch> Missing { get; set; }
     [Inject] PfsClientAccess Pfs { get; set; }
-    [Inject] IDialogService Dialog { get; set; }
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Inject] IDialogService LaunchDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     public class Fetch
     {
@@ -50,6 +50,6 @@ public partial class DlgFetchRates
 
     private void DlgCancel()
     {
-        MudDialog.Cancel();
+        MudDialog.Close(DialogResult.Cancel());
     }
 }
