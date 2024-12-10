@@ -2,11 +2,16 @@
 
 <MudDialog>
     <TitleContent>
+
+        <MudToggleIconButton Toggled="@_fullscreen" ToggledChanged="OnFullScreenChanged"
+                             Icon="@Icons.Material.Filled.Fullscreen" Color="@Color.Error"
+                             ToggledIcon="@Icons.Material.Filled.Fullscreen" ToggledColor="@Color.Success" />
+
         <b>@Title</b>
     </TitleContent>
     <DialogContent>
 
-        <MudTextField T="string"  Text="@Text" Variant="Variant.Outlined" ReadOnly="true" Lines="10" />
+        <MudTextField T="string" Text="@Text" Variant="Variant.Outlined" ReadOnly="true" Lines="@_lines" />
 
     </DialogContent>
 

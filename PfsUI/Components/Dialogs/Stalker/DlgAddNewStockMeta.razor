@@ -11,22 +11,22 @@
 
         <MudPaper Class="pa-4 ma-2" Outlined="false">
 
-            <div class="row">
-                <div class="col-md-5">
-                    <MudSelect T="MarketId" Label="Market" @bind-Value="_market" >
+            <MudGrid>
+                <MudItem xs="12" sm="5">
+                    <MudSelect T="MarketId" Label="Market" @bind-Value="_market">
                         @foreach (MarketMeta market in _activeMarkets)
                         {
-                            <MudSelectItem T="MarketId" Value="@market.ID">@market.ID</MudSelectItem>
+                            <MudSelectItem Value="@market.ID">@market.ID</MudSelectItem>
                         }
                     </MudSelect>
-                </div>
-                <div class="col-md-5">
+                </MudItem>
+                <MudItem xs="12" sm="5">
                     <MudTextField @bind-Value="_symbol" Label="Symbol" Variant="Variant.Outlined" MaxLength="@Limit.Symbol" />
-                </div>
-                <div class="col-md-1">
+                </MudItem>
+                <MudItem xs="12" sm="2">
                     <MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Error" OnClick="OnBtnSearchSymbolAsync" />
-                </div>
-            </div>
+                </MudItem>
+            </MudGrid>
 
             <MudTextField @bind-Value="_company" Variant="Variant.Outlined" Label="company name" />
 

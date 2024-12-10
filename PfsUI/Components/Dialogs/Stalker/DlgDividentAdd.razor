@@ -20,24 +20,30 @@
         
         @if (_currency != _homeCurrency)
         {
-        <div class="container">
-            <div class="row">
-                <div class="col-md-9">
-                    <MudTextField @bind-Value="_currencyRate" Label="@_currencyLabel" Variant="Variant.Outlined" AdornmentText="@UiF.Curr(_currency)" Adornment="Adornment.End"  />
-                </div>
-                <div class="col-md-1">
-                    <MudMenu Icon="@Icons.Material.Filled.Menu">
-                        @foreach (CurrencyId cr in _allCurrencies)
-                        {
-                            <MudMenuItem OnClick="@(() => OnCurrencyChanged(@cr))">@UiF.Curr(cr)</MudMenuItem>
-                        }
-                    </MudMenu>
-                </div>
-                <div class="col-md-1">
-                    <MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Error" OnClick="OnBtnGetCurrencyAsync" />
-                </div>
-            </div>
-        </div>
+            <MudContainer>
+                <MudGrid>
+                    <MudItem xs="12" sm="8" md="7">
+                        <MudTextField @bind-Value="_currencyRate"
+                                      Label="@_currencyLabel"
+                                      Variant="Variant.Outlined"
+                                      AdornmentText="@UiF.Curr(_currency)"
+                                      Adornment="Adornment.End" />
+                    </MudItem>
+                    <MudItem xs="6" sm="2" md="2" Class="d-flex justify-center align-center">
+                        <MudMenu Icon="@Icons.Material.Filled.Menu" AnchorOrigin="Origin.BottomCenter">
+                            @foreach (CurrencyId cr in _allCurrencies)
+                            {
+                                <MudMenuItem OnClick="@(() => OnCurrencyChanged(@cr))">@UiF.Curr(cr)</MudMenuItem>
+                            }
+                        </MudMenu>
+                    </MudItem>
+                    <MudItem xs="6" sm="2" md="2" Class="d-flex justify-center align-center">
+                        <MudIconButton Icon="@Icons.Material.Filled.Search"
+                                       Color="Color.Error"
+                                       OnClick="OnBtnGetCurrencyAsync" />
+                    </MudItem>
+                </MudGrid>
+            </MudContainer>
         }
 
         <MudDatePicker Label="Ex Div Date" @bind-Date="_exDivDate" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog"  Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />

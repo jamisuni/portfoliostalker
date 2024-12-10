@@ -78,8 +78,6 @@ public partial class PageHeader
         PfsUiState.OnMenuUpdated += OnPfMenuUpdated;
 
         Pfs.Client().EventPfsClient2PHeader += OnEventPfsClient;
-
-        ReloadPfMenu();
     }
 
     protected static bool _wizardRunAlready = false;
@@ -87,7 +85,8 @@ public partial class PageHeader
     protected override void OnParametersSet()
     {
         _accountTypeID = Pfs.Account().AccountType;
-
+        
+        ReloadPfMenu();
         LoadCustomReportFilters();
         UpdateStockStatus();
 

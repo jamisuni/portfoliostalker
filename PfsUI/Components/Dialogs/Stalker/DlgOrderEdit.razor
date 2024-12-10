@@ -34,7 +34,7 @@
         <MudTextField  @bind-Value="_order.Units" Label="Units" Variant="Variant.Outlined" />
         <MudTextField  @bind-Value="_order.PricePerUnit" Label="Price" Variant="Variant.Outlined" />
 
-        <MudDatePicker Label="Last Day" @bind-Date="_lastDate" MinDate="_minDate" PickerVariant="PickerVariant.Dialog" />
+        <MudDatePicker Label="Last Day" @bind-Date="_lastDate" MinDate="_minDate" PickerVariant="PickerVariant.Dialog" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
 
     </DialogContent>
 

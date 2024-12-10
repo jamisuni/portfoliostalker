@@ -28,6 +28,21 @@ public partial class DlgSimpleTextViewer
     [Parameter] public string Title { get; set; }
     [Parameter] public string Text { get; set; }
 
+    protected bool _fullscreen { get; set; } = false;
+
+    protected int _lines = 10;
+
+    protected async Task OnFullScreenChanged(bool fullscreen)
+    {
+        if (fullscreen)
+            _lines = 27;
+        else
+            _lines = 10;
+
+        _fullscreen = fullscreen;
+        await MudDialog.SetOptionsAsync(MudDialog.Options with { FullScreen = fullscreen });
+    }
+
     private void DlgCancel()
     {
         MudDialog.Close(DialogResult.Cancel());

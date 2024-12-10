@@ -21,16 +21,21 @@
 
         @if (_viewCurrencyRate == true)
         {
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-9">
-                        <MudNumericField @bind-Value="_currencyRate" Label="@_conversionLabel" Variant="Variant.Outlined" />
-                    </div>
-                    <div class="col-md-1">
-                        <MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Error" OnClick="OnBtnGetCurrencyAsync" />
-                    </div>
-                </div>
-            </div>
+            <MudContainer MaxWidth="MaxWidth.Small">
+                <MudGrid Spacing="2" Justify="Justify.Center">
+                    <MudItem xs="12" sm="9">
+                        <MudNumericField @bind-Value="_currencyRate"
+                                         Label="@_conversionLabel"
+                                         Variant="Variant.Outlined"
+                                         FullWidth="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="3" Class="d-flex justify-center align-center">
+                        <MudIconButton Icon="@Icons.Material.Filled.Search"
+                                       Color="Color.Error"
+                                       OnClick="OnBtnGetCurrencyAsync" />
+                    </MudItem>
+                </MudGrid>
+            </MudContainer>
         }
 
         <MudDatePicker Label="Sale Day" @bind-Date="_tradeDate" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
