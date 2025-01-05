@@ -146,7 +146,7 @@ public partial class SettProviders
 
         if (_providerTestSupport == TestSupport.StockMSFT)
         {
-            Dictionary<ExtProviderId, Result<FullEOD>> fetchResult = await Pfs.Account().TestStockFetchingAsync(MarketId.NASDAQ, "MSFT", new ExtProviderId[1] { _selectedProvider });
+            Dictionary<ExtProviderId, Result<FullEOD>> fetchResult = await Pfs.Eod().TestStockFetchingAsync(MarketId.NASDAQ, "MSFT", new ExtProviderId[1] { _selectedProvider });
 
             if (fetchResult == null || fetchResult.ContainsKey(_selectedProvider) == false)
                 return;

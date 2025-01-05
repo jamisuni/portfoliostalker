@@ -78,6 +78,9 @@ builder.Services.AddSingleton<IFEStalker>(x => x.GetRequiredService<FEStalker>()
 builder.Services.AddSingleton<FEReport>();
 builder.Services.AddSingleton<IFEReport>(x => x.GetRequiredService<FEReport>());
 
+builder.Services.AddSingleton<FEEod>();
+builder.Services.AddSingleton<IFEEod>(x => x.GetRequiredService<FEEod>());
+
 builder.Services.AddSingleton<ClientStalker>();         // Owns & Stores actual portfolio information with all user ownings
 builder.Services.AddSingleton<IDataOwner>(x => x.GetRequiredService<ClientStalker>());
 builder.Services.AddSingleton<ICmdHandler>(x => x.GetRequiredService<ClientStalker>());

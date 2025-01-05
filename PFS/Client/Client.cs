@@ -122,13 +122,6 @@ public class Client : IDisposable, IFEClient
         _busy = false;
     }
 
-    public void AddEod(MarketId marketId, string symbol, FullEOD eod)
-    {
-        _storeLatestEod.Store(marketId, symbol, [eod]);
-
-        _pfsStatus.SendPfsClientEvent(PfsClientEventId.StockUpdated, $"{marketId}${symbol}");
-    }
-
     protected async Task OnPfsClientEventHandlerAsync(PfsClientEventArgs args)  // Only consumer of PfsClientLib side events!
     {
         await Task.CompletedTask;

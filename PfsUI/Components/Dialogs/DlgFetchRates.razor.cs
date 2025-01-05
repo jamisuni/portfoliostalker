@@ -37,7 +37,7 @@ public partial class DlgFetchRates
 
     protected async Task OnBtnSearchOnlineAsync(Fetch f)
     {
-        decimal? ret = await Pfs.Account().GetHistoryRateAsync(f.Currency, f.Date);
+        decimal? ret = await Pfs.Eod().GetHistoryRateAsync(f.Currency, f.Date);
 
         if (ret.HasValue)
             f.Rate = ret.Value.Round5();

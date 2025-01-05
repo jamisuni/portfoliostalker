@@ -49,7 +49,7 @@ public partial class DlgFetchStats
 
     protected void OnUpdate(object sender, ElapsedEventArgs e)
     {
-        _progress = Pfs.Account().GetFetchProgress();
+        _progress = Pfs.Eod().GetFetchProgress();
         _maxProgress = _progress.Requested;
         _failedProgress = _progress.Failed + _progress.Ignored;
         _totalProgress = _progress.Succeeded + _failedProgress;

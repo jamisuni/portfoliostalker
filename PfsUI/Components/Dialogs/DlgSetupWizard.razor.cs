@@ -482,9 +482,9 @@ public partial class DlgSetupWizard
 
         // 6) Start fetching rates          Note! Could conflict if same provider for currency & EOD
 
-        Pfs.Account().RefetchLatestRates();
+        Pfs.Eod().RefetchLatestRates();
 
-        Pfs.Account().FetchExpiredStocks();
+        Pfs.Eod().FetchExpiredStocks();
     }
 
     protected int GetKeyLength(ExtProviderId providerId)

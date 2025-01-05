@@ -99,7 +99,7 @@ public partial class DlgDividentAdd
         if (_paymentDate.HasValue == false)
             return;
 
-        decimal? ret = await Pfs.Account().GetHistoryRateAsync(_currency, DateOnly.FromDateTime(_paymentDate.Value));
+        decimal? ret = await Pfs.Eod().GetHistoryRateAsync(_currency, DateOnly.FromDateTime(_paymentDate.Value));
 
         if (ret.HasValue)
             _currencyRate = decimal.Round(ret.Value, 5);

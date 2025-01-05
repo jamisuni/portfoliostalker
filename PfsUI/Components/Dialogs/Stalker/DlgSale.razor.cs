@@ -103,7 +103,7 @@ public partial class DlgSale
         if (_tradeDate.HasValue == false)
             return;
 
-        decimal? ret = await Pfs.Account().GetHistoryRateAsync(_marketCurrency, DateOnly.FromDateTime(_tradeDate.Value));
+        decimal? ret = await Pfs.Eod().GetHistoryRateAsync(_marketCurrency, DateOnly.FromDateTime(_tradeDate.Value));
 
         if (ret.HasValue)
             _currencyRate = decimal.Round(ret.Value, 5);

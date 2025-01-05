@@ -241,7 +241,7 @@ public partial class Home
         if (!result.Canceled)
         {
             StockMeta sm = result.Data as StockMeta;
-            Pfs.Account().FetchStock(sm.marketId, sm.symbol);
+            Pfs.Eod().FetchStock(sm.marketId, sm.symbol);
             _reportTrackedStocks.ReloadReport();
         }
     }

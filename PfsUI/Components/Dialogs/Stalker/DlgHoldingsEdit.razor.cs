@@ -104,7 +104,7 @@ public partial class DlgHoldingsEdit
         if (_purhaceDate.HasValue == false)
             return;
 
-        decimal? ret = await Pfs.Account().GetHistoryRateAsync(_marketCurrency, DateOnly.FromDateTime(_purhaceDate.Value));
+        decimal? ret = await Pfs.Eod().GetHistoryRateAsync(_marketCurrency, DateOnly.FromDateTime(_purhaceDate.Value));
 
         if (ret.HasValue)
             _currencyRate = decimal.Round(ret.Value, 5);

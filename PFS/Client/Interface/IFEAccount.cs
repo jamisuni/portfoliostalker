@@ -31,6 +31,7 @@ public interface IFEAccount
 
     Result LoadDemo(byte[] zip);
 
+
     // ***MarketMeta***
 
     IEnumerable<MarketMeta> GetActiveMarketsMeta();
@@ -38,34 +39,6 @@ public interface IFEAccount
     MarketMeta GetMarketMeta(MarketId marketId);
 
     MarketStatus[] GetMarketStatus();
-
-    // ***Rates***
-
-    Result RefetchLatestRates();
-
-    (DateOnly date, CurrencyRate[] rates) GetLatestRatesInfo();
-
-    Task<decimal?> GetHistoryRateAsync(CurrencyId fromCurrencyId, DateOnly date);
-
-    // ***EODs***
-
-    FullEOD GetLatestSavedEod(MarketId marketId, string symbol);
-
-    public record StockExpiredStatus(int totalStocks, int expiredStocks, int ndStocks);
-
-    StockExpiredStatus GetExpiredEodStatus();
-
-    FetchProgress GetFetchProgress();
-
-    Dictionary<MarketId, List<string>> GetExpiredStocks();
-
-    (int fetchAmount, int pendingAmount) FetchExpiredStocks();
-
-    void FetchStock(MarketId marketId, string symbol);
-
-    void ForceFetchToProvider(ExtProviderId provider, Dictionary<MarketId, List<string>> stocks);
-
-    Task<Dictionary<ExtProviderId, Result<FullEOD>>> TestStockFetchingAsync(MarketId marketId, string symbol, ExtProviderId[] providers);
 
 
     // ***User Events***
@@ -78,11 +51,13 @@ public interface IFEAccount
 
     List<RepDataUserEvents> GetUserEventsData();
 
+
     // ***StockNotes***
 
     Note GetNote(string sRef);
 
     void StoreNote(string sRef, Note note);
+
 
     // **Backups***
 

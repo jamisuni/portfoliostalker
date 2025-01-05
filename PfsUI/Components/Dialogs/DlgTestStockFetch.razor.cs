@@ -112,7 +112,7 @@ public partial class DlgTestStockFetch
 
         StateHasChanged();
 
-        Dictionary<ExtProviderId, Result<FullEOD>> result = await Pfs.Account().TestStockFetchingAsync(Market, Symbol, useProviders.ToArray());
+        Dictionary<ExtProviderId, Result<FullEOD>> result = await Pfs.Eod().TestStockFetchingAsync(Market, Symbol, useProviders.ToArray());
 
         foreach ( KeyValuePair<ExtProviderId, Result<FullEOD>> kvp in result )
         {
@@ -143,7 +143,7 @@ public partial class DlgTestStockFetch
         if (Pfs.Stalker().GetStockMeta(Market, Symbol) == null)
             return;
 
-        Pfs.Client().AddEod(Market, Symbol, fp.Result);
+        Pfs.Eod().AddEod(Market, Symbol, fp.Result);
 
         MudDialog.Close();
     }

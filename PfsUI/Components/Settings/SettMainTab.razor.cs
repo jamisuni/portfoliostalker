@@ -65,12 +65,12 @@ public partial class SettMainTab
 
         _selCurrencyProvider = Pfs.Config().GetActiveRatesProvider();
         _currencyProviders = Pfs.Config().GetAvailableRatesProviders();
-        (_currencyDate, _currencyRates) = Pfs.Account().GetLatestRatesInfo();
+        (_currencyDate, _currencyRates) = Pfs.Eod().GetLatestRatesInfo();
     }
 
     protected async Task OnBtnUpdateCurrencyConversionRatesAsync()
     {
-        Result resp = Pfs.Account().RefetchLatestRates();
+        Result resp = Pfs.Eod().RefetchLatestRates();
 
         if (resp.Ok == false)
             await LaunchDialog.ShowMessageBox("Cant do!", (resp as FailResult).Message, yesText: "Ok");

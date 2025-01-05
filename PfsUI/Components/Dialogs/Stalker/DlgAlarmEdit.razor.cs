@@ -119,7 +119,7 @@ public partial class DlgAlarmEdit
                     _prm1Label = "Drop % from high to alarm";
                     _prm1Disabled = false;
 
-                    FullEOD eod = Pfs.Account().GetLatestSavedEod(Market, Symbol);
+                    FullEOD eod = Pfs.Eod().GetLatestSavedEod(Market, Symbol);
 
                     if (_editExisting)
                     {   // To allow debugging etc on editing show high points value
@@ -153,7 +153,7 @@ public partial class DlgAlarmEdit
                     _prm1Label = "Recover % from low to alarm";
                     _prm1Disabled = false;
 
-                    FullEOD eod = Pfs.Account().GetLatestSavedEod(Market, Symbol);
+                    FullEOD eod = Pfs.Eod().GetLatestSavedEod(Market, Symbol);
 
                     if (_editExisting)
                     {   // To allow debugging etc on editing show high points value

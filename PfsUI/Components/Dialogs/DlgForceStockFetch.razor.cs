@@ -59,7 +59,7 @@ public partial class DlgForceStockFetch
     {
         // Get active markets for user, and limit off ones those dont have pending stocks
         _allActiveMarkets = Pfs.Account().GetActiveMarketsMeta().Select(m => m.ID).ToList();
-        _expiredStocks = Pfs.Account().GetExpiredStocks();
+        _expiredStocks = Pfs.Eod().GetExpiredStocks();
         _allActiveMarkets = _allActiveMarkets.Where(m => _expiredStocks.ContainsKey(m)).ToList();
 
         if (_allActiveMarkets.Count == 0)
@@ -85,7 +85,7 @@ public partial class DlgForceStockFetch
     {
         Dictionary<MarketId, List<string>> fetch = _expiredStocks.Where(e => _selMarketIds.Contains(e.Key)).ToDictionary(entry => entry.Key, entry => entry.Value);
 
-        Pfs.Account().ForceFetchToProvider(_selectedProvider, fetch);
+        Pfs.Eod().ForceFetchToProvider(_selectedProvider, fetch);
 
         MudDialog.Close();
     }

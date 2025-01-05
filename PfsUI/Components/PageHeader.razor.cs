@@ -23,7 +23,7 @@ using MudBlazor;
 using Pfs.Types;
 using Pfs.Client;
 
-using static Pfs.Client.IFEAccount;
+using static Pfs.Client.IFEEod;
 
 namespace PfsUI.Components;
 
@@ -98,11 +98,11 @@ public partial class PageHeader
 
         if ( Pfs.Config().HomeCurrency != CurrencyId.Unknown )
         {
-            var ratesInfo = Pfs.Account().GetLatestRatesInfo();
+            var ratesInfo = Pfs.Eod().GetLatestRatesInfo();
 
             if (ratesInfo.date < Pfs.Platform().GetCurrentLocalDate().AddDays(-1))
                 // Automatically fetch latest currency rates if new one should be now available
-                _ = Pfs.Account().RefetchLatestRates();
+                _ = Pfs.Eod().RefetchLatestRates();
         }
     }
 
@@ -129,7 +129,7 @@ public partial class PageHeader
 
     protected void UpdateStockStatus()
     {
-        StockExpiredStatus status = Pfs.Account().GetExpiredEodStatus();
+        StockExpiredStatus status = Pfs.Eod().GetExpiredEodStatus();
 
         _stockStatusDisable = false;
 
@@ -158,7 +158,7 @@ public partial class PageHeader
 
         if (_stockStatusBusy == false)
         {   // Normal case where not busy so press allows to do fetch
-            (int fetchAmount, int pendingAmount) = Pfs.Account().FetchExpiredStocks();
+            (int fetchAmount, int pendingAmount) = Pfs.Eod().FetchExpiredStocks();
 
             if (fetchAmount > 0)
             {

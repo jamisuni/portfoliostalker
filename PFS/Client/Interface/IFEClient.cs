@@ -15,8 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.en.html>.
  */
 
-using Pfs.Types;
-
 namespace Pfs.Client;
 
 public interface IFEClient // drop here things those dont yet fit to final apis
@@ -29,7 +27,4 @@ public interface IFEClient // drop here things those dont yet fit to final apis
         public string Event { get; set; }
         public object Data { get; set; }
     }
-
-    // Allows to push EOD to storing/use, can be used example on TestFetch 
-    void AddEod(MarketId marketId, string symbol, FullEOD eod);
 }
