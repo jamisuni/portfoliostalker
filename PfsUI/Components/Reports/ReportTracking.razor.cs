@@ -139,7 +139,7 @@ public partial class ReportTracking
 
     protected async Task OnForceFetchBtnAsync()
     {
-        DialogOptions widerOpt = new DialogOptions() { MaxWidth = MaxWidth.Medium, CloseButton = true };
+        DialogOptions widerOpt = new DialogOptions() { MaxWidth = MaxWidth.Medium, CloseButton = true, BackdropClick = false };
         var dialog = await LaunchDialog.ShowAsync<DlgForceStockFetch>("Force Fetch", new DialogParameters(), widerOpt);
         var result = await dialog.Result;
 

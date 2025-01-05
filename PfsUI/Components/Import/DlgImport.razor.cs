@@ -25,7 +25,6 @@ using MudBlazor;
 using BlazorDownloadFile;
 using Pfs.Types;
 using Serilog;
-using System.Text; // https://github.com/arivera12/BlazorDownloadFile
 
 namespace PfsUI.Components;
 

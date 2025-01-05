@@ -354,6 +354,11 @@ internal class FetchEodTask
 
             Dictionary<string, FullEOD> provResp = await _data.GetEodLatestAsync(marketId, new List<string>([symbol]));
 
+            if (marketId == MarketId.LSE)
+            {   // Note! So far all providers return LSE/London as pennies, so needs /100 to get pounds
+                foreach (KeyValuePair<string, FullEOD> kvp in provResp)
+                    kvp.Value.DivideBy(100);
+            }
             _state = State.Free;
 
             if ( provResp == null )
@@ -377,8 +382,8 @@ internal class FetchEodTask
 
         if (provResp == null || provResp.Count == 0)
         {
-            _failedFetch[(int)_marketId]++;
-            _failedUptime[(int)_marketId]++;
+            _failedFetch[(int)marketId]++;
+            _failedUptime[(int)marketId]++;
             _state = State.Error;
             return new FailResult<Dictionary<string, FullEOD>>(_provider.GetLastError());
         }
@@ -391,8 +396,8 @@ internal class FetchEodTask
             // component would need to know whats latest data.. and dont wanna do useless dependencies!
             // Note! Actually FMP etc havent found way to make sure its EOD but on open time starts giving
             // intraday.. so adding here actually != so doesnt allow future either
-            _failedFetch[(int)_marketId]++;
-            _failedUptime[(int)_marketId]++;
+            _failedFetch[(int)marketId]++;
+            _failedUptime[(int)marketId]++;
             _state = State.Error;
             if (provResp.First().Value.Date < _expectedDate)
                 return new FailResult<Dictionary<string, FullEOD>>($"ERROR: From {_provider} to {marketId} was expecting {_expectedDate} but got older {provResp.First().Value.Date}");
@@ -402,8 +407,14 @@ internal class FetchEodTask
 
         // !!!LATER!!!  Need to convert resp back to real symbol if used ~ to alternate ticker for this provider
 
-        _successFetch[(int)_marketId]++;
-        _successUptime[(int)_marketId]++;
+        if ( marketId == MarketId.LSE)
+        {   // Note! So far all providers return LSE/London as pennies, so needs /100 to get pounds
+            foreach (KeyValuePair<string, FullEOD> kvp in provResp)
+                kvp.Value.DivideBy(100);
+        }
+
+        _successFetch[(int)marketId]++;
+        _successUptime[(int)marketId]++;
         _state = State.Ready;
         return new OkResult<Dictionary<string, FullEOD>>(provResp);
     }

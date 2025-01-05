@@ -154,10 +154,6 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
 
     protected void TriggerEventReceivedEod(MarketId market, string symbol, FullEOD[] data)
     {
-        if (market == MarketId.LSE) // Note! So far all providers return LSE/London as pennies, so needs /100 to get pounds
-            foreach (FullEOD d in data)
-                d.DivideBy(100);
-
         _pfsStatus.SendPfsClientEvent(PfsClientEventId.ReceivedEod,
             new ReceivedEodArgs(market, symbol, data));
         return;
@@ -374,7 +370,8 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
             {
                 Local_AddLatest(new(true, DateTime.Now, task.ProvId, okResp.marketId, kvp.Key, kvp.Value.Date, kvp.Value.Close));
 
-                TriggerEventReceivedEod(okResp.marketId, kvp.Key, [kvp.Value]);
+                // !!!EVENT!!! Data from Fetch => Saving & Processing
+                _pfsStatus.SendPfsClientEvent(PfsClientEventId.ReceivedEod, new ReceivedEodArgs(okResp.marketId, kvp.Key, [kvp.Value]));
             }
         }
 

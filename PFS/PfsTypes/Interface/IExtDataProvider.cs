@@ -43,7 +43,7 @@ public interface IExtDataProvider
     * - Similarly caller can check ending dates of datas to see if expected data was received
     */
 
-    // Returns latest end-of-day closing data for specified stocks
+    // Returns latest end-of-day closing data for specified stocks (key is symbol, not sRef)
     Task<Dictionary<string, FullEOD>> GetEodLatestAsync(MarketId marketId, List<string> tickers);
 
     // Returns end-of-day data for specific period

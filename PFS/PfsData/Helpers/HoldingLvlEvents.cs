@@ -47,6 +47,10 @@ public class HoldingLvlEvents
 
         // Get history for this stock, and see if has at least half days w data fetched
         (DateOnly latestData, decimal[] closingsMc) = eodHistoryProv.GetLastClosings(sRef, period);
+
+        if (closingsMc == null)
+            return; // happens if doesnt have latest EOD
+
         int validCount = closingsMc.Where(c => c > 0).Count();
         if (validCount == 0 || period / 2 + 1 > validCount)
             return;

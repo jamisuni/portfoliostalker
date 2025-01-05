@@ -100,7 +100,7 @@ public class ExtFmp : IExtProvider, IExtDataProvider
             case MarketId.XETRA:
             case MarketId.OMXH:
             case MarketId.OMX:
-            case MarketId.LSE:
+            //case MarketId.LSE: hmm.. 2025-Jan: 'not allowed on free'?
                 return true;
         }
         return false;
