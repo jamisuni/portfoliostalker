@@ -67,7 +67,7 @@ public class Validate
                 {
                     if (string.IsNullOrWhiteSpace(content) ||
                         content.Length > 7 ||
-                        new Regex(@"^[A-Z][A-Z0-9.]{0,6}$").IsMatch(content) == false)
+                        new Regex(@"^[A-Z][A-Z0-9.\-]{0,6}$").IsMatch(content) == false)
                         return new FailResult<string>(FormatMsg(id));
 
                     return new OkResult<string>(content);

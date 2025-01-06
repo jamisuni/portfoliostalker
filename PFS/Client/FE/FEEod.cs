@@ -27,46 +27,33 @@ public class FEEod : IFEEod
 {
     protected IPfsPlatform _pfsPlatform;
     protected IPfsStatus _pfsStatus;
-    protected ClientData _clientData;
-    protected ClientStalker _clientStalker;
     protected IMarketMeta _marketMetaProv;
     protected IStockMeta _stockMetaProv;
     protected IEodLatest _latestEodProv;
     protected IFetchEod _fetchEod;
     protected IFetchRates _fetchRates;
     protected ILatestRates _latestRatesProv;
-    protected StoreUserEvents _storeUserEvents;
-    protected IPfsSetMarketConfig _marketConfig;
-    protected IStockNotes _stockNotes;
-    protected IFEConfig _fEConfig;
-    protected ClientReportPreCalcs _clientReportPreCalcs;
+    protected IFEConfig _feConfig;
     protected StoreLatestEod _storeLatestEod;
 
-    public FEEod(IPfsPlatform pfsPlatform, IPfsStatus pfsStatus, ClientData clientData, ClientStalker clientStalker, IMarketMeta marketMetaProv, IStockMeta stockMetaProv, IEodLatest latestEodProv, 
-                     IFetchEod fetchEod, IFetchRates fetchRates, ILatestRates latestRatesProv, StoreUserEvents storeUserEvents, IPfsSetMarketConfig marketConfig,
-                     IStockNotes stockNotes, IFEConfig fEConfig, ClientReportPreCalcs clientReportPreCalcs, StoreLatestEod storeLatestEod)
+    public FEEod(IPfsPlatform pfsPlatform, IPfsStatus pfsStatus, IMarketMeta marketMetaProv, IStockMeta stockMetaProv, IEodLatest latestEodProv, IFetchEod fetchEod, 
+                 IFetchRates fetchRates, ILatestRates latestRatesProv, IFEConfig feConfig, StoreLatestEod storeLatestEod)
     {
         _pfsPlatform = pfsPlatform;
         _pfsStatus = pfsStatus;
-        _clientData = clientData;
-        _clientStalker = clientStalker;
         _marketMetaProv = marketMetaProv;
         _stockMetaProv = stockMetaProv;
         _latestEodProv = latestEodProv;
         _fetchEod = fetchEod;
         _fetchRates = fetchRates;
         _latestRatesProv = latestRatesProv;
-        _storeUserEvents = storeUserEvents;
-        _marketConfig = marketConfig;
-        _stockNotes = stockNotes;
-        _fEConfig = fEConfig;
-        _clientReportPreCalcs = clientReportPreCalcs;
+        _feConfig = feConfig;
         _storeLatestEod = storeLatestEod;
     }
 
     public Result RefetchLatestRates()
     {
-        return _fetchRates.FetchLatest(_fEConfig.HomeCurrency);
+        return _fetchRates.FetchLatest(_feConfig.HomeCurrency);
     }
 
     public (DateOnly date, CurrencyRate[] rates) GetLatestRatesInfo()

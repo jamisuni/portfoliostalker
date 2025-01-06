@@ -98,6 +98,9 @@ public class Note
 
         int nextPos = line.IndexOf('#');
 
+        if (nextPos < 0)
+            return (null, null, $"Note.ParseExportFormat: Missing # from note sref end? [{lines[lineStart]}]");
+
         if (nextPos < "TSX$T".Length)
             return (null, null, $"Note.ParseExportFormat: Invalid call. [{lines[lineStart]}]");
 
