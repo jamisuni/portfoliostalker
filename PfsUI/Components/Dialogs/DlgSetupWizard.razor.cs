@@ -187,6 +187,7 @@ public partial class DlgSetupWizard
 
     protected static readonly ReadOnlyDictionary<ExtProviderId, ProviderCfg> _providersDesc = new ReadOnlyDictionary<ExtProviderId, ProviderCfg>(new Dictionary<ExtProviderId, ProviderCfg>
     {
+#if false // fall on sleep 18th Dec 2024, off until fixed
         [ExtProviderId.Unibit] = new ProviderCfg()
         {
             Desc = "Unibit.ai. USA + TSX + Most markets. Free account is OK option as its super fast, and  "
@@ -194,12 +195,10 @@ public partial class DlgSetupWizard
                  + "fetching end of day data their free plan should be ok for 150 stocks!. "
                  + "Sadly, there is often days that bunch of stocks End-Of-Day valuation are many hours late!",
         },
-        [ExtProviderId.AlphaVantage] = new ProviderCfg()
+#endif
+        [ExtProviderId.FMP] = new ProviderCfg()
         {
-            Desc = "Alphavantage.co. USA + TSX. Free account is OK option to try out, but please remember they "
-                 + "enforce 5 tickers per minute fetch speed for free account. This gets slow if has 50+ "
-                 + "stocks tracking as initial loading is going to take good while each day (10min+). "
-                 + "This actually is one of trusted providers I prefer to use on my PrivSrv. ",
+            Desc = "Promising provider, seams able to get most of markets",
         },
         [ExtProviderId.Polygon] = new ProviderCfg()
         {
@@ -208,7 +207,11 @@ public partial class DlgSetupWizard
         },
         [ExtProviderId.TwelveData] = new ProviderCfg()
         {
-            Desc = "twelvedata.com. Under testing",
+            Desc = "twelvedata.com. Under testing. US markets only w free account",
+        },
+        [ExtProviderId.AlphaVantage] = new ProviderCfg()
+        {
+            Desc = "Alphavantage.co. USA + TSX. I do like these, but nowdays limited to 25 stocks per day on free ",
         },
     });
 

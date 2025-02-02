@@ -114,6 +114,7 @@ builder.Services.AddSingleton<StoreLatestEod>();
 builder.Services.AddSingleton<IEodLatest>(x => x.GetRequiredService<StoreLatestEod>());
 builder.Services.AddSingleton<IEodHistory>(x => x.GetRequiredService<StoreLatestEod>());
 builder.Services.AddSingleton<IDataOwner>(x => x.GetRequiredService<StoreLatestEod>());
+builder.Services.AddSingleton<ICmdHandler>(x => x.GetRequiredService<StoreLatestEod>());
 
 builder.Services.AddSingleton<StoreLatesRates>();
 builder.Services.AddSingleton<ILatestRates>(x => x.GetRequiredService<StoreLatesRates>());

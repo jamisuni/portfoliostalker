@@ -21,11 +21,13 @@ using System.Xml.Linq;
 using Serilog;
 
 using Pfs.Types;
+using Pfs.Helpers;
+using System.Collections.Immutable;
 
 namespace Pfs.Data;
 
 // Blazor specific implementation of EOD storage, providing latest & some history valuations
-public class StoreLatestEod : IEodLatest, IEodHistory, IDataOwner // identical XML on backup & local storage
+public class StoreLatestEod : IEodLatest, IEodHistory, ICmdHandler, IDataOwner // identical XML on backup & local storage
 {
     protected const string _componentName = "eod";
     protected readonly IPfsPlatform _platform;
@@ -35,6 +37,11 @@ public class StoreLatestEod : IEodLatest, IEodHistory, IDataOwner // identical X
     /* Most used functionality from here is to get latest closing, but for extra information here
      * is hold also past months closing valuations (no history fetching, just collecting day-by-day)
      */
+
+    protected readonly static ImmutableArray<string> _cmdTemplates = [
+        "get <market> symbol",
+        "remove <market> symbol",
+    ];
 
     protected struct StoreData
     {
@@ -296,6 +303,66 @@ public class StoreLatestEod : IEodLatest, IEodHistory, IDataOwner // identical X
         }
         _d = data;
         return warnings;
+    }
+
+    public string GetCmdPrefixes() { return _componentName; }                                        // ICmdHandler
+
+    public async Task<Result<string>> CmdAsync(string cmd)                                          // ICmdHandler
+    {
+        await Task.CompletedTask;
+
+        var parseResp = CmdParser.Parse(cmd, _cmdTemplates);
+
+        if (parseResp.Fail) // parser gives per templates a proper fail w help
+            return new FailResult<string>((parseResp as FailResult<Dictionary<string, string>>).Message);
+
+        switch (parseResp.Data["cmd"])
+        {
+            case "get": // "get <market> symbol"
+                {
+                    string sRef = $"{Enum.Parse<MarketId>(parseResp.Data["<market>"])}${parseResp.Data["symbol"].ToUpper()}";
+
+                    if (_d.Data.ContainsKey(sRef) == false)
+                        return new FailResult<string>($"Not found: {sRef}");
+
+                    StockData data = _d.Data[sRef];
+
+                    StringBuilder sb = new();
+                    
+                    sb.AppendLine($"{sRef}: {data.EOD.ToLog()}");
+
+                    foreach (decimal val in data.GetLastHistory(20))
+                        sb.Append(val.To000() + ", ");
+
+                    return new OkResult<string>(sb.ToString());
+                }
+
+            case "remove": // "remove <market> symbol"
+                {
+                    string sRef = $"{Enum.Parse<MarketId>(parseResp.Data["<market>"])}${parseResp.Data["symbol"].ToUpper()}";
+
+                    if (_d.Data.ContainsKey(sRef) == false)
+                        return new FailResult<string>($"Not found: {sRef}");
+
+                    _d.Data.Remove(sRef);
+                    
+                    EventNewUnsavedContent?.Invoke(this, _componentName);
+                    return new OkResult<string>($"Removed all data from: {sRef}");
+                }
+        }
+        return new FailResult<string>($"StoreStockMeta unknown command: {parseResp.Data["cmd"]}");
+    }
+
+    public async Task<Result<string>> HelpMeAsync(string cmd)                                       // ICmdHandler
+    {
+        await Task.CompletedTask;
+
+        var parseResp = CmdParser.Parse(cmd, _cmdTemplates);
+
+        if (parseResp.Fail) // parser gives per templates a proper fail w help
+            return new FailResult<string>((parseResp as FailResult<Dictionary<string, string>>).Message);
+
+        return new OkResult<string>("Cmd is OK:" + string.Join(",", parseResp.Data.Select(x => x.Key + "=" + x.Value)));
     }
 
     // Helper class to handle per stock one month history & latest EOD storing

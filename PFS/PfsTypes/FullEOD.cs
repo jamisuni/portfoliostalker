@@ -89,25 +89,22 @@ public class FullEOD : ClosingEOD
 
     public void DivideBy(int divider) // Mainly to fix London that gives pennies instead of pounds on fetch/imports/etc
     {
-        if (Close > divider)
-            Close /= divider;
-
-        if (Open > divider)
-            Open /= divider;
-
-        if (High > divider)
-            High /= divider;
-
-        if (Low > divider)
-            Low /= divider;
-
-        if (PrevClose > divider)
-            PrevClose /= divider;
+        Close /= divider;
+        Open /= divider;
+        High /= divider;
+        Low /= divider;
+        PrevClose /= divider;
     }
 
     public string GetStoreFormat()
     {
         return $"{Date.ToString("yyyy-MM-dd")},{Close.ToString("0.####")},{Open.ToString("0.####")},{High.ToString("0.####")},"+
                $"{Low.ToString("0.####")},{PrevClose.ToString("0.####")},{Volume.ToString("0.####")}";
+    }
+
+    public string ToLog()
+    {
+        return $"{Date.ToString("yyyy-MM-dd")},Cl:{Close.ToString("0.####")},Op:{Open.ToString("0.####")},Hi:{High.ToString("0.####")}," +
+               $"Lo:{Low.ToString("0.####")},Prev:{PrevClose.ToString("0.####")},Vol:{Volume.ToString("0.####")}";
     }
 }
