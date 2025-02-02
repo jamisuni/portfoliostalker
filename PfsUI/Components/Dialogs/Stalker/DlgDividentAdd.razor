@@ -5,8 +5,8 @@
     <TitleContent>
 
         <MudToggleIconButton Toggled="@_fullscreen" ToggledChanged="OnFullScreenChanged"
-                        Icon="@Icons.Material.Filled.Fullscreen" Color="@Color.Error" 
-                        ToggledIcon="@Icons.Material.Filled.Fullscreen" ToggledColor="@Color.Success" />
+        Icon="@Icons.Material.Filled.Fullscreen" Color="@Color.Error" 
+        ToggledIcon="@Icons.Material.Filled.Fullscreen" ToggledColor="@Color.Success" />
 
         Divident to <b>@PfName</b>: [<b>$@Symbol</b>] @_extraHeader
 
@@ -14,20 +14,24 @@
 
     <DialogContent>
 
-        <MudNumericField  @bind-Value="_paymentPerUnit" Label="Payment per unit" Variant="Variant.Outlined" Min="0" HideSpinButtons="true" />
+        <MudContainer>
+            <MudStack Row="true" Spacing="2">
+            <MudNumericField T="decimal" @bind-Value="PaymentPerUnit" Label="Payment per unit" Variant="Variant.Outlined" Min="0" HideSpinButtons="true" />
 
-        <MudNumericField @bind-Value="_units" Label="Units" Variant="Variant.Outlined" Min="1" HideSpinButtons="true" ReadOnly="@_lockedUnits" />
-        
+            <MudNumericField T="decimal" @bind-Value="Units" Label="Units" Variant="Variant.Outlined" Min="1" HideSpinButtons="true" ReadOnly="@_lockedUnits" />
+            </MudStack>
+        </MudContainer>
+
         @if (_currency != _homeCurrency)
         {
             <MudContainer>
                 <MudGrid>
                     <MudItem xs="12" sm="8" md="7">
-                        <MudTextField @bind-Value="_currencyRate"
-                                      Label="@_currencyLabel"
-                                      Variant="Variant.Outlined"
-                                      AdornmentText="@UiF.Curr(_currency)"
-                                      Adornment="Adornment.End" />
+                        <MudNumericField T="decimal" @bind-Value="CurrencyRate"
+                            Label="@_currencyLabel"
+                            Variant="Variant.Outlined"
+                            AdornmentText="@UiF.Curr(_currency)"
+                            Adornment="Adornment.End" HideSpinButtons="true" />
                     </MudItem>
                     <MudItem xs="6" sm="2" md="2" Class="d-flex justify-center align-center">
                         <MudMenu Icon="@Icons.Material.Filled.Menu" AnchorOrigin="Origin.BottomCenter">
@@ -39,16 +43,41 @@
                     </MudItem>
                     <MudItem xs="6" sm="2" md="2" Class="d-flex justify-center align-center">
                         <MudIconButton Icon="@Icons.Material.Filled.Search"
-                                       Color="Color.Error"
-                                       OnClick="OnBtnGetCurrencyAsync" />
+                        Color="Color.Error"
+                        OnClick="OnBtnGetCurrencyAsync" />
                     </MudItem>
                 </MudGrid>
             </MudContainer>
         }
 
-        <MudDatePicker Label="Ex Div Date" @bind-Date="_exDivDate" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog"  Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
-        <MudDatePicker Label="Payment Date" @bind-Date="_paymentDate" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
+        <MudContainer>
+            <MudStack Row="true" Spacing="2">
+                <MudDatePicker Label="Ex Div Date" @bind-Date="_exDivDate" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog"  Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
+                <MudDatePicker Label="Payment Date" @bind-Date="_paymentDate" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
+            </MudStack>
+        </MudContainer>
 
+        @if (_mcTotal > 0)
+        {
+            <MudContainer>
+                <MudStack Row="true" Spacing="2">
+                    <MudNumericField T="decimal" @bind-Value="_mcTotal"
+                                  Disabled="true"
+                                  Variant="Variant.Outlined"
+                                  AdornmentText="@UiF.Curr(_currency)"
+                                  Adornment="Adornment.End" HideSpinButtons="true" />
+
+                    @if (_hcTotal > 0)
+                    {
+                        <MudNumericField T="decimal" @bind-Value="_hcTotal"
+                                      Disabled="true"
+                                      Variant="Variant.Outlined"
+                                      AdornmentText="@UiF.Curr(_homeCurrency)"
+                                      Adornment="Adornment.End" HideSpinButtons="true" />
+                    }
+                </MudStack>
+            </MudContainer>
+        }
     </DialogContent>
 
     <DialogActions>

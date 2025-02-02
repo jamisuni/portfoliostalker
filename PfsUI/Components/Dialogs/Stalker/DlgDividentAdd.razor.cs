@@ -44,15 +44,38 @@ public partial class DlgDividentAdd
     protected CurrencyId _currency;
     protected List<CurrencyId> _allCurrencies = new();    
     
-    protected decimal _units = 1;
+
     protected bool _lockedUnits = false;
-    protected decimal _paymentPerUnit = 0;
     protected DateTime? _exDivDate = DateTime.UtcNow.Date.AddDays(-1); // Going -1 as PFS is using 'Latest' of day, and its not available for today...
     protected DateTime? _paymentDate = DateTime.UtcNow.Date.AddDays(-1); // This is also mandatory IF conversion rate is required
-    protected decimal _currencyRate = 1;
+    
 
     protected string _currencyLabel = string.Empty;                 // also controls if currencyRate is asked at all
     protected string _extraHeader = "";
+
+    protected decimal _hcTotal = 0;
+    protected decimal _mcTotal = 0;
+
+    protected decimal _paymentPerUnit = 0;
+    protected decimal PaymentPerUnit
+    {
+        get { return _paymentPerUnit; }
+        set { _paymentPerUnit = value; RecalcTotals(); }
+    }
+
+    protected decimal _units = 1;
+    protected decimal Units
+    {
+        get { return _units; }
+        set { _units = value; RecalcTotals(); }
+    }
+
+    protected decimal _currencyRate = 1;
+    protected decimal CurrencyRate
+    {
+        get { return _currencyRate; }
+        set { _currencyRate = value; RecalcTotals(); }
+    }
 
     protected override void OnInitialized()
     {
@@ -88,6 +111,16 @@ public partial class DlgDividentAdd
         await MudDialog.SetOptionsAsync(MudDialog.Options with { FullScreen = fullscreen });
     }
 
+    protected void RecalcTotals()
+    {
+        _mcTotal = _paymentPerUnit * _units;
+
+        if (_currency != _homeCurrency)
+            _hcTotal = _mcTotal * _currencyRate;
+
+        StateHasChanged();
+    }
+
     protected void OnCurrencyChanged(CurrencyId currency)
     {
         _currency = currency;
@@ -103,6 +136,8 @@ public partial class DlgDividentAdd
 
         if (ret.HasValue)
             _currencyRate = decimal.Round(ret.Value, 5);
+
+        RecalcTotals();
     }
 
     private void DlgCancel()

@@ -26,15 +26,15 @@ else if (RRAlarm != null && Over == false && RRAlarm.UnderP.HasValue)
     <MudTooltip Text="@RRAlarm.UnderNote" Inline="false">
     @if (RRAlarm.UnderP >= 0)
     {
-        <span style="color:red">@RRAlarm.UnderP.Value.ToString("0")%</span>
+            <span style="color:red">@RRAlarm.UnderP.Value.To()%</span>
     }
-    else if (RRAlarm.UnderP >= 5)
+    else if (RRAlarm.UnderP >= -5)
     {
-        <span style="color:orange">@RRAlarm.UnderP.Value.ToString("0")%</span>
+        <span style="color:orange">@RRAlarm.UnderP.Value.ToP()</span>
     }
     else 
     {
-        @(RRAlarm.UnderP.Value.ToString("0") + "%")
+        @(RRAlarm.UnderP.Value.To() + "%")
     }
     </MudTooltip>
 }
