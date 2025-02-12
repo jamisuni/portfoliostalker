@@ -388,21 +388,27 @@ internal class FetchEodTask
             return new FailResult<Dictionary<string, FullEOD>>(_provider.GetLastError());
         }
 
-        if (provResp.First().Value.Date != _expectedDate)
+        if (provResp.First().Value.Date < _expectedDate)
         {   // Decision! This '_expectedDate' is coming from markets last closing. So anything older gets 
             // instantly rejected. Teoretically could have situation where has week old data and getting 
             // few days older would be improvement. => Dont care, its latest or nothing! 
             // Reason is that after all this is exception case, and fixing it would mean that this fetch
             // component would need to know whats latest data.. and dont wanna do useless dependencies!
-            // Note! Actually FMP etc havent found way to make sure its EOD but on open time starts giving
-            // intraday.. so adding here actually != so doesnt allow future either
+            // 2025-Feb: FMP starting to give 'current time' so failing to be future even EOD is right -> removing 'too new checkup'
             _failedFetch[(int)marketId]++;
             _failedUptime[(int)marketId]++;
             _state = State.Error;
-            if (provResp.First().Value.Date < _expectedDate)
-                return new FailResult<Dictionary<string, FullEOD>>($"ERROR: From {_provider} to {marketId} was expecting {_expectedDate} but got older {provResp.First().Value.Date}");
-            else
-                return new FailResult<Dictionary<string, FullEOD>>($"ERROR: From {_provider} to {marketId} was expecting {_expectedDate} but got newer (intraday?) {provResp.First().Value.Date}");
+
+            return new FailResult<Dictionary<string, FullEOD>>($"ERROR: From {_provider} to {marketId} was expecting {_expectedDate} but got older {provResp.First().Value.Date}");
+        }
+
+        if (provResp.First().Value.Date > _expectedDate)
+        {
+            foreach ( KeyValuePair<string, FullEOD> kvp in provResp)
+            {   // 2025-Feb: And adding fix to get date back to last market closing instead of 'now'
+                if ( kvp.Value.Date > _expectedDate)
+                    kvp.Value.Date = _expectedDate;
+            }
         }
 
         // !!!LATER!!!  Need to convert resp back to real symbol if used ~ to alternate ticker for this provider
