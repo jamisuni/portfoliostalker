@@ -99,7 +99,7 @@
         <div id="unique_id_scroll_section" class="ma-0" style="height:550px;overflow: auto;">
             <MudPaper Elevation="0" Height="3500px" Class="d-flex flex-column justify-space-between py-6">
 
-                <MudExpansionPanels @ref="_expPanels">
+                <MudExpansionPanels @ref="_expPanels" MultiExpansion="true">
                     @foreach ((string mapCompRef, List<ViewBtAction> vbtas ) in _viewByCompany)
                     {
                         <MudExpansionPanel>
