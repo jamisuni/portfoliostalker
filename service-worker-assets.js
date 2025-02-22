@@ -1,5 +1,5 @@
 self.assetsManifest = {
-  "version": "o+6EJYyG",
+  "version": "C34j7Bge",
   "assets": [
     {
       "hash": "sha256-SrorGg0MmAafoRLaO2wVaXeqpFM2V1XQnGaizRt6Dig=",
@@ -26,8 +26,8 @@ self.assetsManifest = {
       "url": "_framework/Blazored.LocalStorage.12n6dz54qr.wasm"
     },
     {
-      "hash": "sha256-bT9OaeyYK9JLAL3pd1+gnX6ZFKjTAlwFAbQgqJMoSwg=",
-      "url": "_framework/Client.9dx2yet0nd.wasm"
+      "hash": "sha256-HejfFcxNmd6ojQ4HJtx3FeBHbuaOz1Iaa92MYJc12Ho=",
+      "url": "_framework/Client.j0pdwmmfv6.wasm"
     },
     {
       "hash": "sha256-BXz5RCSFBrg3KCDZD4lxgyWmw1YH6vUT0N/oIQdCKfA=",
@@ -110,40 +110,40 @@ self.assetsManifest = {
       "url": "_framework/MudBlazor.ug5deck41s.wasm"
     },
     {
-      "hash": "sha256-cWOsGx1DESZUZH5XOErmBfIxiFEY8RVv9Yh9HBHaglc=",
-      "url": "_framework/PfsConfig.dhwcozzmjz.wasm"
+      "hash": "sha256-JmUaNePOXvmhxPhQZ8ekMywHh7kImvYWFnYq55s1dtA=",
+      "url": "_framework/PfsConfig.mhqj2bobha.wasm"
     },
     {
-      "hash": "sha256-THdcrJiVpunj+nfvtRaMRwSm9GK3rGSR6sExnRaeFBM=",
-      "url": "_framework/PfsData.s2d22q7isd.wasm"
+      "hash": "sha256-eadNY2X29p66tkGSuSqxJzHPCOGsX5MVXusvW+tAsE8=",
+      "url": "_framework/PfsData.jlwmy61fab.wasm"
     },
     {
-      "hash": "sha256-IyXt8Lo51+r+d2LdAkGFegafv4NPoLWv/B6L92cdrnU=",
-      "url": "_framework/PfsExtFetch.lmzymny9pe.wasm"
+      "hash": "sha256-Ws8hn8jJvtEoBcAf9NLTta2S1AuaMyQBvMzyNuBM12k=",
+      "url": "_framework/PfsExtFetch.695fbvwl2d.wasm"
     },
     {
-      "hash": "sha256-J+kVUpPHLFoi4Pzm5bMN1gl2kxSow009AuybRXD8hdo=",
-      "url": "_framework/PfsExtProviders.7we3j6fjsg.wasm"
+      "hash": "sha256-vZOJLfxdiUg+rMzio13Y9FhQ3529dKJaauzQR4Cjl2s=",
+      "url": "_framework/PfsExtProviders.xna37px32r.wasm"
     },
     {
-      "hash": "sha256-M/2A0Oh8DJC5m+nvTi71RIG+O+ShPzSmhM/7n77CZAo=",
-      "url": "_framework/PfsExtTransactions.5yknhy81ao.wasm"
+      "hash": "sha256-veubM6n0sfUZHxw0u229VCqA409+T/UYAxZ5lw/gqqw=",
+      "url": "_framework/PfsExtTransactions.5adulyt2d1.wasm"
     },
     {
-      "hash": "sha256-gQVnXZPm4cfwQHNPtLMHtfVgeEtxVIBw8jeTiHBZuyM=",
-      "url": "_framework/PfsHelpers.7y3ak19kau.wasm"
+      "hash": "sha256-reV4Sw1zaarZQoj/TRBFHhi0ioXoTNH8BgTNDdHyqG8=",
+      "url": "_framework/PfsHelpers.bysbfxehim.wasm"
     },
     {
-      "hash": "sha256-r/0sEFNBcvOD3P/xXnlPSeX0bVqPQED0kvQDQRolp74=",
-      "url": "_framework/PfsReports.t5k591olhq.wasm"
+      "hash": "sha256-cW99r97X6VTpsZ9M58bdsRsghVHLE80t0nMPLT/qii0=",
+      "url": "_framework/PfsReports.bpcx6jy3wf.wasm"
     },
     {
-      "hash": "sha256-Jdw5r3+MuqKR3YL9j5eAj1KrCRlNB4A16fSuzSHDZrU=",
-      "url": "_framework/PfsTypes.f3e674a8v3.wasm"
+      "hash": "sha256-CB8plZoDQamMu5f2dEgzRKM3pWMbeduSBCcekGiKvYA=",
+      "url": "_framework/PfsTypes.0yfl9xdgag.wasm"
     },
     {
-      "hash": "sha256-2u8k0rG5gOgEwyrl35aleLd1dG6ItUcs6x0J2Wkcci8=",
-      "url": "_framework/PfsUI.y6es5letpu.wasm"
+      "hash": "sha256-J/9Heq0Q43SrVSa3zGu2eHJahHY+ydhUZNFgRndv3Hc=",
+      "url": "_framework/PfsUI.51vfey637g.wasm"
     },
     {
       "hash": "sha256-oaUyoVo2a89AwFRLViIDIdBnhpi17mAo03uxs1QLd2g=",
@@ -226,12 +226,12 @@ self.assetsManifest = {
       "url": "_framework/System.IO.Pipelines.g5ih8ovpg3.wasm"
     },
     {
-      "hash": "sha256-+J+gJeByUK+g1o7dMDtJnGBxviDkKvurhaod4VwJroM=",
-      "url": "_framework/System.Linq.Expressions.0edx2n26w7.wasm"
+      "hash": "sha256-SZf+pqWpbHzXBeAzI4dFQlgzFqe7gayR1hCMf0HxND4=",
+      "url": "_framework/System.Linq.7cgga2a21r.wasm"
     },
     {
-      "hash": "sha256-YTI6fQPuq2yZXiKF8oIiCWBAfvtgo9Byrpc59v+dkDM=",
-      "url": "_framework/System.Linq.fcu86ve0ld.wasm"
+      "hash": "sha256-+J+gJeByUK+g1o7dMDtJnGBxviDkKvurhaod4VwJroM=",
+      "url": "_framework/System.Linq.Expressions.0edx2n26w7.wasm"
     },
     {
       "hash": "sha256-P7mFU11EHTqUHU5vQxkh8XZD8GW2AJmV26vLue6tr5E=",
@@ -322,7 +322,7 @@ self.assetsManifest = {
       "url": "_framework/System.Xml.XDocument.v8e7b40yr9.wasm"
     },
     {
-      "hash": "sha256-vTSBawHA0bXiQOweuXQHFS44pfEet5FIVhg11HzAotA=",
+      "hash": "sha256-yQ16pH18gBC/AX+qgiQeXFs+OpVyFREI2AB7xFzU8YU=",
       "url": "_framework/blazor.boot.json"
     },
     {
