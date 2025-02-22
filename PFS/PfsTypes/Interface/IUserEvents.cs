@@ -28,4 +28,8 @@ public interface IUserEvents
     void CreateAvrgOwning2NegEvent(string sRef, string pfName, DateOnly date);
 
     void CreateAvrgOwning2PosEvent(string sRef, string pfName, DateOnly date);
+
+    void CreateOldestOwning2PosEvent(string sRef, string pfName, DateOnly date);
+
+    void CreateOldestOwning2NegEvent(string sRef, string pfName, DateOnly date);
 }

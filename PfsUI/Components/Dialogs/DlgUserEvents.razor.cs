@@ -94,13 +94,23 @@ public partial class DlgUserEvents
                                         $"under alarm level {inData.Alarm.AlarmValue.To00()}{UiF.Curr(inData.StockMeta.marketCurrency)}";
                     break;
 
-                case UserEventType.OwningPositive:
+                case UserEventType.OwningAvrgPositive:
                     outData.Desc = $"{inData.PfName} {inData.StockMeta.GetSRef()} [{inData.StockMeta.name}] total holding is back to profit!";
                     outData.Operation1 = null;
                     break;
 
-                case UserEventType.OwningNegative:
+                case UserEventType.OwningAvrgNegative:
                     outData.Desc = $"{inData.PfName} {inData.StockMeta.GetSRef()} [{inData.StockMeta.name}] total holding is falling on loosing!";
+                    outData.Operation1 = null;
+                    break;
+
+                case UserEventType.OwningOldestPositive:
+                    outData.Desc = $"{inData.PfName} {inData.StockMeta.GetSRef()} [{inData.StockMeta.name}] oldest holding is back to profit, wanna sell?";
+                    outData.Operation1 = null;
+                    break;
+
+                case UserEventType.OwningOldestNegative:
+                    outData.Desc = $"{inData.PfName} {inData.StockMeta.GetSRef()} [{inData.StockMeta.name}] oldest holding is falling loose, wanna sell?";
                     outData.Operation1 = null;
                     break;
 

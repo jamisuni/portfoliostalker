@@ -9,15 +9,15 @@
     <MudTooltip Text="@RRAlarm.OverNote" Inline="false">
     @if (RRAlarm.OverP >= 1)
     {
-        <span style="color:red">@(RRAlarm.OverP.Value.ToString("0") + "%^")</span>
+            <span style="color:red">@(RRAlarm.OverP.Value.To() + "%^")</span>
     }
     else if (RRAlarm.OverP.Value >= -5 )
     {
-        <span style="color:orange">@(RRAlarm.OverP.Value.ToString("0") + "%^")</span>
+            <span style="color:orange">@(RRAlarm.OverP.Value.ToP() + "^")</span>
     }
     else
     {
-        @(RRAlarm.OverP.Value.ToString("0") + "%^")
+            @(RRAlarm.OverP.Value.To()+"%^")
     }
     </MudTooltip>
 }

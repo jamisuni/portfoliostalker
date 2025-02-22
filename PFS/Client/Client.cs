@@ -188,10 +188,12 @@ public class Client : IDisposable, IFEClient
         {
             int holdingLvlPeriod = _pfsStatus.GetAppCfg(AppCfgId.HoldingLvlPeriod);
 
-            if (holdingLvlPeriod <= AppCfgLimit.HoldingLvlPeriodMin || holdingLvlPeriod > AppCfgLimit.HoldingLvlPeriodMax)
-                return;
+            if (AppCfgLimit.HoldingLvlPeriodMin <= holdingLvlPeriod && holdingLvlPeriod <= AppCfgLimit.HoldingLvlPeriodMax)
+                // 'HoldingLvlEvent's are automatic events to notify when example avrg holding is dropping on loosing or back to winning
+                HoldingLvlEvents.CheckAndCreateNegPosEvents(sRef, holdingLvlPeriod, eod, _eodHistoryProv, _latestRatesProv, _marketMetaProv, _clientStalker, _userEvents);
 
-            HoldingLvlEvents.CheckAndCreate(sRef, holdingLvlPeriod, eod, _eodHistoryProv, _latestRatesProv, _marketMetaProv, _clientStalker, _userEvents);
+
+
         }
         catch (Exception ex)
         {

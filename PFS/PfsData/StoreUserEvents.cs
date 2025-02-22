@@ -161,7 +161,7 @@ public class StoreUserEvents : IUserEvents, IDataOwner // No backup plans, uses 
     public void CreateAvrgOwning2NegEvent(string sRef, string pfName, DateOnly date)
     {
         Dictionary<EvFieldId, object> evPrms = new() {
-            { EvFieldId.Type,       UserEventType.OwningNegative},
+            { EvFieldId.Type,       UserEventType.OwningAvrgNegative},
             { EvFieldId.SRef,       sRef },
             { EvFieldId.Portfolio,  pfName },
             { EvFieldId.Date,       date }
@@ -177,7 +177,23 @@ public class StoreUserEvents : IUserEvents, IDataOwner // No backup plans, uses 
     public void CreateAvrgOwning2PosEvent(string sRef, string pfName, DateOnly date)
     {
         Dictionary<EvFieldId, object> evPrms = new() {
-            { EvFieldId.Type,       UserEventType.OwningPositive},
+            { EvFieldId.Type,       UserEventType.OwningAvrgPositive},
+            { EvFieldId.SRef,       sRef },
+            { EvFieldId.Portfolio,  pfName },
+            { EvFieldId.Date,       date }
+        };
+
+        _events.Add(new UserEventInfo(UserEventStatus.Unread, Create(evPrms)));
+
+        EventNewUnsavedContent?.Invoke(this, _componentName);
+
+        _pfsStatus.SendPfsClientEvent(PfsClientEventId.UserEventStatus, GetAmounts());
+    }
+
+    public void CreateOldestOwning2PosEvent(string sRef, string pfName, DateOnly date)
+    {
+        Dictionary<EvFieldId, object> evPrms = new() {
+            { EvFieldId.Type,       UserEventType.OwningOldestPositive},
             { EvFieldId.SRef,       sRef },
             { EvFieldId.Portfolio,  pfName },
             { EvFieldId.Date,       date }

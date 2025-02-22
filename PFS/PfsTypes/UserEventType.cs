@@ -40,9 +40,13 @@ public enum UserEventType : int
     [EnumMember(Value = "O")]
     AlarmOver,
     [EnumMember(Value = "N")]
-    OwningNegative,
+    OwningAvrgNegative,
     [EnumMember(Value = "P")]
-    OwningPositive,
+    OwningAvrgPositive,
+    [EnumMember(Value = "ON")]
+    OwningOldestNegative,
+    [EnumMember(Value = "OP")]
+    OwningOldestPositive,
 }
 
 [DataContract]
