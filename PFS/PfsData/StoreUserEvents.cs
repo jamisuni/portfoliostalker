@@ -190,6 +190,22 @@ public class StoreUserEvents : IUserEvents, IDataOwner // No backup plans, uses 
         _pfsStatus.SendPfsClientEvent(PfsClientEventId.UserEventStatus, GetAmounts());
     }
 
+    public void CreateOldestOwning2NegEvent(string sRef, string pfName, DateOnly date)
+    {
+        Dictionary<EvFieldId, object> evPrms = new() {
+            { EvFieldId.Type,       UserEventType.OwningOldestNegative},
+            { EvFieldId.SRef,       sRef },
+            { EvFieldId.Portfolio,  pfName },
+            { EvFieldId.Date,       date }
+        };
+
+        _events.Add(new UserEventInfo(UserEventStatus.Unread, Create(evPrms)));
+
+        EventNewUnsavedContent?.Invoke(this, _componentName);
+
+        _pfsStatus.SendPfsClientEvent(PfsClientEventId.UserEventStatus, GetAmounts());
+    }
+
     public void CreateOldestOwning2PosEvent(string sRef, string pfName, DateOnly date)
     {
         Dictionary<EvFieldId, object> evPrms = new() {
