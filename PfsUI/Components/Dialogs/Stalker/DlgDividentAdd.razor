@@ -31,20 +31,26 @@
                             Label="@_currencyLabel"
                             Variant="Variant.Outlined"
                             AdornmentText="@UiF.Curr(_currency)"
-                            Adornment="Adornment.End" HideSpinButtons="true" />
+                            Adornment="Adornment.End" HideSpinButtons="true" Disabled="!CurrencyRateEdit" />
                     </MudItem>
-                    <MudItem xs="6" sm="2" md="2" Class="d-flex justify-center align-center">
-                        <MudMenu Icon="@Icons.Material.Filled.Menu" AnchorOrigin="Origin.BottomCenter">
+                    <MudItem xs="4" sm="1" md="1" Class="d-flex justify-center align-center">
+                        <MudMenu Icon="@Icons.Material.Filled.Menu" AnchorOrigin="Origin.BottomCenter" Disabled="!CurrencyRateEdit" >
                             @foreach (CurrencyId cr in _allCurrencies)
                             {
                                 <MudMenuItem OnClick="@(() => OnCurrencyChanged(@cr))">@UiF.Curr(cr)</MudMenuItem>
                             }
                         </MudMenu>
                     </MudItem>
-                    <MudItem xs="6" sm="2" md="2" Class="d-flex justify-center align-center">
-                        <MudIconButton Icon="@Icons.Material.Filled.Search"
-                        Color="Color.Error"
-                        OnClick="OnBtnGetCurrencyAsync" />
+                    <MudItem xs="4" sm="1" md="1" Class="d-flex justify-center align-center">
+                        <MudIconButton Icon="@Icons.Material.Filled.Search" Disabled="!CurrencyRateEdit"
+                                       Color="Color.Error" OnClick="OnBtnGetCurrencyAsync" />
+                    </MudItem>
+                    <MudItem xs="4" sm="1" md="1" Class="d-flex justify-center align-center">
+                        <MudToggleIconButton @bind-Toggled="CurrencyRateEdit"
+                                             Icon="@Icons.Material.Filled.EditOff"
+                                             Color="@Color.Error"
+                                             ToggledIcon="@Icons.Material.Filled.Edit"
+                                             ToggledColor="@Color.Success" />
                     </MudItem>
                 </MudGrid>
             </MudContainer>
@@ -57,7 +63,7 @@
             </MudStack>
         </MudContainer>
 
-        @if (_mcTotal > 0)
+        @if (_mcTotal > 0 || CurrencyRateEdit == false)
         {
             <MudContainer>
                 <MudStack Row="true" Spacing="2">
@@ -67,10 +73,10 @@
                                   AdornmentText="@UiF.Curr(_currency)"
                                   Adornment="Adornment.End" HideSpinButtons="true" />
 
-                    @if (_hcTotal > 0)
+                    @if (_hcTotal > 0 || CurrencyRateEdit == false)
                     {
-                        <MudNumericField T="decimal" @bind-Value="_hcTotal"
-                                      Disabled="true"
+                        <MudNumericField T="decimal" @bind-Value="HcTotal"
+                                      Disabled="CurrencyRateEdit"
                                       Variant="Variant.Outlined"
                                       AdornmentText="@UiF.Curr(_homeCurrency)"
                                       Adornment="Adornment.End" HideSpinButtons="true" />

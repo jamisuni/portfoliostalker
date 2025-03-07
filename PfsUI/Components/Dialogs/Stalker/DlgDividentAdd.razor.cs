@@ -48,13 +48,9 @@ public partial class DlgDividentAdd
     protected bool _lockedUnits = false;
     protected DateTime? _exDivDate = DateTime.UtcNow.Date.AddDays(-1); // Going -1 as PFS is using 'Latest' of day, and its not available for today...
     protected DateTime? _paymentDate = DateTime.UtcNow.Date.AddDays(-1); // This is also mandatory IF conversion rate is required
-    
 
     protected string _currencyLabel = string.Empty;                 // also controls if currencyRate is asked at all
     protected string _extraHeader = "";
-
-    protected decimal _hcTotal = 0;
-    protected decimal _mcTotal = 0;
 
     protected decimal _paymentPerUnit = 0;
     protected decimal PaymentPerUnit
@@ -75,6 +71,22 @@ public partial class DlgDividentAdd
     {
         get { return _currencyRate; }
         set { _currencyRate = value; RecalcTotals(); }
+    }
+
+    protected bool _currencyRateEdit = true;
+    protected bool CurrencyRateEdit
+    {
+        get { return _currencyRateEdit; }
+        set { _currencyRateEdit = value; RecalcTotals(); }
+    }
+
+    protected decimal _hcTotal = 0;
+    protected decimal _mcTotal = 0;
+
+    protected decimal HcTotal
+    {
+        get { return _hcTotal; }
+        set { _hcTotal = value; RecalcTotals(); }
     }
 
     protected override void OnInitialized()
@@ -116,8 +128,16 @@ public partial class DlgDividentAdd
         _mcTotal = _paymentPerUnit * _units;
 
         if (_currency != _homeCurrency)
-            _hcTotal = _mcTotal * _currencyRate;
-
+        {
+            if (_currencyRateEdit)
+            {   // Normal case: Give units, mvDivPerUnit, currencyRate and get totals
+                _hcTotal = _mcTotal * _currencyRate;
+            }
+            else if (_hcTotal > 0)
+            {   // Special case: Give units, mvDivPerUnit, hcTotal and get currencyRate
+                _currencyRate = _hcTotal / _mcTotal;
+            }
+        }
         StateHasChanged();
     }
 
