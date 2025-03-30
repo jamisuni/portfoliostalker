@@ -22,6 +22,13 @@
             </MudStack>
         </MudContainer>
 
+        <MudContainer>
+            <MudStack Row="true" Spacing="2">
+                <MudDatePicker Label="Ex Div Date" @bind-Date="_exDivDate" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog"  Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
+                <MudDatePicker Label="Payment Date" @bind-Date="_paymentDate" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
+            </MudStack>
+        </MudContainer>
+
         @if (_currency != _homeCurrency)
         {
             <MudContainer>
@@ -55,13 +62,6 @@
                 </MudGrid>
             </MudContainer>
         }
-
-        <MudContainer>
-            <MudStack Row="true" Spacing="2">
-                <MudDatePicker Label="Ex Div Date" @bind-Date="_exDivDate" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog"  Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
-                <MudDatePicker Label="Payment Date" @bind-Date="_paymentDate" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" Editable="true" Placeholder="yyyy-MM-dd" />
-            </MudStack>
-        </MudContainer>
 
         @if (_mcTotal > 0 || CurrencyRateEdit == false)
         {

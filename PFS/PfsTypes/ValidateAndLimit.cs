@@ -34,7 +34,7 @@ public class Limit
 {
     public const int CompName = 32;
     public const int PfName = 12;
-    public const int Symbol = 7;
+    public const int Symbol = 8;    // 'ADC.PR.A' == 8 chars
 }
 
 public enum ValidateId : int
@@ -66,8 +66,8 @@ public class Validate
             case ValidateId.Symbol:
                 {
                     if (string.IsNullOrWhiteSpace(content) ||
-                        content.Length > 7 ||
-                        new Regex(@"^[A-Z][A-Z0-9.\-]{0,6}$").IsMatch(content) == false)
+                        content.Length > Limit.Symbol ||
+                        new Regex(@"^[A-Z][A-Z0-9.\-]{0,7}$").IsMatch(content) == false)
                         return new FailResult<string>(FormatMsg(id));
 
                     return new OkResult<string>(content);
