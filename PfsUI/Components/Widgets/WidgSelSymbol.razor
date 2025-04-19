@@ -1,0 +1,33 @@
+﻿@namespace PfsUI.Components
+@using Pfs.Types
+
+<style>
+    .search-field {
+        width: 100px;
+    }
+    .search-field input {
+        text-transform: uppercase;
+    }
+    .search-field .mud-input-slot {
+        padding-top: 4px;
+    }
+</style>
+
+<MudIconButton Icon="@Icons.Material.Filled.Search" 
+               OnClick="TogglePopover" />
+
+<MudPopover @bind-Open="_popoverOpen" 
+            AnchorOrigin="Origin.BottomCenter" 
+            TransformOrigin="Origin.TopCenter">
+    <MudPaper Elevation="5" Class="pa-4">
+        <MudTextField @ref="_searchField"
+                      Class="search-field"
+                      Label="Search"
+                      Immediate="true"
+                      Variant="Variant.Outlined"
+                      MaxLength="5"
+                      @bind-Value="_searchText"
+                      OnKeyDown="HandleKeyDown">
+        </MudTextField>
+    </MudPaper>
+</MudPopover>

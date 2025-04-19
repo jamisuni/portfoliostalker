@@ -18,7 +18,7 @@
 using Microsoft.AspNetCore.Components;
 
 using MudBlazor;
-
+using MudBlazor.Extensions;
 using Pfs.Types;
 
 namespace PfsUI.Components;
@@ -58,6 +58,11 @@ public partial class DlgHoldingsEdit
         _marketCurrency = Pfs.Account().GetMarketMeta(Market).Currency;
         _homeCurrency = Pfs.Config().HomeCurrency;
         _purhaceDate = Pfs.Platform().GetCurrentLocalDate().AddDays(-1).ToDateTimeLocal();
+        // actually lets never propose purhace date to weekend
+        if (_purhaceDate.Value.DayOfWeek == DayOfWeek.Sunday)
+            _purhaceDate = _purhaceDate.Value.AddDays(-2);
+        if (_purhaceDate.Value.DayOfWeek == DayOfWeek.Saturday)
+            _purhaceDate = _purhaceDate.Value.AddDays(-1);
         _pfNames = Pfs.Stalker().GetPortfolios().Select(pf => pf.Name).ToList();
 
         if ( string.IsNullOrWhiteSpace(PfName) == false )

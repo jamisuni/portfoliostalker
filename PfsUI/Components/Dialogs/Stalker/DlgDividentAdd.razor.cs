@@ -131,11 +131,11 @@ public partial class DlgDividentAdd
         {
             if (_currencyRateEdit)
             {   // Normal case: Give units, mvDivPerUnit, currencyRate and get totals
-                _hcTotal = _mcTotal * _currencyRate;
+                _hcTotal = (_mcTotal * _currencyRate).Round5();
             }
             else if (_hcTotal > 0)
             {   // Special case: Give units, mvDivPerUnit, hcTotal and get currencyRate
-                _currencyRate = _hcTotal / _mcTotal;
+                _currencyRate = (_hcTotal / _mcTotal).Round5();
             }
         }
         StateHasChanged();

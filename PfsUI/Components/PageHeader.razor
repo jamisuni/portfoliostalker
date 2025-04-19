@@ -14,11 +14,15 @@
         {
             <MudIconButton Icon="@Icons.Material.Filled.Home" Color="Color.Primary" OnClick="NavigateToHome" />
         }
+        else
+        {
+            <WidgSelSymbol />
+        }
 
     </MudButtonGroup>
 
     @* POPUP PORTFOLIO MENU *@
-    <MudMenu ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+    <MudMenu ActivationEvent="@MouseEvent.LeftClick" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
         <ActivatorContent>
             @if (string.IsNullOrEmpty(_pfMenuLabel)) {
                 <MudChip T="string" Icon="@Icons.Material.Filled.MenuOpen" Color="Color.Primary">@($"PFS v{Pfs.PfsClientVersionNumber}")</MudChip>

@@ -16,24 +16,12 @@ else
             <col style="width: 14%;" />     @* Trackings *@
             <col style="width: 14%;" />     @* Holdings *@
             <col style="width: 14%;" />     @* Trades *@
-            <col style="width: 6%;" />  @* Date *@
+            <col style="width: 6%;" />      @* Date *@
             <col style="width: 6%;" />      @* Operations *@
         </ColGroup>
         <HeaderContent>
             <MudTh><MudTableSortLabel SortBy="new Func<ViewTrackingData, object>(x=>x.d.Stock.marketId.ToString())">Market</MudTableSortLabel></MudTh>
-            <MudTh>
-                @if (_symbolSearchActive == false)
-                {
-                    <MudStack Row="true">
-                        <MudIconButton Icon="@Icons.Material.Filled.Search" Size="Size.Small"  aria-label="save" OnClick="OnBtnActivateSymbolSearch" />
-                        <MudTableSortLabel SortBy="new Func<ViewTrackingData, object>(x=>x.d.Stock.symbol)">Symbol</MudTableSortLabel>
-                    </MudStack>
-                }
-                else
-                {
-                    <MudTextField @bind-Value="SymbolSearchText" Variant="Variant.Text" MaxLength="8" />
-                }
-            </MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewTrackingData, object>(x=>x.d.Stock.symbol)">Symbol</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<ViewTrackingData, object>(x=>x.d.Stock.name)">@_headerTextName</MudTableSortLabel></MudTh>
             <MudTd>Providers</MudTd>
             <MudTd>Tracking</MudTd>

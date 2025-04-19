@@ -34,8 +34,6 @@ public partial class ReportTracking
     protected bool _anythingToDelete; // 'Delete' column w button to delete is only shown if has stocks those wo dependencies so that they can be deleted
     protected string _headerTextName = string.Empty;
     protected List<string> _allPfNames = null;
-    protected bool _symbolSearchActive = false;
-    protected string _symbolSearchText = string.Empty;
 
     protected override void OnParametersSet()
     {
@@ -76,25 +74,6 @@ public partial class ReportTracking
         }
 
         _headerTextName = string.Format("Name (total {0} stocks)", _allData.Count());
-    }
-
-    protected void OnBtnActivateSymbolSearch() => _symbolSearchActive = true;
-    protected string SymbolSearchText
-    {
-        get { return _symbolSearchText; }
-        set
-        {
-            _symbolSearchText = value.ToUpper();
-
-            _viewData = _allData.Where(s => s.d.Stock.symbol.Contains(_symbolSearchText)).ToList();
-
-            if (_viewData.Count == 0 || string.IsNullOrWhiteSpace(_symbolSearchText))
-            {
-                _symbolSearchActive = false;
-                _viewData = _allData;
-            }
-            StateHasChanged();
-        }
     }
 
     protected void OnEventPfsClient(object sender, IFEClient.FeEventArgs args)
