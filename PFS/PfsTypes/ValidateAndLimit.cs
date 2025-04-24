@@ -73,6 +73,17 @@ public class Validate
                     return new OkResult<string>(content);
                 }
 
+            case ValidateId.SRef:
+                {   // Need to have $ separating market and symbol. Market must match to regex [A-Z]{1,6} and symbol checked with recursive call to ValidateId.Symbol
+
+                    if (string.IsNullOrWhiteSpace(content) ||
+                        content.Length > Limit.Symbol + 6 + 1 || // 6 chars for market, 1 for $, and 8 for symbol
+                        new Regex(@"^[A-Z]{1,6}\$[A-Z][A-Z0-9.\-]{0,7}$").IsMatch(content) == false)
+                        return new FailResult<string>(FormatMsg(id));
+
+                    return new OkResult<string>(content);
+                }
+
             case ValidateId.CompName:
                 {
                     // Had to add ' to company names as little company named ""MCD,McDonald's Corporation"" uses 

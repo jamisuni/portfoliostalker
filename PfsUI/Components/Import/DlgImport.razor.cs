@@ -52,7 +52,7 @@ public partial class DlgImport
         [ImportType.AccountBackupZip] = new DlgImportCfg()
         {
             ContentTxt = false,
-            ImportNote = "Pfs2Export_YYYYMMDD.zip. This is restoring previous full account backup status to account." +
+            ImportNote = "PfsV2Export_YYYYMMDD.zip. This is restoring previous full account backup status to account." +
                          "Please make sure you backup original situation first, as all gets wiped clean on progress.",
             ImportWarning = "Warning! This is going to remove all existing data, please be carefull!",
         },

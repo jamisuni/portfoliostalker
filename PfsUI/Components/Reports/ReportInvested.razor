@@ -56,15 +56,15 @@ else
         </HeaderContent>
         <RowTemplate>
             @* Symbol *@
-            <MudTd>
-                <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Right">
-                <MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta.GetSRef()))" >$@context.d.StockMeta.symbol</MudButton>
-                </MudTooltip>    
-            </MudTd>
+            <MudTd><MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta.GetSRef()))" >$@context.d.StockMeta.symbol</MudButton></MudTd>
             @if (_viewCompanyNameColumn)
             {
             @* Company *@
-            <MudTd>@context.d.StockMeta.name</MudTd>
+                <MudTd>
+                <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Right">
+                    @context.d.StockMeta.name
+                </MudTooltip>
+                </MudTd>
             }
             @* AvrgPrice *@ 
             <MudTd>@context.d.RCTotalHold.McAvrgPrice.To00()@context.MC</MudTd>

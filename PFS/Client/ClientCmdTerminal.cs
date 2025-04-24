@@ -163,6 +163,9 @@ public class ClientCmdTerminal : IFECmdTerminal
 
             case "destroystock": //  sref
                 {
+                    if (Validate.Str(ValidateId.SRef, split[2]).Fail)
+                        return new FailResult<string>("Invalid sref! Use: Market$SYMBOL");
+
                     StockMeta stockMeta = _stockMetaProv.Get(split[2]);
 
                     if (stockMeta == null)
