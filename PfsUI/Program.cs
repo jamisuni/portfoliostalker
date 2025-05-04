@@ -56,8 +56,6 @@ builder.Services.AddSingleton<ClientData>();
 builder.Services.AddSingleton<PfsUiState>();
 builder.Services.AddSingleton<IFECmdTerminal, ClientCmdTerminal>();
 builder.Services.AddSingleton<IPfsPlatform, BlazorPlatform>();
-builder.Services.AddSingleton<ClientReportPreCalcs>();
-
 
 // !!!CODE!!! How to register a service with multiple interfaces, (2) from https://andrewlock.net/how-to-register-a-service-with-multiple-interfaces-for-in-asp-net-core-di/
 

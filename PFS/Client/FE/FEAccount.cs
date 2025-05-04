@@ -31,10 +31,9 @@ public class FEAccount : IFEAccount
     protected IStockMeta _stockMetaProv;
     protected StoreUserEvents _storeUserEvents;
     protected IStockNotes _stockNotes;
-    protected ClientReportPreCalcs _clientReportPreCalcs;
 
     public FEAccount(IPfsPlatform pfsPlatform, IPfsStatus pfsStatus, ClientData clientData, IMarketMeta marketMetaProv, IStockMeta stockMetaProv, 
-                     StoreUserEvents storeUserEvents, IStockNotes stockNotes, ClientReportPreCalcs clientReportPreCalcs)
+                     StoreUserEvents storeUserEvents, IStockNotes stockNotes)
     {
         _pfsPlatform = pfsPlatform;
         _pfsStatus = pfsStatus;
@@ -43,7 +42,6 @@ public class FEAccount : IFEAccount
         _stockMetaProv = stockMetaProv;
         _storeUserEvents = storeUserEvents;
         _stockNotes = stockNotes;
-        _clientReportPreCalcs = clientReportPreCalcs;
     }
 
     public AccountTypeId AccountType { get { return _pfsStatus.AccountType; } }
@@ -72,7 +70,6 @@ public class FEAccount : IFEAccount
             return new FailResult("Cant load on this state");
 
         _pfsStatus.AllowUseStorage = false;
-        _clientReportPreCalcs.InitClean();
 
         List<string> warnings = _clientData.ImportFromBackupZip(zip);
 

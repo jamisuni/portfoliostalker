@@ -249,25 +249,6 @@ public class ReportFilters : IReportFilters
             _strFilters[(int)FilterId.Owning] = (string)xmlElem.Attribute("O");
     }
 
-    public bool IsCompatible(ReportFilters comp)
-    {
-        if (_strFilters[(int)FilterId.PfName] != comp._strFilters[(int)FilterId.PfName])
-            return false;
-
-        if (_strFilters[(int)FilterId.Sector0] != comp._strFilters[(int)FilterId.Sector0])
-            return false;
-
-        if (_strFilters[(int)FilterId.Sector1] != comp._strFilters[(int)FilterId.Sector1])
-            return false;
-
-        if (_strFilters[(int)FilterId.Sector2] != comp._strFilters[(int)FilterId.Sector2])
-            return false;
-
-        // No market, No owning.. as both post pre-gen steps
-
-        return true;
-    }
-
     public bool IsEmpty()
     {
         foreach (FilterId f in Enum.GetValues(typeof(FilterId)))

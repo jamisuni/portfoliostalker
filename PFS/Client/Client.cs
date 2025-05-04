@@ -75,12 +75,11 @@ public class Client : IDisposable, IFEClient
     protected IUserEvents _userEvents;
     protected IEodHistory _eodHistoryProv;
     protected IMarketMeta _marketMetaProv;
-    protected ClientReportPreCalcs _reportPreCalcCollection;
     protected Timer _timer;
     protected bool _busy = false;
 
     public Client(IEnumerable<IOnUpdate> onUpdateClients, IPfsStatus pfsStatus, ClientData clientData, ClientStalker clientStalker, IPfsPlatform platform, 
-                  ClientReportPreCalcs reportPreCalcCollection, StoreLatestEod storeLatestEod, StoreLatesRates storeLatestRates, IFetchRates fetchRates, 
+                  StoreLatestEod storeLatestEod, StoreLatesRates storeLatestRates, IFetchRates fetchRates, 
                   ILatestRates latestRatesProv, IEodLatest latestEod, IUserEvents userEvents, IEodHistory eodHistoryProv, IMarketMeta marketMetaProv)
     {
         _platform = platform;
@@ -95,7 +94,6 @@ public class Client : IDisposable, IFEClient
         _userEvents = userEvents;
         _eodHistoryProv = eodHistoryProv;
         _marketMetaProv = marketMetaProv;
-        _reportPreCalcCollection = reportPreCalcCollection;
 
         _scheduler = new(onUpdateClients, _platform);
         _pfsStatus.EvPfsClientAsync += OnPfsClientEventHandlerAsync; // events from comps -> here Client
@@ -128,10 +126,6 @@ public class Client : IDisposable, IFEClient
 
         switch (args.ID)                              // *** Maps events from PfsLibComp to operations/etc ***
         {
-            case PfsClientEventId.FetchEodsFinished:
-                _reportPreCalcCollection.InitClean();
-                break;
-
             case PfsClientEventId.StoredLatestEod:
 
                 string sRef = args.data as string;

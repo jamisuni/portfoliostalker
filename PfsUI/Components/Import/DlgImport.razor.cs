@@ -334,7 +334,6 @@ public partial class DlgImport
 
         ~$ABCL~AAOP~6.02~Sell 260~SET 2023-07-19~
         ~$ABCL~3.72~BUY 1.5KE~SET 2023-12-22~
-
 #endif
 
             foreach (string inputLine in allInputLines)

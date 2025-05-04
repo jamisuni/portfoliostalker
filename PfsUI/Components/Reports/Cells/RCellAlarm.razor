@@ -6,7 +6,7 @@
 
 @if (RRAlarm != null && Over && RRAlarm.OverP.HasValue)
 {
-    <MudTooltip Text="@RRAlarm.OverNote" Inline="false">
+    <MudTooltip Text="@RRAlarm.OverNote" Inline="false" Delay="300">
     @if (RRAlarm.OverP >= 1)
     {
             <span style="color:red">@(RRAlarm.OverP.Value.To() + "%^")</span>
@@ -23,7 +23,7 @@
 }
 else if (RRAlarm != null && Over == false && RRAlarm.UnderP.HasValue)
 {
-    <MudTooltip Text="@RRAlarm.UnderNote" Inline="false">
+    <MudTooltip Text="@RRAlarm.UnderNote" Inline="false" Delay="300">
     @if (RRAlarm.UnderP >= 0)
     {
             <span style="color:red">@RRAlarm.UnderP.Value.To()%</span>
