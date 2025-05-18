@@ -46,13 +46,12 @@ else
         </HeaderContent>
         <RowTemplate>
             <MudTd>
-                <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Right">
                 <MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta.GetSRef()))" >$@context.d.StockMeta.symbol</MudButton>
-                </MudTooltip>
             </MudTd>
             @if (_viewCompanyNameColumn)
             {
             <MudTd> @* Company *@
+                <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Right">
                 @if ( string.IsNullOrWhiteSpace(context.d.FailedMsg) == false)
                 {
                     @($"Failed: {context.d.FailedMsg}")
@@ -69,6 +68,7 @@ else
 			            <span style="color:blue"><b>@context.OrderDetails</b></span>
 		            </div>		      </div>
                 }
+                </MudTooltip>
             </MudTd>
             }
             <MudTd> @* LatestEOD + ChangeP *@

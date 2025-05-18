@@ -44,14 +44,7 @@ public partial class SettProviders
         {
             Name = "UniBit",
             Addr = "https://unibit.ai/solution",
-            Desc = "Recommended as supports all markets. Data available in 3+ hours after market closing." + Environment.NewLine
-                 + "50,000 monthly credits of free account is 2170 max credits per. " + Environment.NewLine
-                 + "Web Appl: => Nice as very fast fetching of daily closing data. " + Environment.NewLine
-                 //                     + "Priv Srv: => Good option for Non-US markets, but keep eye stock amounts under it." + Environment.NewLine
-                 + "Premium: => 200$/month as cheapest is hefty price for personal / home use. Atm cant see value worth of testing it out." + Environment.NewLine
-                 + "Note! Did see often days when End-Of-Day values for bunch of stocks on main markets where missing half day after market closing.",
-            // => One day missed half stocks from 3 main markets for all day, next day missed 15 stocks from TSX still 8 hours after closing
-            //    so all ok dang fast for use but has to live w issues is seams to have often to keep up w data
+            Desc = "Fall on sleep 18th Dec 2024. Sad to see left rotting...",
             Test = TestSupport.StockMSFT,
         },
 
