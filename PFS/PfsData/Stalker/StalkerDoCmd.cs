@@ -519,6 +519,7 @@ public class StalkerDoCmd : StalkerData
             foreach (SHolding sh in pf.StockHoldings)
                 if (sh.SRef == sRef)
                 {
+                    sh.PurhaceNote = $"{sh.PurhaceNote} (Split div by {splitFactor} so {sh.Units}=>{(sh.Units / splitFactor).Round3()}pcs)";
                     sh.Units = (sh.Units / splitFactor).Round3();
                     sh.PricePerUnit = (sh.PricePerUnit * splitFactor).Round3();
                     sh.FeePerUnit = (sh.FeePerUnit * splitFactor).Round3();

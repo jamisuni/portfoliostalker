@@ -120,7 +120,7 @@ public class FEStalker : IFEStalker
             return stalkerRes;
 
         // 2) Update StockMeta
-        _stockMetaUpdate.SplitStock($"{marketId}${symbol}", date, $"factor=[{splitFactor}] comment");
+        _stockMetaUpdate.SplitStock($"{marketId}${symbol}", date, $"factor={splitFactor} {comment}");
 
         // Later! 'StoreLatestEod' could well be tuned to match new split and actually add 'FindSplit' that looks EODs to calculate date+factor
 
