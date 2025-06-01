@@ -47,6 +47,8 @@ public interface IStockMetaUpdate // Plan: this is where all operations come, al
     // Note! This is operation that needs to be called only from one place, as lot of dependencies
     bool UpdateFullMeta(string updSRef, string oldSRef, string companyName, DateOnly date, string comment);
 
+    bool SplitStock(string sRef, DateOnly date, string comment);
+
     // Note! This is operation that needs to be called only from one place, as lot of dependencies
     bool CloseStock(string sRef, DateOnly date, string comment);
 

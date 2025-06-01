@@ -26,6 +26,11 @@ public static class DecimalExtensions
         return Math.Round(value, 5);
     }
 
+    public static decimal Round3(this decimal value)
+    {
+        return Math.Round(value, 3);
+    }
+
     public static bool IsInteger(this decimal value)
     {
         return value % 1 == 0;

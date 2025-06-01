@@ -16,6 +16,8 @@ public interface IFEStalker
 
     StockMeta CloseStock(MarketId marketId, string symbol, DateOnly date, string comment);
 
+    Result SplitStock(MarketId marketId, string symbol, DateOnly date, decimal splitFactor, string comment);
+
     StockMeta UpdateStockMeta(MarketId marketId, string symbol, MarketId updMarketId, string updSymbol, string updName, DateOnly date, string comment);
 
     StockMeta FindStock(string symbol, CurrencyId optMarketCurrency = CurrencyId.Unknown, string optISIN = null);

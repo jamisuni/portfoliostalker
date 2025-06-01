@@ -32,6 +32,7 @@ public enum StalkerOperation : int
     Note,                       // Holdings, and specially Trade etc allow editing of note wo touching anything else using this command
     Round,
     Close,
+    Split,                      // Stock split, from 10:1 etc, so 10 shares of stock becomes 1 share of stock, but price is adjusted accordingly
 }
 
 public enum StalkerElement : int

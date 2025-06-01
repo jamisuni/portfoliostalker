@@ -68,6 +68,7 @@ public enum StockMetaHistType
     UpdISIN,
     UpdSRef,
     Close,
+    Split
 }
 
 #if false

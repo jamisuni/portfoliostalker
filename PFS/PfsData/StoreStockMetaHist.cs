@@ -63,6 +63,11 @@ public class StoreStockMetaHist : IDataOwner // identical XML on backup & local 
         _stockHist = _stockHist.Append(new StockMetaHist(StockMetaHistType.UpdSRef, $"{updMarketId}${updSymbol}", $"{oldMarketId}${oldSymbol}", date, $"Updated SREF: {comment}")).ToArray();
     }
 
+    public void AppendSplitStock(MarketId marketId, string symbol, DateOnly date, string comment)
+    {
+        _stockHist = _stockHist.Append(new StockMetaHist(StockMetaHistType.Split, $"{marketId}${symbol}", $"{marketId}${symbol}", date, $"Split=[{comment}]")).ToArray();
+    }
+
     public void AppendCloseStock(MarketId oldMarketId, string closeSymbol, DateOnly date, string comment)
     {
         _stockHist = _stockHist.Append(new StockMetaHist(StockMetaHistType.Close, $"{MarketId.CLOSED}${closeSymbol}", $"{oldMarketId}${closeSymbol}", date, $"Closed: {comment}")).ToArray();

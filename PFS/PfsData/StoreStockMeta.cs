@@ -206,6 +206,18 @@ public class StoreStockMeta : IStockMeta, IStockMetaUpdate, ICmdHandler, IDataOw
         return true;
     }
 
+    public bool SplitStock(string sRef, DateOnly date, string comment)                                        // IStockMetaUpdate
+    {
+        var stock = StockMeta.ParseSRef(sRef);
+        int pos = Array.FindIndex(_stockMeta, m => m.marketId == stock.marketId && m.symbol == stock.symbol);
+        if (pos < 0)
+            return false;
+
+        _stockMetaHist.AppendSplitStock(stock.marketId, stock.symbol, date, comment);
+        EventNewUnsavedContent?.Invoke(this, _componentName);
+        return true;
+    }
+
     public bool CloseStock(string sRef, DateOnly date, string comment)                                              // IStockMetaUpdate
     {
         var stock = StockMeta.ParseSRef(sRef);

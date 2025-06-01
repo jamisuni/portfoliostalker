@@ -212,10 +212,8 @@ public partial class StockMgmtHistory
                     break;
 
                 case StockMetaHistType.UpdName:
-                    entry.Hdr = $"{entry.d.History.UpdSRef} [{entry.d.History.Note}]";
-                    break;
-
                 case StockMetaHistType.UpdISIN:
+                case StockMetaHistType.Split:
                     entry.Hdr = $"{entry.d.History.UpdSRef} [{entry.d.History.Note}]";
                     break;
 

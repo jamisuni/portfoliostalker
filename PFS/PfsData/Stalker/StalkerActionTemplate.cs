@@ -69,6 +69,13 @@ internal class StalkerActionTemplate
             Params = "UpdSRef=SRef OldSRef=SRef",
         },
 
+        new ActionTemplate()                            // Split-Stock SRef SplitFactor
+        {
+            Operation = StalkerOperation.Split,
+            Element = StalkerElement.Stock,
+            Params = "SRef=SRef SplitFactor=Decimal:0.01",
+        },
+
         new ActionTemplate()                            // Close-Stock SRef Date Note
         {
             Operation = StalkerOperation.Close,                                     // CLOSE used to close stock from Stalker side, changing market and moving all existing holdings off

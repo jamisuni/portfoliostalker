@@ -108,6 +108,25 @@ public class FEStalker : IFEStalker
         return GetStockMeta(MarketId.CLOSED, symbol);
     }
     
+    public Result SplitStock(MarketId marketId, string symbol, DateOnly date, decimal splitFactor, string comment)
+    {
+        // Lets verify that this even exists
+        if (GetStockMeta(marketId, symbol) == null)
+            return new FailResult("Didnt find stock");
+
+        // 1) Update Stalker
+        Result stalkerRes = _clientStalker.DoAction($"Split-Stock SRef=[{marketId}${symbol}] SplitFactor=[{splitFactor}]");
+        if (stalkerRes.Ok == false)
+            return stalkerRes;
+
+        // 2) Update StockMeta
+        _stockMetaUpdate.SplitStock($"{marketId}${symbol}", date, $"factor=[{splitFactor}] comment");
+
+        // Later! 'StoreLatestEod' could well be tuned to match new split and actually add 'FindSplit' that looks EODs to calculate date+factor
+
+        return new OkResult();
+    }
+
     public StockMeta UpdateStockMeta(MarketId marketId, string symbol, MarketId updMarketId, string updSymbol, string updName, DateOnly date, string comment)
     {
         // Lets verify that this even exists

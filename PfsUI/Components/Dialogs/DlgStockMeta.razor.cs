@@ -18,6 +18,7 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Pfs.Types;
+using System.Collections.Generic;
 
 namespace PfsUI.Components;
 
@@ -35,7 +36,8 @@ public partial class DlgStockMeta
     protected int _tabActivePanel = 0;
     protected const int _tabName = 0;
     protected const int _tabMarket = 1;
-    protected const int _tabClose = 2;
+    protected const int _tabSplit = 2;
+    protected const int _tabClose = 3;
     protected string _btnSave = "Save";
 
     protected bool _fullscreen { get; set; } = false;
@@ -45,6 +47,9 @@ public partial class DlgStockMeta
     protected string _editCompany = string.Empty;
     protected string _editISIN = string.Empty;
     protected string _editComment = string.Empty;
+    protected int _splitFrom = 1;
+    protected int _splitTo = 1;
+    protected bool _holdings = false;
     protected IEnumerable<MarketMeta> _activeMarkets;
 
     protected override async Task OnInitializedAsync()
@@ -52,6 +57,13 @@ public partial class DlgStockMeta
         await Task.CompletedTask;
 
         _activeMarkets = Pfs.Account().GetActiveMarketsMeta();
+
+        Result<List< RepDataStMgHoldings>> res = Pfs.Report().GetStMgHoldings($"{Market}${Symbol}");
+
+        if ( res.Ok && res.Data.Count > 0)
+            _holdings = true;
+        else
+            _holdings = false;
 
         Set();
     }
@@ -81,6 +93,7 @@ public partial class DlgStockMeta
         {
             _tabName => "Save",
             _tabMarket => "Change",
+            _tabSplit => "Split",
             _tabClose => "Kill",
             _ => string.Empty
         };
@@ -95,7 +108,7 @@ public partial class DlgStockMeta
     {
         string errMsg = Local_Verify();
 
-        if ( string.IsNullOrEmpty(errMsg))
+        if (string.IsNullOrEmpty(errMsg))
         {
             switch (_tabActivePanel)
             {
@@ -105,6 +118,10 @@ public partial class DlgStockMeta
 
                 case _tabMarket:
                     errMsg = Local_UpdateStockMeta();
+                    break;
+
+                case _tabSplit:
+                    errMsg = Local_SplitStock();
                     break;
 
                 case _tabClose:
@@ -118,7 +135,6 @@ public partial class DlgStockMeta
         else
             await LaunchDialog.ShowMessageBox("Failed!", errMsg, yesText: "Ok");
         return;
-
 
         string Local_UpdateNameIsin()
         {
@@ -141,6 +157,21 @@ public partial class DlgStockMeta
                 return "";
 
             return "Invalid characters?";
+        }
+
+        string Local_SplitStock()
+        {
+            if (_splitFrom < 1 || _splitTo < 1)
+                return $"Split ratio must be at least 1:1";
+            if (string.IsNullOrWhiteSpace(_editComment))
+                return $"Must give comment to descript reasons";
+
+            Result result = Pfs.Stalker().SplitStock(Market, Symbol, DateOnly.FromDateTime(_date.Value), (decimal)_splitFrom / _splitTo, _editComment);
+
+            if ( result.Ok)
+                return string.Empty;
+
+            return (result as FailResult).Message;
         }
 
         string Local_CloseStock()

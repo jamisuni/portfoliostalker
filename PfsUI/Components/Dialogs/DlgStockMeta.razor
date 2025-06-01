@@ -41,6 +41,22 @@
                 <MudTextField @bind-Value="_editComment" Variant="Variant.Outlined" Label="Reason for change" />
             </MudTabPanel>
 
+            @if (_holdings)
+            {
+                <MudTabPanel Text="Split">
+                    <MudPaper Class="pa-4 ma-2" Outlined="false">
+                        Split ratio is 'from' 'to new amount' so ex 1:3 when share amount reduced to increase share price
+                    </MudPaper>
+                    <MudDatePicker Label="Date" @bind-Date="_date" MaxDate="@(DateTime.Now)" PickerVariant="PickerVariant.Dialog" />
+                    <div class="d-flex align-items-center mb-2">
+                        <MudNumericField T="int" @bind-Value="_splitFrom" Min="1" Label="From" Style="width: 80px;" />
+                        <span class="mx-2">:</span>
+                        <MudNumericField T="int" @bind-Value="_splitTo" Min="1" Label="To" Style="width: 80px;" />
+                    </div>
+                    <MudTextField @bind-Value="_editComment" Variant="Variant.Outlined" Label="Reason for split?" />
+                </MudTabPanel>
+            }
+
             <MudTabPanel Text="Close">
                 <MudPaper Class="pa-4 ma-2" Outlined="false">
                     Carefull! Closes stock permanently. Example someone M&A it off markets.

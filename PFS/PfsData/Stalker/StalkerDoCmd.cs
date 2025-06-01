@@ -139,6 +139,11 @@ public class StalkerDoCmd : StalkerData
                         return StockSet(
                             (string)stalkerAction.Param("UpdSRef"),
                             (string)stalkerAction.Param("OldSRef"));
+                        
+                    case StalkerOperation.Split:    // Split-Stock SRef SplitFactor
+                        return StockSplit(
+                            (string)stalkerAction.Param("SRef"),
+                            (decimal)stalkerAction.Param("SplitFactor"));
 
                     case StalkerOperation.Close:    // Close-Stock SRef Date Note
 
@@ -495,6 +500,33 @@ public class StalkerDoCmd : StalkerData
             foreach (SHolding st in pf.StockTrades)
                 if (st.SRef == oldSRef)
                     st.SRef = updSRef;
+        }
+        return new OkResult();
+    }
+
+    protected Result StockSplit(string sRef, decimal splitFactor)
+    {   // Split-Stock SRef SplitFactor
+        if (splitFactor <= 0.01m)
+            return new FailResult($"SplitFactor must be > 0!");
+        SStock stock = StockRef(sRef);
+        if (stock == null)
+            return new FailResult($"{sRef} is unknown stock");
+        if (splitFactor == 1)
+            return new OkResult(); // No change
+
+        foreach (SPortfolio pf in _portfolios)
+        {
+            foreach (SHolding sh in pf.StockHoldings)
+                if (sh.SRef == sRef)
+                {
+                    sh.Units = (sh.Units / splitFactor).Round3();
+                    sh.PricePerUnit = (sh.PricePerUnit * splitFactor).Round3();
+                    sh.FeePerUnit = (sh.FeePerUnit * splitFactor).Round3();
+                    sh.OriginalUnits = (sh.OriginalUnits / splitFactor).Round3();
+
+                    for ( int i = 0; i < sh.Dividents.Count; i++ )
+                        sh.Dividents[i] = sh.Dividents[i] with { PaymentPerUnit = (sh.Dividents[i].PaymentPerUnit * splitFactor).Round3() };
+                }
         }
         return new OkResult();
     }
