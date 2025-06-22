@@ -107,7 +107,9 @@ public partial class DlgAddNewStockMeta
 
     private async Task OnBtnSaveAsync()
     {
-        StockMeta sm = Pfs.Stalker().AddNewStockMeta(_market, _symbol.ToUpper(), _company, _ISIN);
+        // Trim company name to avoid extra spaces
+        var trimmedCompany = _company?.Trim();
+        StockMeta sm = Pfs.Stalker().AddNewStockMeta(_market, _symbol.ToUpper(), trimmedCompany, _ISIN);
 
         if (sm != null)
         {
