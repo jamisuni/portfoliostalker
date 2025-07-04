@@ -24,37 +24,40 @@ namespace Pfs.ExtTransactions;
 public class BtNordnet : BtParser
 {
     /*
-                    TRADE-BUY       AOT-BUY         TRADE-DIV       AOT-DIV         M&A-"BUY"           DECIM-CUT           CLOSE (???)
-                    ==========      ========        =========       =======         =========           =========           =====
-    Id	            1687464777	    934451172       1725357907      1476793749      1109166543          1109168837          1109166541
-    Kirjauspäivä	2024-04-26	    2021-09-16      2024-06-04      2023-09-18      2022-07-07          2022-07-07          2022-07-07
-    Kauppapäivä     2024-04-26	    2021-09-16      2024-05-06      2023-08-30      2022-07-04          2022-07-07          2022-07-04
-    Maksupäivä      2024-04-30	    2021-09-20      2024-06-03      2023-09-15      2022-07-04          2022-07-07          2022-07-04
-    Salkku          50806520	    7545734         50806520        7545734         7545734             7545734             7545734
-    Tapahtumatyyppi OSTO	        OSTO            OSINKO          OSINKO          VAIHTO AP-JÄTTÖ     DESIM KIRJAUS OTTO  VAIHTO AP-OTTO
-    Arvopaperi      INTC	        ABX             INTC            ABX             MATV                MATV                NP.US/X
-    ISIN            US4581401001	CA0679011084    US4581401001    CA0679011084    US8085411069        US8085411069        US6400791090
-    Määrä           70	            100             70              300             67,9                0,9                 50
-    Kurssi          31,71	        23,7
+                    TRADE-BUY       AOT-BUY         TRADE-DIV       AOT-DIV         M&A-"BUY"           DECIM-CUT           CLOSE (???)         2025-DIV
+                    ==========      ========        =========       =======         =========           =========           =====               ===
+    Id	            1687464777	    934451172       1725357907      1476793749      1109166543          1109168837          1109166541          2150934839
+    Kirjauspäivä	2024-04-26	    2021-09-16      2024-06-04      2023-09-18      2022-07-07          2022-07-07          2022-07-07          2025-07-03
+    Kauppapäivä     2024-04-26	    2021-09-16      2024-05-06      2023-08-30      2022-07-04          2022-07-07          2022-07-04          2025-06-13
+    Maksupäivä      2024-04-30	    2021-09-20      2024-06-03      2023-09-15      2022-07-04          2022-07-07          2022-07-04          2025-07-02
+    Salkku          50806520	    7545734         50806520        7545734         7545734             7545734             7545734             7545734
+    Tapahtumatyyppi OSTO	        OSTO            OSINKO          OSINKO          VAIHTO AP-JÄTTÖ     DESIM KIRJAUS OTTO  VAIHTO AP-OTTO      OSINKO
+    Arvopaperi      INTC	        ABX             INTC            ABX             MATV                MATV                NP.US/X             Cenovus Energy
+    ISIN            US4581401001	CA0679011084    US4581401001    CA0679011084    US8085411069        US8085411069        US6400791090        CA15135U1093
+    Määrä           70	            100             70              300             67,9                0,9                 50                  125
+    Kurssi          31,71	        23,7                                                                                                        0,2
     Korko           0	            0
     Kokonaiskulut   8	            29,82
     Valuutta        EUR	            CAD
-    Summa           -2 084,68	    -2 399,82       8,07            30              0                   21,06               0
-    Valuutta        EUR	            CAD             EUR             USD             USD                 USD                 USD
+    Summa           -2 084,68	    -2 399,82       8,07            30              0                   21,06               0                   15,62
+    Valuutta        EUR	            CAD             EUR             USD             USD                 USD                 USD                 EUR
     Hankinta-arvo   2 228,25	    2 399,82                                        1 658,3
     Valuutta        USD	            CAD                                             USD
     Tulos           0	            0                                               0                   -0,9204             0
     Valuutta        USD	            CAD                                             USD                 USD                 USD
-    Kokonaismäärä   70	            280             0               0               67,9                67                  0
-    Saldo           292,03	        6 532           307,94          25 889,6399     824,6299            824,6299            824,6299
+    Kokonaismäärä   70	            280             0               0               67,9                67                  0                   0
+    Saldo           292,03	        6 532           307,94          25 889,6399     824,6299            824,6299            824,6299            44689,38
     Vaihtokurssi    0,9355
-    Tapahtumateksti                                 0.125 USD/OS    CA 0.1 USD/OS   Exc 1 for 1,358s    Fractional          Exchange 1 share for 1,358 shares
+    Tapahtumateksti                                 0.125 USD/OS    CA 0.1 USD/OS   Exc 1 for 1,358s    Fractional          Exchange...         OSINKO CVE.CA 0.2 CAD/OSAKE
     Mitätöintipäivä
     Laskelma        1947023784      762729614
-    Vahvistusnumero 1947023784      762729614       1955057276      1897288666      1810457252          1810457759          1810457252
+    Vahvistusnumero 1947023784      762729614       1955057276      1897288666      1810457252          1810457759          1810457252          2057498769
     Välityspalkkio  8               29,82
     Valuutta        EUR             CAD
     Viitevaluuttakurssi             0,6728                          0,9186                              0,9823              
+
+    Note! 2025 looks like 'Arvopaperi' is nowdays a company name, so dividents often fail if no ISIN. Now symbol is only part of 'Tapahtumateksti'		
+            => !!!LATER!!! Update mapping below to match this change, so 'Arvopaperi' is now 'CompanyName' and 'Symbol' is null here and digging it out from 'Tapahtumateksti'!
     */
     protected readonly static BtMap[] _map = [
         new BtMap(BtField.Action,           "Tapahtumatyyppi",          BtFormat.Manual,        null),          // Tapahtumatyyppi	    OSTO
@@ -130,6 +133,20 @@ public class BtNordnet : BtParser
 
                 bta.TA.Action = ConvAction(bta.BrokerAction);
 
+                if ( string.IsNullOrEmpty(bta.TA.Symbol) || Validate.Str(ValidateId.Symbol, bta.TA.Symbol).Fail )
+                {   // see if provided as: "OSINKO CVE.CA 0.2 CAD/OSAKE" 
+                    (string symbol, CurrencyId currency) = ParseDivNote(bta.TA.Note);
+
+                    if (string.IsNullOrEmpty(symbol) == false)
+                    {
+                        bta.TA.CompanyName = bta.TA.Symbol; // place that used to have symbol is now company name. Later if stays do cleaner impl
+                        bta.TA.Symbol = symbol;
+
+                        if (currency != CurrencyId.Unknown)
+                            bta.TA.Currency = currency;
+                    }
+                }
+
                 if (bta.TA.Symbol.EndsWith("/X"))
                     // Nordnet seams use this /X for old already gone symbols
                     bta.TA.Symbol = bta.TA.Symbol.Replace("/X", "");
@@ -155,6 +172,9 @@ public class BtNordnet : BtParser
                         bta.ErrMsg = $"BtNordnet.Convert failed to exception [{ex.Message}]";
                     }
                 }
+
+                Transaction ta = bta.TA;
+                string note = ta.Note;
 
                 bta.LineNum = lineNum;
                 ret.Add(bta);
@@ -195,6 +215,47 @@ public class BtNordnet : BtParser
             // LUNASTUS AP KÄT. - money added from sale, not tracked atm
         }
         return TaType.Unknown;
+    }
+
+    // Parses a string like "OSINKO CVE.CA 0.2 CAD/OSAKE", "OSINKO BDX 1.04 USD/OSAKE", or "DIVIDEND AGI 0,025 USD/SHARE"
+    protected static (string symbol, CurrencyId currency) ParseDivNote(string note)
+    {
+        if (string.IsNullOrEmpty(note))
+            return (null, CurrencyId.Unknown);
+
+        string prefix = null, suffix = null;
+        if (note.StartsWith("OSINKO ") && note.EndsWith("/OSAKE"))
+        {
+            prefix = "OSINKO ";
+            suffix = "/OSAKE";
+        }
+        else if (note.StartsWith("DIVIDEND ") && note.EndsWith("/SHARE"))
+        {
+            prefix = "DIVIDEND ";
+            suffix = "/SHARE";
+        }
+        else
+        {
+            return (null, CurrencyId.Unknown);
+        }
+
+        // Remove prefix and suffix
+        string core = note.Substring(prefix.Length, note.Length - prefix.Length - suffix.Length).Trim();
+        // core: e.g. "CVE.CA 0.2 CAD" or "AGI 0,025 USD"
+        var parts = core.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length < 3)
+            return (null, CurrencyId.Unknown);
+
+        string symbolPart = parts[0];
+        string symbol = symbolPart.Split('.')[0]; // "CVE" or "AGI"
+
+        if (Validate.Str(ValidateId.Symbol, symbol).Fail)
+            return (null, CurrencyId.Unknown);
+
+        if (Enum.TryParse(parts[2], out CurrencyId currency))
+            return (symbol, currency);
+
+        return (symbol, CurrencyId.Unknown);
     }
 
     protected CurrencyId GetMarketCurrency(Transaction ta, Dictionary<string, string> manual) // Simple rule! If anywhere is currency other than HC then we use other
