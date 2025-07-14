@@ -1,5 +1,5 @@
 self.assetsManifest = {
-  "version": "w+exQeP2",
+  "version": "u553Ln9M",
   "assets": [
     {
       "hash": "sha256-SrorGg0MmAafoRLaO2wVaXeqpFM2V1XQnGaizRt6Dig=",
@@ -26,8 +26,8 @@ self.assetsManifest = {
       "url": "_framework/Blazored.LocalStorage.12n6dz54qr.wasm"
     },
     {
-      "hash": "sha256-jmnO5rpv27Wb7DVU2B53zkaE8NlhuDLmVH0d7IB+/LM=",
-      "url": "_framework/Client.ep275616s7.wasm"
+      "hash": "sha256-W5lRp1yjlmoR6RBc1RPz5gEDzrqgU5H6IpenGpps9ew=",
+      "url": "_framework/Client.3yh2aqaltb.wasm"
     },
     {
       "hash": "sha256-gIv3rkSTS7t+R5bMtcyMpbn3EuECRPgHZmWECRjdcd4=",
@@ -110,40 +110,40 @@ self.assetsManifest = {
       "url": "_framework/MudBlazor.7ujsb1z8ut.wasm"
     },
     {
-      "hash": "sha256-yBxGNIT7sv4QzLx53hGfeopssxH0ypjS/csRdpnqeOM=",
-      "url": "_framework/PfsConfig.8oeuvestiz.wasm"
+      "hash": "sha256-AkE/aaayW65evt+yAkMcrWl5RH68lQRpF/YMQEuZ+Dg=",
+      "url": "_framework/PfsConfig.e5gpb2ni7z.wasm"
     },
     {
-      "hash": "sha256-KtkOFudHtIsVll+VUSrdKRNJYAMFvviINYUdUFpfYlg=",
-      "url": "_framework/PfsData.mx3xzlppuj.wasm"
+      "hash": "sha256-/j/b4OiC8U8gJXxgyPSGN6EU6xX1v0EPQqMBnUl5uTY=",
+      "url": "_framework/PfsData.mejzfp06e1.wasm"
     },
     {
-      "hash": "sha256-NCXa8HqO9jlUIjgPXPBiVmLqAPf+mzI+BoAGnxGJY8M=",
-      "url": "_framework/PfsExtFetch.s6wl7ezso3.wasm"
+      "hash": "sha256-P2Il4R8ymYnYR4s7uoYJemPpmahKeD4EeJmrOur/c7o=",
+      "url": "_framework/PfsExtFetch.t5j7lnx1zp.wasm"
     },
     {
-      "hash": "sha256-abWB79ni+M3dN2dWSrdE+3J+PIPB1JXa7EC8M5qRiFw=",
-      "url": "_framework/PfsExtProviders.3h7n1dp138.wasm"
+      "hash": "sha256-7WpX7uXPEhe2TPazgXJ2kPbsXKFjw6l+tk1IDdBzEFk=",
+      "url": "_framework/PfsExtProviders.rqlssbdna3.wasm"
     },
     {
-      "hash": "sha256-lUX9Z9VgNhDSBc9n4YvZFGYQJ7fNY5WNZqBfN8p9If4=",
-      "url": "_framework/PfsExtTransactions.zuttqp28he.wasm"
+      "hash": "sha256-RudXd/Dnn0zdW9QrK1VY6GTlA9ZdrMI6VJWaGUZSSqE=",
+      "url": "_framework/PfsExtTransactions.ac4zg2ss7h.wasm"
     },
     {
-      "hash": "sha256-HhVII8X1O7BcnGO0HUXxQEhoH7NOOkS/eNLU+K31sBw=",
-      "url": "_framework/PfsHelpers.iz6v8uie76.wasm"
+      "hash": "sha256-w1PzP3EDKaHoSYBiDXOwmVjo7dQjzOQXgnl9C9WEdZE=",
+      "url": "_framework/PfsHelpers.dwrgn5ho84.wasm"
     },
     {
-      "hash": "sha256-+E28ehxI+/6Jcv760tBCszNd23Y9cSJSRRSeV7uYKXo=",
-      "url": "_framework/PfsReports.g2fn6w0jy1.wasm"
+      "hash": "sha256-t8NgOTdXx0FaP5CV8qM8P4YmfmeIskbL5lWbgpXQxIY=",
+      "url": "_framework/PfsReports.jdhvq0kb2h.wasm"
     },
     {
-      "hash": "sha256-DUpEMObJYW9SD9+1eXbHLwiGwiKK92EZNrpMq4iLAAY=",
-      "url": "_framework/PfsTypes.91qhwffwq4.wasm"
+      "hash": "sha256-crgEL503gCt0Uq+BP9R7lYnZQzzAhP2eSNagL3yTj2s=",
+      "url": "_framework/PfsTypes.q2pavb1iij.wasm"
     },
     {
-      "hash": "sha256-bxf/lctGYWaitOrvgo12zfiCSG/Mya6BsIspMKVm0C8=",
-      "url": "_framework/PfsUI.h8i16o3y9v.wasm"
+      "hash": "sha256-B3ZqQVnX9P+T7xv4KVcc+MjrC55rAy5RmrqJaG/aSU0=",
+      "url": "_framework/PfsUI.x2lh9rlj0y.wasm"
     },
     {
       "hash": "sha256-oaUyoVo2a89AwFRLViIDIdBnhpi17mAo03uxs1QLd2g=",
@@ -226,12 +226,12 @@ self.assetsManifest = {
       "url": "_framework/System.IO.Pipelines.g5ih8ovpg3.wasm"
     },
     {
-      "hash": "sha256-SZf+pqWpbHzXBeAzI4dFQlgzFqe7gayR1hCMf0HxND4=",
-      "url": "_framework/System.Linq.7cgga2a21r.wasm"
-    },
-    {
       "hash": "sha256-+J+gJeByUK+g1o7dMDtJnGBxviDkKvurhaod4VwJroM=",
       "url": "_framework/System.Linq.Expressions.0edx2n26w7.wasm"
+    },
+    {
+      "hash": "sha256-C5Jh9PitAo0u+6F8HMqh4pXUsteLcDtnHSZzo6fzPkI=",
+      "url": "_framework/System.Linq.juckgtjxc1.wasm"
     },
     {
       "hash": "sha256-P7mFU11EHTqUHU5vQxkh8XZD8GW2AJmV26vLue6tr5E=",
@@ -322,7 +322,7 @@ self.assetsManifest = {
       "url": "_framework/System.Xml.XDocument.v8e7b40yr9.wasm"
     },
     {
-      "hash": "sha256-dFL/RhUI5tzQzBpn3XUYGJ/7SvsG9IEOTFHj0fE5YvY=",
+      "hash": "sha256-y1XItbQbtOSUknxteff2KRKrbTlS4W1ZlmIBlUj+YGk=",
       "url": "_framework/blazor.boot.json"
     },
     {
@@ -386,7 +386,7 @@ self.assetsManifest = {
       "url": "icon-512.png"
     },
     {
-      "hash": "sha256-c3TS5SYyZWGWDxaVjk67gXOYGJpy8JThOTIFnvyJKRg=",
+      "hash": "sha256-j1M0QD0vITz5+Q760Y+6waqBiB/pzVcAmOZ5uwW0GxY=",
       "url": "index.html"
     },
     {
