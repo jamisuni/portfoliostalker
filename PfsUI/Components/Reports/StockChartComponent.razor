@@ -1,0 +1,85 @@
+@using Microsoft.JSInterop
+@using Pfs.Types
+@inject PfsUI.PfsClientAccess Pfs
+
+@namespace PfsUI.Components
+
+<div id="@_chartId"></div>
+
+@code {
+
+    [Parameter] public RepDataPfStocks Entry { get; set; }
+    [Inject] IJSRuntime JS { get; set; }
+
+    private string _chartId = $"stockchart_{Guid.NewGuid().ToString("N")}";
+    private bool _rendered = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_rendered && Entry != null)
+        {
+            _rendered = true;
+            var prices = InvertValuations(ReplaceMissingValuations(Pfs.Eod().GetLastSavedEodHistory(Entry.StockMeta.marketId, Entry.StockMeta.symbol, 20)));
+            var priceData = prices.Select((p, i) => new { price = p }).ToArray();
+            decimal? avgPurchase = Entry.RRTotalHold?.McAvrgPrice;
+            await JS.InvokeVoidAsync("createStockChart", _chartId, priceData, new {
+                companyName = Entry.StockMeta.name,
+                averagePurchasePrice = avgPurchase
+            });
+        }
+        return;
+
+        decimal[] ReplaceMissingValuations(decimal[] valuations)
+        {
+            decimal[] result = (decimal[])valuations.Clone();
+
+            for (int i = 0; i < result.Length; i++)
+            {
+                if (result[i] == -1)
+                {
+                    // Look for previous valid value
+                    decimal previous = -1;
+                    for (int j = i - 1; j >= 0; j--)
+                    {
+                        if (result[j] != -1)
+                        {
+                            previous = result[j];
+                            break;
+                        }
+                    }
+
+                    // If previous found, use it
+                    if (previous != -1)
+                    {
+                        result[i] = previous;
+                    }
+                    else
+                    {
+                        // Look for next valid value
+                        for (int j = i + 1; j < result.Length; j++)
+                        {
+                            if (result[j] != -1)
+                            {
+                                result[i] = result[j];
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        decimal[] InvertValuations(decimal[] valuations)
+        {
+            decimal[] result = new decimal[valuations.Length];
+            for (int i = 0; i < valuations.Length; i++)
+            {
+                result[i] = valuations[valuations.Length - 1 - i];
+            }
+
+            return result;
+        }
+    }
+}

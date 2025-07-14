@@ -71,6 +71,15 @@ public class FEEod : IFEEod
         return _latestEodProv.GetFullEOD(marketId, symbol);
     }
 
+    public decimal[] GetLastSavedEodHistory(MarketId marketId, string symbol, int amount = 20)
+    {
+        // Use the StoreLatestEod instance to fetch the last N closing prices
+        string sRef = $"{marketId}${symbol}";
+        // Defensive: check if the data exists and is valid
+        var (date, history) = _storeLatestEod.GetLastClosings(sRef, amount);
+        return history ?? Array.Empty<decimal>();
+    }
+
     public StockExpiredStatus GetExpiredEodStatus()
     {
         (int totalStocks, List<ExpiredStocks.Expired> expired) = ExpiredStocks.GetExpiredEods(_pfsPlatform.GetCurrentUtcTime(), _stockMetaProv, _latestEodProv, _marketMetaProv);

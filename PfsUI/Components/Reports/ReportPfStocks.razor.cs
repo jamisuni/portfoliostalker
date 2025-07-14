@@ -42,7 +42,6 @@ public partial class ReportPfStocks
     [Parameter] public string PfName { get; set; } // Atm this report is supported only under Portfolio so this must be set
 
     protected CurrencyId _homeCurrency;
-    protected bool _viewCompanyNameColumn = true;
 
     protected bool _showGrowthColumn;
     protected bool _showAlarmOverColumn;
@@ -51,7 +50,6 @@ public partial class ReportPfStocks
     protected override void OnParametersSet()
     {
         _homeCurrency = Pfs.Config().HomeCurrency;
-        _viewCompanyNameColumn = Pfs.Account().GetAppCfg(AppCfgId.HideCompanyName) == 0;
 
         ReloadReportData();
     }
@@ -90,13 +88,8 @@ public partial class ReportPfStocks
                     // Profit column is shown only if group has something w it..
                     _showGrowthColumn = true;
 
-                if (_viewCompanyNameColumn == false)
-                    outData.SymbolToolTip += $"{inData.StockMeta.name}";
-
                 if (string.IsNullOrEmpty(inData.NoteHeader) == false)
                 {
-                    if (_viewCompanyNameColumn == false)
-                        outData.SymbolToolTip += ": ";
                     outData.SymbolToolTip += $"{inData.NoteHeader}";
                 }
 
@@ -225,6 +218,23 @@ public partial class ReportPfStocks
             ReloadReport();
         else
             await LaunchDialog.ShowMessageBox("Failed!", (stalkerResp as FailResult).Message, cancelText: "Dang");
+    }
+
+    public class StockChartHistory
+    {
+        public string CompanyName { get; set; }
+        public decimal[] Prices { get; set; }
+    }
+
+    // Helper to get 20-day history for a stock
+    private StockChartHistory GetStockChartHistory(RepDataPfStocks inData)
+    {
+        var prices = Pfs.Eod().GetLastSavedEodHistory(inData.StockMeta.marketId, inData.StockMeta.symbol, 20);
+        return new StockChartHistory
+        {
+            CompanyName = inData.StockMeta.name,
+            Prices = prices
+        };
     }
 }
 

@@ -1,5 +1,6 @@
 ﻿@namespace PfsUI.Components
 @using Pfs.Types
+@inject IJSRuntime JS
 
 @if (_report == null)
 {
@@ -10,10 +11,7 @@ else
     <MudTable T="ViewReportEntry" Items="@_report" Dense="true" Hover="true" SortLabel="Sort By" FixedHeader="true" Height="565px" >
         <ColGroup>
             <col style="width: 5%;" />  @* Symbol *@
-            @if (_viewCompanyNameColumn)
-            {
-            <col style="width: 25%;" /> @* Company *@
-            }
+            <col style="width: 25%;" /> @* Chart (was Company) *@
             <col style="width: 10%;" /> @* Latest *@
             <col style="width: 5%;" />  @* Alarm Under *@
             @if (_showAlarmOverColumn == true)
@@ -28,10 +26,7 @@ else
         </ColGroup>
         <HeaderContent>
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportEntry, object>(x=>x.d.StockMeta.symbol)">Symbol</MudTableSortLabel></MudTh>
-            @if (_viewCompanyNameColumn)
-            {
-            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportEntry, object>(x=>x.d.StockMeta.name)">Name</MudTableSortLabel></MudTh>
-            }
+            <MudTh>Chart</MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportEntry, object>(x=>x.d.RCEod?.ChangeP)">Latest</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportEntry, object>(x=>x.d.RRAlarm?.UnderP)">Under%</MudTableSortLabel></MudTh>
             @if (_showAlarmOverColumn == true)
@@ -48,29 +43,9 @@ else
             <MudTd>
                 <MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta.GetSRef()))" >$@context.d.StockMeta.symbol</MudButton>
             </MudTd>
-            @if (_viewCompanyNameColumn)
-            {
-            <MudTd> @* Company *@
-                <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Right">
-                @if ( string.IsNullOrWhiteSpace(context.d.FailedMsg) == false)
-                {
-                    @($"Failed: {context.d.FailedMsg}")
-                }
-                else if ( string.IsNullOrEmpty(context.OrderDetails) == true )
-                {
-                    @context.d.StockMeta.name
-                }
-                else
-                {
-		            <div class="col"> <div class="row">
-                            @context.d.StockMeta.name
-		            </div>			  <div class="row">
-			            <span style="color:blue"><b>@context.OrderDetails</b></span>
-		            </div>		      </div>
-                }
-                </MudTooltip>
+            <MudTd>
+                <StockChartComponent Entry="@context.d" />
             </MudTd>
-            }
             <MudTd> @* LatestEOD + ChangeP *@
                 <RCellEod RCEod="@context.d.RCEod" StockMeta="context.d.StockMeta" />
             </MudTd>

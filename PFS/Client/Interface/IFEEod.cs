@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful, 
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -52,6 +52,9 @@ public interface IFEEod
     // ***EODs***
 
     FullEOD GetLatestSavedEod(MarketId marketId, string symbol);
+
+    // Fetch last N (default 20) closing prices for a stock from local storage
+    decimal[] GetLastSavedEodHistory(MarketId marketId, string symbol, int amount = 20);
 
     // Allows to push EOD to storing/use, can be used example on TestFetch 
     void AddEod(MarketId marketId, string symbol, FullEOD eod);
