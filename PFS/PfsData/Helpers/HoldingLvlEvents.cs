@@ -96,14 +96,14 @@ public class HoldingLvlEvents
                 closingsMc.Where(c => c > 0 && oldestHolding.HcPriceWithFeePerUnit > c * currencyRate).Count() == 1)
             {
                 // 3) 'NEG' (oldest) history valuations are higher than purhace price, but last EOD dropped oldest holding to loosing side
-                userEventsCreator.CreateAvrgOwning2NegEvent(sRef, pf.Name, latestEod.Date);
+                userEventsCreator.CreateOldestOwning2NegEvent(sRef, pf.Name, latestEod.Date);
             }
 
             if (oldestHolding.HcPriceWithFeePerUnit < latestEod.Close * currencyRate &&
                 closingsMc.Where(c => c > 0 && oldestHolding.HcPriceWithFeePerUnit < c * currencyRate).Count() == 1)
             {
                 // 4) 'POS' history valuations on loosing side, but last EOD jumped over oldest holdings purhace price
-                userEventsCreator.CreateAvrgOwning2PosEvent(sRef, pf.Name, latestEod.Date);
+                userEventsCreator.CreateOldestOwning2PosEvent(sRef, pf.Name, latestEod.Date);
             }
         }
     }
