@@ -44,7 +44,7 @@ else
                 <MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta.GetSRef()))" >$@context.d.StockMeta.symbol</MudButton>
             </MudTd>
             <MudTd>
-                <StockChartComponent Entry="@context.d" />
+                <TinyStockChartComponent Entry="@context.d" />
             </MudTd>
             <MudTd> @* LatestEOD + ChangeP *@
                 <RCellEod RCEod="@context.d.RCEod" StockMeta="context.d.StockMeta" />

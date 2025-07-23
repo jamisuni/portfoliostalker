@@ -1,6 +1,3 @@
-// createStockChart.js
-// Standalone JS for Blazor stock chart rendering
-
 /**
  * Fixed Compact Stock Chart Component for Blazor Integration
  * Creates a small line chart showing 20-day stock price history
@@ -11,7 +8,7 @@
  * - Prevents division by zero errors
  * - Ensures minimum scale range for flat data
  */
-function createStockChart(containerId, stockData, options = {}) {
+function TinyStockChart(containerId, stockData, options = {}) {
     const container = document.getElementById(containerId);
     if (!container) {
         console.error(`Container with ID "${containerId}" not found`);

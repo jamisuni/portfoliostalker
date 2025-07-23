@@ -22,7 +22,7 @@
             var prices = InvertValuations(ReplaceMissingValuations(Pfs.Eod().GetLastSavedEodHistory(Entry.StockMeta.marketId, Entry.StockMeta.symbol, 20)));
             var priceData = prices.Select((p, i) => new { price = p }).ToArray();
             decimal? avgPurchase = Entry.RRTotalHold?.McAvrgPrice;
-            await JS.InvokeVoidAsync("createStockChart", _chartId, priceData, new {
+            await JS.InvokeVoidAsync("TinyStockChart", _chartId, priceData, new {
                 companyName = Entry.StockMeta.name,
                 averagePurchasePrice = avgPurchase
             });
