@@ -58,13 +58,6 @@ public partial class DlgStockMeta
 
         _activeMarkets = Pfs.Account().GetActiveMarketsMeta();
 
-        Result<List< RepDataStMgHoldings>> res = Pfs.Report().GetStMgHoldings($"{Market}${Symbol}");
-
-        if ( res.Ok && res.Data.Count > 0)
-            _holdings = true;
-        else
-            _holdings = false;
-
         Set();
     }
 
