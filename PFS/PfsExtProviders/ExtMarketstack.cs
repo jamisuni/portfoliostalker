@@ -95,35 +95,15 @@ public class ExtMarketstack : IExtProvider, IExtDataProvider
         return 1;
     }
 
-    /* Note!  Worth of poking around more, as 50$ commercial not that bad to get limited server.. but not most professional behaviour
-        * 
+    /* Note! 
         * - Cant use Free account on WASM, as only http thats not allowed w https wasm.. so minimum 9$ account required
         *   (To test with Free account on Developer Studio a servers works ok, but WASM only if application NOT on HTTPS,
         *    so need to change launchSettings.json to not have sslPort defined)
         * 
-        * - Even 9$ payment account is 10,000 request ONLY per month, w 10 year history so long run would need 50$ plan,
-        *   but this actually is interesting option as has wide market variety and 50$ account could cover pretty nicely
-        *   even some limited commercial cases. Plus has Divident etc some features for future use.
-        *   => 10000 credits per month is about 300 stocks for PFS use case
-        * 
-        * - INDEXES, https://api.marketstack.com/v1/eod?access_key=PREMIUMKEY&symbols=DJI.INDX
-        *   => actually nicely gives access to different index valuations, but also their history with open/close/volume
-        *      so could calculate RSI/etc for them... 
-        * 
-        * Results
-        * - 2021-Nov: Lot of stuff can be found from 'https://marketstack.com/search' but doesnt seam to mean there is data for them
-        *             as some markets seams falling sleep... and no-one seams noticing data is missing
-        * - 2021-Nov: '/eod/latest' seams to work for 100 tickers, but Intraday just for one ticker on time
-        *                      
-        * TODO:
-        * 
-        * - http://api.marketstack.com/v1/exchanges/XASE/tickers?access_key=
-        *  => Per market StockMeta.. this could be nice if actually gets updated enough well... must study!
-        * 
-        * - http://api.marketstack.com/v1/exchanges/XASE/eod/latest
-        *  => Per documentation returns each tickers EOD, but seams to expecting symbols on reality => ignore
-        * 
-        * - If when opening 50$ plan, it gives access to better Intraday in form of "Real-Time updates"
+        * - 
+        *    
+        *    
+        *    
         */
 
     public async Task<Dictionary<string, FullEOD>> GetEodLatestAsync(MarketId marketId, List<string> tickers)
@@ -151,9 +131,15 @@ public class ExtMarketstack : IExtProvider, IExtDataProvider
         {
             HttpClient tempHttpClient = new HttpClient();
 
-            HttpResponseMessage resp = await tempHttpClient.GetAsync($"https://api.marketstack.com/v1/eod/latest?access_key={_marketstackApiKey}&exchange={GetMIC(marketId)}&symbols={joinedMsTickers}");
+            //string start = "2025-11-01";
+            //string end = "2025-11-16";
+            //string temp = $"https://api.marketstack.com/v2/eod?access_key={_marketstackApiKey}&date_from={start}&date_to={end}&exchange={GetMIC(marketId)}&symbols={joinedTickers}";
 
-            if (resp.IsSuccessStatusCode == false)
+            //string temp = $"https://api.marketstack.com/v2/eod/2025-11-13?access_key={_marketstackApiKey}&exchange={GetMIC(marketId)}&symbols={joinedMsTickers}";
+
+            HttpResponseMessage resp = await tempHttpClient.GetAsync($"https://api.marketstack.com/v2/eod/latest?access_key={_marketstackApiKey}&exchange={GetMIC(marketId)}&symbols={joinedMsTickers}");
+            
+            if (resp.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 _error = string.Format("Failed: {0} for [[{1}]]", resp.StatusCode.ToString(), joinedMsTickers);
                 Log.Warning("Marketstack:GetEodLatestAsync() " + _error);

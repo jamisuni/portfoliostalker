@@ -24,7 +24,6 @@ using System.Text.Json;
 
 namespace Pfs.ExtProviders;
 
-// (https://site.financialmodelingprep.com/) Very extensive API, covering hefty amount of different use cases. Very Impressive!
 public class ExtFmp : IExtProvider, IExtDataProvider
 {
     protected readonly IPfsStatus _pfsStatus;
@@ -33,7 +32,8 @@ public class ExtFmp : IExtProvider, IExtDataProvider
 
     protected string _fmpApiKey = "";
 
-    /* Provided functionalities: superb market support!
+    /* 2025-Nov: Free, Starter & Premium tiers are turn useless. Limited markets, limited symbols... not worth pay! AlphaVantage is way better!
+     * 
      * 
      * StockList-ExchangeSymbols: 'https://financialmodelingprep.com/api/v3/symbol/{marketId}?apikey=' 
      *  - Return all need details for *ALL* symbols on market, this is getting very fast very heavy size content to 
@@ -129,12 +129,6 @@ public class ExtFmp : IExtProvider, IExtDataProvider
         return null;
     }
 
-    // https://financialmodelingprep.com/api/v3/symbol/NASDAQ?apikey=xSDJ33RJggIjt45BOsuAkg8LFgFp00KB
-
-    // This looks superb powerfull, but doesnt yet fit to model I been using to do fetching. So starting first
-    // with caching market response to bit see how well API data is trustable.. and if all goes work then need
-    // to start doing modifications to support wider search possibilities and priorities.
-
     protected Dictionary<MarketId, SymbolLatestData[]> _cachedMarkets = new();
 
     public async Task<Dictionary<string, FullEOD>> GetEodLatestAsync(MarketId marketId, List<string> tickers)
@@ -153,7 +147,7 @@ public class ExtFmp : IExtProvider, IExtDataProvider
         string marketTag = FmpMarketTag(marketId);
         string symbol = tickers[0];
 
-        if (FmpFullMarketFetch(marketId))
+        if ( false) // FmpFullMarketFetch(marketId))   - removed 2025-Nov as no more available except priciest ultimate tier
         {
             try
             {
@@ -208,7 +202,8 @@ public class ExtFmp : IExtProvider, IExtDataProvider
             try
             {
                 HttpClient tempHttpClient = new HttpClient();
-                HttpResponseMessage resp = await tempHttpClient.GetAsync($"https://financialmodelingprep.com/api/v3/quote/{symbol + symbolEnding}?apikey={_fmpApiKey}");
+//                HttpResponseMessage resp = await tempHttpClient.GetAsync($"https://financialmodelingprep.com/api/v3/quote/{symbol + symbolEnding}?apikey={_fmpApiKey}");
+                HttpResponseMessage resp = await tempHttpClient.GetAsync($"https://financialmodelingprep.com/stable/quote?symbol={symbol + symbolEnding}&apikey={_fmpApiKey}");
 
                 if (resp.IsSuccessStatusCode == false)
                 {
