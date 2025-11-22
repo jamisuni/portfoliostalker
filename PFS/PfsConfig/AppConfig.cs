@@ -67,6 +67,10 @@ public class AppConfig : ICmdHandler, IDataOwner // identical XML on backup & lo
         { AppCfgId.FMPMonthCredits,                 new AppCfgDef(0) },
         { AppCfgId.FMPSpeedSecs,                    new AppCfgDef(0) },
 
+        { AppCfgId.EodHDDayCredits,                 new AppCfgDef(200) },
+        { AppCfgId.EodHDMonthCredits,               new AppCfgDef(0) },
+        { AppCfgId.EodHDSpeedSecs,                  new AppCfgDef(0) },
+
         //        { AppCfgId.TiingoDayCredits,                new AppCfgDef(0) },
         //        { AppCfgId.TiingoMonthCredits,              new AppCfgDef(0) },
         //        { AppCfgId.TiingoSpeedSecs,                 new AppCfgDef(0) },

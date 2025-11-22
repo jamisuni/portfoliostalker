@@ -30,6 +30,10 @@ public enum AppCfgId : int
     //TiingoMonthCredits,
     //TiingoSpeedSecs,
 
+    EodHDDayCredits,
+    EodHDMonthCredits,
+    EodHDSpeedSecs,
+
     ExtraColumn0, 
     ExtraColumn1, 
     ExtraColumn2, 

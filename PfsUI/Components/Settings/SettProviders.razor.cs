@@ -86,6 +86,13 @@ public partial class SettProviders
             Desc = "Looks very promising, but still under testing." + Environment.NewLine
                  + "more later..."
         },
+        [ExtProviderId.EodHD] = new DlgProviderCfg()
+        {
+            Name = "EodHD",
+            Addr = "https://eodhd.com/",
+            Desc = "Looks very promising w its 5-25E extra credits" + Environment.NewLine
+                 + "could very well be solution to my problems, hopes are up.."
+        },
     });
 
 

@@ -120,7 +120,7 @@ public class BlazorPlatform : IPfsPlatform
 
                 ret.Add(ExtProviderId.Unibit);
                 ret.Add(ExtProviderId.Polygon);
-//                ret.Add(ExtProviderId.Tiingo);
+                ret.Add(ExtProviderId.EodHD);
                 ret.Add(ExtProviderId.Marketstack);
                 ret.Add(ExtProviderId.AlphaVantage);
                 ret.Add(ExtProviderId.FMP);
@@ -139,12 +139,12 @@ public class BlazorPlatform : IPfsPlatform
 
                 ret.Add(ExtProviderId.Unibit);
                 ret.Add(ExtProviderId.Polygon);
-//                ret.Add(ExtProviderId.Tiingo);
+                ret.Add(ExtProviderId.EodHD);
                 ret.Add(ExtProviderId.Marketstack);
                 ret.Add(ExtProviderId.AlphaVantage);
                 ret.Add(ExtProviderId.FMP);
                 ret.Add(ExtProviderId.TwelveData);
-                // ret.Add(ExtDataProviders.Tiingo);        Doesnt work on WASM/Blazor
+                // ret.Add(ExtProviderId.Tiingo);        2025-Nov: Doesnt work on WASM/Blazor, has CORS issues
                 break;
 
             case ExtProviderJobType.Currency:
@@ -180,9 +180,8 @@ public class BlazorPlatform : IPfsPlatform
         if (ExtFmp.MarketSupport(marketId))
             ret.Add(ExtProviderId.FMP);
 
-
-        //        if (ExtMarketDataTiingo.MarketSupport(marketId))
-        //            ret.Add(ExtProviderId.Tiingo);
+        if (ExtEodHD.MarketSupport(marketId))
+            ret.Add(ExtProviderId.EodHD);
 
         return ret;
     }

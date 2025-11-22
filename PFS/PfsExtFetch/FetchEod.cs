@@ -131,6 +131,12 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
             fmpF.SetPrivKey(_provConfig.GetPrivateKey(ExtProviderId.FMP));
             tasks.Add(fmpF);
         }
+        {
+            ExtEodHD eodhd = new(_pfsStatus);
+            FetchEodTask eodhdF = new(_pfsStatus, ExtProviderId.EodHD, eodhd, eodhd, permTaskInfo.TryGetValue(ExtProviderId.EodHD, out var perm_t) ? perm_t : null);
+            eodhdF.SetPrivKey(_provConfig.GetPrivateKey(ExtProviderId.EodHD));
+            tasks.Add(eodhdF);
+        }
         //{ pending - cors issues, looks like their api doesnt work directly from browser 
         //  ExtMarketDataTiingo tiingo = new(pfsStatus);
         //  FetchEodTask tiingoF = new(pfsStatus, ExtProviderId.Tiingo, tiingo, tiingo, permTaskInfo.TryGetValue(ExtProviderId.Tiingo, out var perm_t) ? perm_t : null);

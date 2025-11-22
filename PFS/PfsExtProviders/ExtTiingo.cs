@@ -25,27 +25,13 @@ using static Pfs.Types.IExtDataProvider;
 
 namespace Pfs.ExtProviders;
 
-public class ExtTiingo: IExtProvider, IExtDataProvider // All functions retested manually 2021-Dec-7th
+public class ExtTiingo: IExtProvider, IExtDataProvider // 2025-NOV: Still CORS issues, cant use from WASM... dang
 {
     protected readonly IPfsStatus _pfsStatus;
 
     protected string _error = string.Empty;
 
     protected string _tiingoApiKey = "";
-
-    /* Tiingo: (Still 2021-Nov-3st, doesnt work w WASM, even w https activated on developer studio testing)
-     * 
-     * - As of 2021-Jun.. forget TSX / Canadian stock market.. just focus US ones w Tiingo.. did try 'search' cant see their canadian tickers
-     * 
-     * - Has Intraday functionality, that seams to be working ok... except doesnt wanna work on WASM!
-     * 
-     * - Hour limit of max 500 queries, Month limit is max 500 unique tickers !very nice! and month unlimited is 10$ only!
-     * 
-     * => TODO! Would be pretty perfect Intraday tool, if just would work on WASM :/ Try again later! 10$ per month would not be bad 
-     *      => But without Toronto, without WASM .. blaah.. anyway all nice as Free account even for US stocks so retry WASM            !!!LATER!!!
-     * 
-     * (can download list of supported_tickers:https://apimedia.tiingo.com/docs/tiingo/daily/supported_tickers.zip)
-     */
 
     public ExtTiingo(IPfsStatus pfsStatus)
     {
@@ -170,7 +156,7 @@ MSFT,261.080000,300,261.060000,126,262.290000,261.080000,100,2021-06-18T15:45:51
             HttpClient tempHttpClient = new HttpClient();
 
             // Doesnt work with WASM, even works perfectly from backend code. CORS restrictions their side? see F12... do they see source as localhost? And its prevented?
-            HttpResponseMessage resp = await tempHttpClient.GetAsync($"https://api.tiingo.com/tiingo/daily/{tickers[0]}/prices?token={_tiingoApiKey}&format=csv");
+            HttpResponseMessage resp = await tempHttpClient.GetAsync($"https://api.tiingo.com/tiingo/daily/{tickers[0]}/prices?token={_tiingoApiKey}");
 
             if (resp.IsSuccessStatusCode == false)
             {
