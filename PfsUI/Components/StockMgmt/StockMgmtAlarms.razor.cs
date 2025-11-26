@@ -49,11 +49,12 @@ public partial class StockMgmtAlarms
     [Parameter] public MarketId Market { get; set; }
     [Parameter] public string Symbol { get; set; }
 
-    protected ReadOnlyCollection<SAlarm> _viewAlarms = null;
+    protected ReadOnlyCollection<ViewData> _viewAlarms = null;
     protected string _errMsg = "";
 
-    protected SAlarm _selectedAlarm = null;
+    protected ViewData _selectedAlarm = null;
     protected MarketMeta _marketMeta = null; // MarketCurrency
+    protected FullEOD _fullEod = null;
 
     protected override void OnParametersSet()
     {
@@ -63,6 +64,8 @@ public partial class StockMgmtAlarms
             return;
         }
 
+        _fullEod = PfsClientAccess.Eod().GetLatestSavedEod(Market, Symbol);
+
         _marketMeta = PfsClientAccess.Account().GetMarketMeta(Market);
 
         UpdateAlarms();
@@ -70,13 +73,42 @@ public partial class StockMgmtAlarms
 
     protected void UpdateAlarms()
     {
-        _viewAlarms = PfsClientAccess.Stalker().StockAlarmList(Market, Symbol);
+        var alarms = PfsClientAccess.Stalker().StockAlarmList(Market, Symbol);
 
-        if (_viewAlarms != null && _viewAlarms.Count() > 0)
-            _viewAlarms = _viewAlarms.OrderByDescending(a => a.AlarmType).ThenByDescending(a => a.Level).ToList().AsReadOnly();
+        if (alarms == null || alarms.Count == 0)
+        {
+            _viewAlarms = new List<ViewData>().AsReadOnly();
+            return;
+        }
+
+        var viewList = alarms
+            .Select(s => new ViewData
+            {
+                a = s,
+                AlarmDistance = GetAlarmDistance(s)
+            })
+            .ToList();
+
+        // Order by underlying alarm's AlarmType then Level (both descending).
+        _viewAlarms = viewList
+            .OrderByDescending(v => v.a.AlarmType)
+            .ThenByDescending(v => v.a.Level)
+            .ToList()
+            .AsReadOnly();
+        return;
+
+        decimal? GetAlarmDistance(SAlarm alarm)
+        {
+            switch ( alarm.AlarmType )
+            {
+                case SAlarmType.Under: return alarm.GetAlarmDistance(_fullEod.GetSafeLow());
+                case SAlarmType.Over: return alarm.GetAlarmDistance(_fullEod.GetSafeHigh());
+            }
+            return null;
+        }
     }
 
-    private async Task OnRowClickedAsync(TableRowClickEventArgs<SAlarm> args)
+    private async Task OnRowClickedAsync(TableRowClickEventArgs<ViewData> args)
     {
         await LaunchDlgAlarmEdit(args.Item);
     }
@@ -86,12 +118,12 @@ public partial class StockMgmtAlarms
         await LaunchDlgAlarmEdit();
     }
 
-    private async Task OnEditAlarmAsync(SAlarm alarm)
+    private async Task OnEditAlarmAsync(ViewData alarm)
     {
         await LaunchDlgAlarmEdit(alarm);
     }
 
-    protected async Task LaunchDlgAlarmEdit(SAlarm alarm = null)
+    protected async Task LaunchDlgAlarmEdit(ViewData alarm = null)
     {
         var parameters = new DialogParameters
         {
@@ -110,5 +142,12 @@ public partial class StockMgmtAlarms
 
             evChanged?.Invoke(this, EventArgs.Empty);
         }
+    }
+
+    protected class ViewData
+    {
+        public SAlarm a;
+
+        public decimal? AlarmDistance { get; set; } = null;
     }
 }

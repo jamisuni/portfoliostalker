@@ -1,4 +1,6 @@
 ﻿@using Pfs.Types
+@using MudBlazor
+@using System.Globalization
 
 @namespace PfsUI.Components
 
@@ -12,17 +14,31 @@ else if (_viewAlarms == null)
 }
 else
 {
-    <MudTable T="SAlarm" Items="@_viewAlarms" @bind-SelectedItem="_selectedAlarm" OnRowClick="@(args => OnRowClickedAsync(args))">
+    <MudTable T="ViewData" Items="@_viewAlarms" @bind-SelectedItem="_selectedAlarm" OnRowClick="@(args => OnRowClickedAsync(args))">
         <ColGroup>
             <col style="width: 15%;" />
             <col style="width: 15%;" />
+            <col style="width: 10%;" />
             <col style="width: 50%;" />
-            <col style="width: 15%;" />
+            <col style="width: 10%;" />
         </ColGroup>
+        <HeaderContent>
+            <MudTh>Type</MudTh>
+            <MudTh>Level</MudTh>
+            <MudTh>Distance</MudTh>
+            <MudTh>Note</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="Type">@context.AlarmType</MudTd>
-            <MudTd DataLabel="Value">@context.Level@UiF.Curr(_marketMeta.Currency)</MudTd>
-            <MudTd DataLabel="Type">@context.Note</MudTd>
+            <MudTd DataLabel="Type">@context.a.AlarmType</MudTd>
+            <MudTd DataLabel="Value">@context.a.Level@UiF.Curr(_marketMeta.Currency)</MudTd>
+            <MudTd >
+                @if (context.AlarmDistance.HasValue)
+                {
+                    <text>@(context.AlarmDistance.Value.ToP())</text>
+                }
+            </MudTd>
+            <MudTd DataLabel="Type">@context.a.Note</MudTd>
             <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
                 <MudIconButton Icon="@Icons.Material.Filled.ModeEdit" aria-label="edit" @onclick="@(() => OnEditAlarmAsync(@context))" />
             </MudButtonGroup>

@@ -89,7 +89,7 @@ public partial class SettProviders
         [ExtProviderId.EodHD] = new DlgProviderCfg()
         {
             Name = "EodHD",
-            Addr = "https://eodhd.com/",
+            Addr = "https://eodhd.com/r?ref=W744Y61L",
             Desc = "Looks very promising w its 5-25E extra credits" + Environment.NewLine
                  + "could very well be solution to my problems, hopes are up.."
         },
