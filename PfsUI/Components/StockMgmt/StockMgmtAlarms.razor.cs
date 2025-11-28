@@ -129,7 +129,7 @@ public partial class StockMgmtAlarms
         {
             { "Market", Market },
             { "Symbol", Symbol },
-            { "Alarm", alarm }
+            { "Alarm", alarm.a }
         };
 
         var dialog = await LaunchDialog.ShowAsync<DlgAlarmEdit>("Alarms", parameters);
