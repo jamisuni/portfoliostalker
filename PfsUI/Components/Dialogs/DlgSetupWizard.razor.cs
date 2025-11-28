@@ -187,18 +187,9 @@ public partial class DlgSetupWizard
 
     protected static readonly ReadOnlyDictionary<ExtProviderId, ProviderCfg> _providersDesc = new ReadOnlyDictionary<ExtProviderId, ProviderCfg>(new Dictionary<ExtProviderId, ProviderCfg>
     {
-#if false // fall on sleep 18th Dec 2024, off until fixed
-        [ExtProviderId.Unibit] = new ProviderCfg()
+        [ExtProviderId.EodHD] = new ProviderCfg()
         {
-            Desc = "Unibit.ai. USA + TSX + Most markets. Free account is OK option as its super fast, and  "
-                 + "has excelent coverage of markets. Its limited per monthly max credit use, but as only "
-                 + "fetching end of day data their free plan should be ok for 150 stocks!. "
-                 + "Sadly, there is often days that bunch of stocks End-Of-Day valuation are many hours late!",
-        },
-#endif
-        [ExtProviderId.FMP] = new ProviderCfg()
-        {
-            Desc = "Promising provider, seams able to get most of markets",
+            Desc = "Very promising w free account wo monthly subs but can buy extra credits. Impressive market coverage / trustability",
         },
         [ExtProviderId.Polygon] = new ProviderCfg()
         {
@@ -376,7 +367,9 @@ public partial class DlgSetupWizard
 
             case ProgressID.Provider:
                 {
-                    if (_providerKey.Length != GetKeyLength(_providerId))
+                    int reqKeyLength = GetKeyLength(_providerId);
+
+                    if (_providerKey.Length == 0 || reqKeyLength > 0 && _providerKey.Length != reqKeyLength)
                     {
                         await LaunchDialog.ShowMessageBox("Missing key!", "Need to give that key, as this application uses it on your browser session to fetch stock valuations.", yesText: "Ok");
                         return;
@@ -495,7 +488,7 @@ public partial class DlgSetupWizard
         switch (providerId)
         {
 //            case ExtProviderId.Polygon: return 32;
-            case ExtProviderId.Unibit: return 32;
+            case ExtProviderId.EodHD: return 0;         // not sure if 23/24 so lets leave variable
 //            case ExtProviderId.Tiingo: return 40;
 //            case ExtProviderId.Marketstack: return 32;
 //            case ExtProviderId.AlphaVantage: return 16;

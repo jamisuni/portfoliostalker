@@ -90,8 +90,9 @@ public partial class SettProviders
         {
             Name = "EodHD",
             Addr = "https://eodhd.com/r?ref=W744Y61L",
-            Desc = "Looks very promising w its 5-25E extra credits" + Environment.NewLine
-                 + "could very well be solution to my problems, hopes are up.."
+            Desc = "Excelent market coverage, first impression highly positive" + Environment.NewLine
+                 + "using 'free' account myself but purhaced extra credits." + Environment.NewLine
+                 + "need to someday dig api deeper to see what else has than just end of day / history"
         },
     });
 
