@@ -504,7 +504,7 @@ public class ExtMarketstack : IExtProvider, IExtDataProvider
     static public string TrimToPfsTicker(MarketId marketId, string marketstackTicker)
     {
         if (ExpandRequired(marketId) == true )
-            return marketstackTicker.Replace("." + GetMIC(marketId), ""); // Example XHEL needs ticker on UPM.XHEL format
+            return marketstackTicker.Replace("." + GetMarketForSymbol(marketId), ""); // Example XHEL needs ticker on UPM.XHEL format
 
         return marketstackTicker;
     }
@@ -512,14 +512,35 @@ public class ExtMarketstack : IExtProvider, IExtDataProvider
     static public string ExpandToMsTicker(MarketId marketId, string pfsTicker)
     {
         if (ExpandRequired(marketId) == true)
-            return string.Format("{0}.{1}", pfsTicker, GetMIC(marketId)); // US markets would work ok without, but example XHEL NOT!
+            return string.Format("{0}.{1}", pfsTicker, GetMarketForSymbol(marketId)); // US markets would work ok without, but example XHEL NOT!
 
         return pfsTicker;
     }
 
+    // 2025-Dec: Somewhere on way they changed way symbols are done to more exotic markets to not use MIC, 
+    // but instead shorter code w ticker. So when example used to be BATS.XLON its now just BATS.L.
+    
+    static public string GetMarketForSymbol(MarketId marketId)
+    {
+        switch (marketId)
+        {
+            //case MarketId.OMXH:
+            //    return "??";
+            //case MarketId.OMX:
+            //    return "??";
+
+            case MarketId.LSE:
+                return "L";
+        }
+
+        // Sadly absolute no idea where going to find these new 'L's as none of their apis seams using them
+        // and for sure TSX / XETRA at least works w MIC
+        return GetMIC(marketId);
+    }
+
     static public string GetMIC(MarketId marketId)
     {
-        switch ( marketId ) // Warning! Has to double implement these here, as dont wanna get dependency to MarketMeta.. maybe needs this own table somewhere!
+        switch ( marketId )
         {
             case MarketId.NASDAQ:
                 return "XNAS";
@@ -667,5 +688,4 @@ public class ExtMarketstack : IExtProvider, IExtDataProvider
         public MarketstackMetaPagination pagination { get; set; }
         public MarketstackMetaData data { get; set; }
     }
-
 }

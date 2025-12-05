@@ -94,9 +94,10 @@ public class ExtEodHD : IExtProvider, IExtDataProvider
     }
 
     /* Note! 
-        * - 
-        *    
-        *    
+        * - TODO! Try this https://eodhd.com/financial-apis/live-v2-for-us-stocks-extended-quotes-2025
+        *    -> would be potential intraday source, but even better if can use for EOD would give also moving avarages!
+        *       and moving avarages w 20/50/200 day ones would be worth of moving most stocks to use EodHD as only source
+        *    -> plus would allow fetch many symbols in one request speeding tuff a lot
         *    
         */
 

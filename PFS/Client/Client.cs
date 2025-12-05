@@ -208,9 +208,6 @@ public class Client : IDisposable, IFEClient
             {
                 if (alarm.IsAlarmTriggered(eod))
                 {
-                    if (alarm.AlarmType == SAlarmType.TrailingBuyP && _pfsStatus.GetAppCfg(AppCfgId.UseBetaFeatures) == 0)
-                        continue;
-
                     // Alarm level has been passed, at least momentarily, so lets create user event
                     _userEvents.CreateAlarmTriggerEvent(sRef, alarm, eod);
                 }

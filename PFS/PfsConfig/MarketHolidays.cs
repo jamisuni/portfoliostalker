@@ -54,4 +54,7 @@ public class MarketHolidays
         }
         return null;
     }
+
+    // EodHD would have https://eodhd.com/financial-apis/exchanges-api-trading-hours-and-stock-market-holidays
+    // but maybe not worth of coding... as can do this few mins on end of year manually.
 }

@@ -63,7 +63,7 @@ public partial class DlgAlarmEdit
         new AlarmItem(SAlarmType.Over,  "Sell"),
         new AlarmItem(SAlarmType.Under, "Buy"),
         new AlarmItem(SAlarmType.TrailingSellP, "Sell 'max'"),
-//        new AlarmItem(SAlarmType.TrailingBuyP, "Buy 'bottom'"),        still Beta
+        new AlarmItem(SAlarmType.TrailingBuyP,  "Buy 'bottom'"),
         ]; // Later add "Cut", "Profit" for tracking type alarms
 
     public SAlarmType EditType              
@@ -92,9 +92,6 @@ public partial class DlgAlarmEdit
         }
         else
             _title = "Add Alarm";
-
-        if (Pfs.Account().GetAppCfg(AppCfgId.UseBetaFeatures) > 0)
-            _alarmTypeSel = [.. _alarmTypeSel, new AlarmItem(SAlarmType.TrailingBuyP, "Buy 'bottom'")];
 
         AlarmTypeSelectionChanged();
     }
