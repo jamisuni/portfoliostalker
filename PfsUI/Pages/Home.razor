@@ -8,7 +8,13 @@
     <MudTabPanel Text="Invested" >
         <ReportInvested @ref="_reportInvested" />
     </MudTabPanel>
-    <MudTabPanel Text="Dividents" >
+    @if (TabIds.Contains("Weight"))
+    {
+        <MudTabPanel Text="Weight">
+            <ReportWeight @ref="_reportWeight" />
+        </MudTabPanel>
+    }
+    <MudTabPanel Text="Dividents">
         <ReportDivident @ref="_reportDivident" />
     </MudTabPanel>
     <MudTabPanel Text="Export" >

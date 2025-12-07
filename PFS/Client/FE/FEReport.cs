@@ -97,6 +97,14 @@ public class FEReport : IFEReport
         return RepGenInvested.GenerateReport(filter, preCalc, _stockMetaProv, _clientStalker, _stockNotes);
     }
 
+    public (RepDataWeightHeader header, List<RepDataWeight> stocks) GetWeightData()
+    {
+        ReportFilters filter = GetReportFilters(ReportFilters.CurrentTag);
+        IReportPreCalc preCalc = GetPreCalcData(ReportId.Weight, filter);
+
+        return RepGenWeight.GenerateReport(filter, preCalc, _stockMetaProv, _clientStalker, _stockNotes, _pfsStatus);
+    }
+
     public Result<RepDataDivident> GetDivident()
     {
         ReportFilters filter = GetReportFilters(ReportFilters.CurrentTag);

@@ -50,6 +50,8 @@ public enum AppCfgId : int
     DefTrailingBuyP,            // what % is proposed by default as buy trigger
 
     UseBetaFeatures,
+
+    IOwn,                       // Effects to Weight report allowing user to define absolute own ownings total reference value
 }
 
 public static class AppCfgLimit

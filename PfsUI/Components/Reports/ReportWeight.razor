@@ -1,0 +1,148 @@
+﻿@using Pfs.Types
+
+@namespace PfsUI.Components
+
+@if (_viewReport == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if ( _viewReport.Count == 0)
+{
+    <p><em>Nothing found!</em></p>
+}
+else
+{
+    <MudTable T="ViewReportWeightData" Items="@_viewReport" Hover="true" SortLabel="Sort By" FixedHeader="true" Height="580px" OnRowClick="@(args => OnRowClicked(args))" >
+        <ColGroup>
+            <col style="width: 5%;" />      @* Symbol *@
+            @if (_viewCompanyNameColumn)
+            {
+            <col style="width: 20%;" />     @* Company *@
+            }
+            <col style="width: 8%;" />      @* Target% *@
+            <col style="width: 5%;" />      @* Current% *@
+            <col style="width: 5%;" />      @* Growth *@ 
+            <col style="width: 5%;" />      @* Total Div *@ 
+        </ColGroup>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.StockMeta.symbol)">Symbol</MudTableSortLabel></MudTh>
+            @if (_viewCompanyNameColumn)
+            {
+                <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.StockMeta.name)">@_headerTextCompany</MudTableSortLabel></MudTh>
+            }
+
+            @* % Target *@
+            <MudTh>Target%</MudTh>
+
+            @* % Current *@
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.CurrentP)">@_headerTextCurrent</MudTableSortLabel></MudTh>
+
+            @* Growth *@
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.RCTotalHold.McGrowthP)">Growth</MudTableSortLabel></MudTh>
+
+            @* Total Div *@
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.RRTotalDivident?.ViewHcDivP)">Divident</MudTableSortLabel></MudTh>
+
+        </HeaderContent>
+        <RowTemplate>
+            @* Symbol *@
+            <MudTd><MudButton Variant="Variant.Filled" FullWidth=false Color="Color.Secondary" Size="Size.Small" @onclick="@(() => ViewStockRequestedAsync(@context.d.StockMeta.GetSRef()))" >$@context.d.StockMeta.symbol</MudButton></MudTd>
+            @if (_viewCompanyNameColumn)
+            {
+            @* Company *@
+                <MudTd>
+                    <MudTooltip Text="@context.SymbolToolTip" Inline="false" Placement="Placement.Right">
+                    @context.d.StockMeta.name
+                </MudTooltip>
+                </MudTd>
+            }
+
+            @* Target% *@
+            <MudTd>@context.d.TargetP</MudTd>
+
+            @* Current% *@
+            <MudTd>@context.d.CurrentP.ToP()</MudTd>
+
+            @* Growth *@ 
+            <MudTd>
+            @if ( context.d.RCTotalHold.HcGrowthP < 0 )
+            {
+                <span style="color:red"><b>@context.d.RCTotalHold.HcGrowthP%&nbsp;</b></span>
+            }
+            else
+            {
+                <b>+@context.d.RCTotalHold.HcGrowthP%&nbsp;</b>
+            }
+            </MudTd>
+
+            @* Total Div *@
+            <MudTd>
+                @(context.d.RRTotalDivident.ViewHcDivP + "%")
+            </MudTd>
+
+        </RowTemplate>
+
+        <ChildRowContent>
+            @if (context.ShowDetails == true)
+            {
+                <MudTr>
+                    <td colspan="10">
+                        <!-- !!!NOTE!!! <= This is amount of columns on table that popdown extens to -->
+
+                        <MudTable T="RepDataWeightSub" Items="@context.d.SubHoldings" Hover="true" FixedHeader="true">
+                            <ColGroup>
+                                <col style="width: 6%;" />      @* PfName *@
+                                <col style="width: 10%;" />     @* Purhace Date *@
+                                <col style="width: 7%;" />      @* Owning Months *@
+                                <col style="width: 7%;" />      @* Units *@
+                                <col style="width: 7%;" />      @* Avrg.Price *@
+                                <col style="width: 7%;" />      @* Invested *@
+                                <col style="width: 10%;" />     @* Growth *@
+                                <col style="width: 15%;" />     @* Div Gained L/%/T/% *@
+                            </ColGroup>
+                            <HeaderContent>
+                                <MudTh>Portfolio</MudTh>
+                                <MudTh>Purhaced</MudTh>
+                                <MudTh>Owned</MudTh>
+                                <MudTh>Units</MudTh>
+                                <MudTh>Avrg.Price</MudTh>
+                                <MudTh>Invested</MudTh>
+                                <MudTh>Growth</MudTh>
+                                <MudTh>Div L% T%</MudTh>
+                            </HeaderContent>
+                            <RowTemplate Context="dropdown">
+                                <MudTd>@dropdown.RCHolding.PfName</MudTd>
+                                <MudTd>@dropdown.RCHolding.SH.PurhaceDate.ToYMD()</MudTd>
+                                <MudTd><RCellPeriod From="@dropdown.RCHolding.SH.PurhaceDate" To="@DateOnly.FromDateTime(DateTime.Now)" /></MudTd>
+                                <MudTd>
+                                    @if (dropdown.RCHolding.SH.Units != dropdown.RCHolding.SH.OriginalUnits)
+                                    {
+                                        @(dropdown.RCHolding.SH.Units.To() + "/" + @dropdown.RCHolding.SH.OriginalUnits.To())
+                                    }
+                                    else
+                                    {
+                                        @dropdown.RCHolding.SH.Units.To()
+                                    }
+                                </MudTd>
+                                <MudTd>@dropdown.RCHolding.SH.PricePerUnit.To00()@UiF.Curr(context.d.RCEod.MarketCurrency)</MudTd>
+
+                                @* Invested (nnnE) *@
+                                <MudTd>@dropdown.RCTotalHold.HcInvested.To()@_HC</MudTd>
+
+                                <MudTd><RCellTotalGrowth RRTotalHold="@dropdown.RCTotalHold" MarketCurrency="@context.d.RCEod.MarketCurrency" HomeCurrency="@_homeCurrency" /></MudTd>
+                                <MudTd>
+                                    @if (dropdown.RRHoldingsTotalDiv != null)
+                                    {
+                                        <RCellDividentDual HomeCurrency="@_homeCurrency" DividentCurrency="@dropdown.RCHolding.SH.DivCurrency()" RRDivTotal="@dropdown.RRHoldingsTotalDiv"
+                                                           RRDivLatest="@RRHoldingDivident.CreateLatest(dropdown.RCHolding.SH)" />
+                                    }
+                                </MudTd>
+
+                            </RowTemplate>
+                        </MudTable>
+                    </td>
+                </MudTr>
+            }
+        </ChildRowContent>
+    </MudTable>
+}

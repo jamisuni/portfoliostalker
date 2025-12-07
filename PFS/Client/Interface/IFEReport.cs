@@ -35,6 +35,8 @@ public interface IFEReport
 
     (RepDataInvestedHeader header, List<RepDataInvested> stocks) GetInvestedData();
 
+    (RepDataWeightHeader header, List<RepDataWeight> stocks) GetWeightData();
+
     Result<RepDataDivident> GetDivident();
 
     List<RepDataTracking> GetTracking();

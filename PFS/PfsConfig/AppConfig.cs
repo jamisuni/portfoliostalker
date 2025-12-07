@@ -92,6 +92,8 @@ public class AppConfig : ICmdHandler, IDataOwner // identical XML on backup & lo
 
         { AppCfgId.UseBetaFeatures,                 new AppCfgDef(0) },     // 0 == off, 1 is on
 
+        { AppCfgId.IOwn,                            new AppCfgDef(0) },
+
     }.ToImmutableDictionary();
 
     protected Dictionary<AppCfgId, int> _configs = new();

@@ -31,6 +31,7 @@ public enum ReportId
     ExpHoldings,
     ExpSales,
     ExpDividents,
+    Weight,
 }
 
 public enum ReportOwningFilter

@@ -35,6 +35,7 @@ public partial class Home
 
     protected Overview _reportOverview;
     protected ReportInvested _reportInvested;
+    protected ReportWeight _reportWeight;
     protected ReportDivident _reportDivident;
     protected ReportTracking _reportTrackedStocks;
     protected ReportExpHoldings _reportExpHoldings;
@@ -43,11 +44,16 @@ public partial class Home
 
     protected MudTabs _tabs;
     protected int _tabId = 0;
-    protected const int TabIdOverview = 0;
-    protected const int TabIdInvested = 1;
-    protected const int TabIdDividents = 2;
-    protected const int TabIdExport = 3;
-    protected const int TabIdTracking = 4;
+
+    protected List<string> TabIds = new()
+    {
+        "Overview",
+        "Invested",
+        "Weight",
+        "Dividents",
+        "Export",
+        "Tracking",
+    };
 
     protected MudTabs _tabsExp;
     protected int _tabExpId = 0;
@@ -71,6 +77,14 @@ public partial class Home
             if (string.IsNullOrWhiteSpace(demo) == false && int.TryParse(demo, out int demoId) == true && demoId > 0)
                 LaunchDemo(demoId-1);
         }
+
+        string[] sectors = Pfs.Stalker().GetSectorNames();
+
+        if (sectors.Contains("Weight") == false || Pfs.Account().GetAppCfg(AppCfgId.IOwn) < 1000 )
+            // If user has not defined any 'Weight' group, then remove that tab from view
+            // also requiring iOwn to be set, as otherwise calculations for not-all stocks would be meaningless
+            TabIds.Remove("Weight");
+
         return;
     }
 
@@ -107,26 +121,27 @@ public partial class Home
     {
         string label = "";
 
-        switch (_tabId)
+        switch (TabIds[_tabId])
         {
-            case TabIdTracking: label = "Add NEW Stock"; break;
+            case "Tracking": label = "Add NEW Stock"; break;
         }
         Layout.SetSpeedOperationLabel(label);
     }
 
     protected void SetTabsReportFilter()
     {
-        switch (_tabId)
+        switch (TabIds[_tabId])
         {
-            case TabIdInvested: Layout.SetAsReport(ReportId.Invested); break;
-            case TabIdDividents: Layout.SetAsReport(ReportId.Divident); break;
+            case "Invested": Layout.SetAsReport(ReportId.Invested); break;
+            case "Weight": Layout.SetAsReport(ReportId.Weight); break;
+            case "Dividents": Layout.SetAsReport(ReportId.Divident); break;
 
-            case TabIdOverview:
-            case TabIdTracking:
+            case "Overview":
+            case "Tracking":
                 Layout.SetNotReport();
                 break;
 
-            case TabIdExport:
+            case "Export":
                 switch ( _tabExpId )
                 {
                     case TabExpIdHoldings: Layout.SetAsReport(ReportId.ExpHoldings); break;
@@ -186,27 +201,30 @@ public partial class Home
                 break;
 
             case PageHeader.EvId.SpeedButton:
-                switch (_tabs.ActivePanelIndex)
+                switch (TabIds[_tabs.ActivePanelIndex])
                 {
-                    case TabIdTracking:                    // "Add Stock"
+                    case "Tracking":                    // "Add Stock"
                         await LaunchDialogAddNewStockAsync();
                         break;
                 }
                 break;
 
             case PageHeader.EvId.ReportRefresh:
-                switch (_tabs.ActivePanelIndex)
+                switch (TabIds[_tabs.ActivePanelIndex])
                 {   // On PageHeader user has changed ReportFilters
-                    case TabIdOverview:
+                    case "Overview":
                         _reportOverview.ByOwner_ReloadReport();
                         break;
-                    case TabIdInvested:
+                    case "Invested":
                         _reportInvested.ByOwner_ReloadReport();
                         break;
-                    case TabIdDividents:
+                    case "Weight":
+                        _reportWeight.ByOwner_ReloadReport();
+                        break;
+                    case "Dividents":
                         _reportDivident.ByOwner_ReloadReport();
                         break;
-                    case TabIdExport:
+                    case "Export":
                         switch (_tabExpId)
                         {
                             case TabExpIdHoldings:
