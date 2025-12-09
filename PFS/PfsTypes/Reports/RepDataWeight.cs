@@ -34,6 +34,8 @@ public class RepDataWeight
 
     public decimal CurrentP { get; set; } = 0; // Current %
 
+    public decimal AvrgTimeAsMonths { get; set; } = 0;
+
     /*
      * Symbol
      * Company

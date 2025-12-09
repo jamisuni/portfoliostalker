@@ -22,7 +22,7 @@ namespace Pfs.Reports;
 
 public class RepGenWeight
 {
-    static public (RepDataWeightHeader header, List<RepDataWeight> stocks) GenerateReport(
+    static public (RepDataWeightHeader header, List<RepDataWeight> stocks) GenerateReport(DateOnly today, 
            IReportFilters reportParams, IReportPreCalc collector, IStockMeta stockMetaProv, StalkerData stalkerData, IStockNotes stockNotes,
            IPfsStatus pfsStatus)
     {
@@ -89,6 +89,14 @@ public class RepGenWeight
 
             hcTotalDiv += stock.RCHoldingsTotalDivident.HcDiv;
 
+            // Idea here is to count each E or $ how long its invested, then divided by total units gets avrg owning day
+            long totalHcDays = 0;
+            foreach (RCHolding holding in stock.Holdings)
+                totalHcDays += (long)((today.DayNumber - holding.SH.PurhaceDate.DayNumber) * holding.SH.Units);
+
+            if (totalHcDays > 0)
+                entry.AvrgTimeAsMonths = (totalHcDays / stock.RCTotalHold.Units) / 30.437m;
+
             // DropDown with row for each separate holding
             foreach (RCHolding rch in stock.Holdings)
             {
@@ -104,8 +112,6 @@ public class RepGenWeight
                 entry.SubHoldings.Add(sub);
             }
         }
-
-        // context.d.RCTotalHold.HcValuation
 
         if ( ret.Count == 0 )
             return (null, null);

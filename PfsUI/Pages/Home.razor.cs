@@ -77,14 +77,6 @@ public partial class Home
             if (string.IsNullOrWhiteSpace(demo) == false && int.TryParse(demo, out int demoId) == true && demoId > 0)
                 LaunchDemo(demoId-1);
         }
-
-        string[] sectors = Pfs.Stalker().GetSectorNames();
-
-        if (sectors.Contains("Weight") == false || Pfs.Account().GetAppCfg(AppCfgId.IOwn) < 1000 )
-            // If user has not defined any 'Weight' group, then remove that tab from view
-            // also requiring iOwn to be set, as otherwise calculations for not-all stocks would be meaningless
-            TabIds.Remove("Weight");
-
         return;
     }
 

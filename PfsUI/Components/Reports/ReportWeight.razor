@@ -19,8 +19,12 @@ else
             {
             <col style="width: 20%;" />     @* Company *@
             }
+            @if (_showTargetWeightTab)
+            {
             <col style="width: 8%;" />      @* Target% *@
+            }
             <col style="width: 5%;" />      @* Current% *@
+            <col style="width: 5%;" />      @* AvrgTime *@ 
             <col style="width: 5%;" />      @* Growth *@ 
             <col style="width: 5%;" />      @* Total Div *@ 
         </ColGroup>
@@ -31,14 +35,19 @@ else
                 <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.StockMeta.name)">@_headerTextCompany</MudTableSortLabel></MudTh>
             }
 
-            @* % Target *@
-            <MudTh>Target%</MudTh>
-
+            @if (_showTargetWeightTab)
+            {
+                @* % Target *@
+                <MudTh>Target%</MudTh>
+            }
             @* % Current *@
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.CurrentP)">@_headerTextCurrent</MudTableSortLabel></MudTh>
 
+            @* AvrgTime *@
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.AvrgTimeAsMonths)">AvrgTime</MudTableSortLabel></MudTh>
+
             @* Growth *@
-            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.RCTotalHold.McGrowthP)">Growth</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.RCTotalHold.HcGrowthP)">Growth</MudTableSortLabel></MudTh>
 
             @* Total Div *@
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.RRTotalDivident?.ViewHcDivP)">Divident</MudTableSortLabel></MudTh>
@@ -57,11 +66,27 @@ else
                 </MudTd>
             }
 
+            @if (_showTargetWeightTab)
+            {
             @* Target% *@
-            <MudTd>@context.d.TargetP</MudTd>
+            <MudTd>
+            <MudSelect T="string" Value="@context.d.TargetP" Label="" ValueChanged="@((string newValue) => OnTargetWeightChanged(context, newValue))">
+            @foreach (string item in _weights)
+            {
+                @if ( string.IsNullOrEmpty(item) == false)
+                {
+                    <MudSelectItem T="string" Value="item">@item</MudSelectItem>
+                }
+            }
+            </MudSelect>
+            </MudTd>
+            }
 
             @* Current% *@
             <MudTd>@context.d.CurrentP.ToP()</MudTd>
+
+            @* AvrgTime *@
+            <MudTd>@context.AvrgTime</MudTd>
 
             @* Growth *@ 
             <MudTd>

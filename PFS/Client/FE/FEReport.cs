@@ -102,7 +102,7 @@ public class FEReport : IFEReport
         ReportFilters filter = GetReportFilters(ReportFilters.CurrentTag);
         IReportPreCalc preCalc = GetPreCalcData(ReportId.Weight, filter);
 
-        return RepGenWeight.GenerateReport(filter, preCalc, _stockMetaProv, _clientStalker, _stockNotes, _pfsStatus);
+        return RepGenWeight.GenerateReport(_pfsPlatform.GetCurrentLocalDate(), filter, preCalc, _stockMetaProv, _clientStalker, _stockNotes, _pfsStatus);
     }
 
     public Result<RepDataDivident> GetDivident()

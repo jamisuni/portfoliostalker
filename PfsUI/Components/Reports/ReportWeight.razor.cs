@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Components;
 
 using MudBlazor;
 using Pfs.Types;
+using static Pfs.ExtProviders.ExtCurrencyApi;
 
 namespace PfsUI.Components;
 
@@ -36,13 +37,27 @@ public partial class ReportWeight
     protected string _headerTextCompany = string.Empty;
     protected string _headerTextCurrent = string.Empty;
 
+    protected bool _showTargetWeightTab = true;
 
-    protected override void OnParametersSet()
+    protected int _sectorId = -1;
+    protected string[] _weights = Array.Empty<string>();
+
+protected override void OnParametersSet()
     {
         _viewReport = null;
         _homeCurrency = Pfs.Config().HomeCurrency;
         _HC = UiF.Curr(_homeCurrency);
         _viewCompanyNameColumn = Pfs.Account().GetAppCfg(AppCfgId.HideCompanyName) == 0;
+
+        string[] sectors = Pfs.Stalker().GetSectorNames();
+
+        if (sectors.Contains("Weight") == false)
+            _showTargetWeightTab = false;
+        else
+        {
+            _sectorId = sectors.IndexOf("Weight");
+            _weights = Pfs.Stalker().GetSectorFieldNames(_sectorId).ToArray();
+        }
 
         ReloadReport();
     }
@@ -81,11 +96,25 @@ public partial class ReportWeight
                 outData.SymbolToolTip += $"{inData.NoteHeader}";
             }
 
+            outData.AvrgTime = Local_FormatAvrgTime((int)inData.AvrgTimeAsMonths);
+
             _viewReport.Add(outData);
         }
 
         _headerTextCompany = $"Company (total {_viewReport.Count()})";
         _headerTextCurrent = $"Curr {header.TotalCurrentP.ToP()}";
+        return;
+
+        string Local_FormatAvrgTime(int months)
+        {
+            if (months < 12)
+                return months.ToString() + "m";
+
+            if (months < 36)
+                return (months / 12).ToString() + "y" + (months % 12 != 0 ? (months % 12).ToString() + "m" : "");
+
+            return (months / 12).ToString() + "y";
+        }
     }
 
     private void OnRowClicked(TableRowClickEventArgs<ViewReportWeightData> data)
@@ -93,6 +122,15 @@ public partial class ReportWeight
         if (data == null || data.Item == null) return;
 
         data.Item.ShowDetails = !data.Item.ShowDetails;
+    }
+
+    private void OnTargetWeightChanged(ViewReportWeightData row, string newValue)
+    {
+        row.d.TargetP = newValue;
+
+        string cmd = $"Follow-Sector SRef=[{row.d.StockMeta.GetSRef()}] SectorId=[{_sectorId}] FieldId=[{_weights.IndexOf(newValue)}]";
+
+        Result stalkerResp = Pfs.Stalker().DoAction(cmd);
     }
 
     private async Task ViewStockRequestedAsync(string sRef)
@@ -117,6 +155,8 @@ public partial class ReportWeight
     protected class ViewReportWeightData
     {
         public RepDataWeight d;
+
+        public string AvrgTime;
 
         public string MC;
 
