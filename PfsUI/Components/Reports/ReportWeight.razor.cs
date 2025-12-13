@@ -42,7 +42,7 @@ public partial class ReportWeight
     protected int _sectorId = -1;
     protected string[] _weights = Array.Empty<string>();
 
-protected override void OnParametersSet()
+    protected override void OnParametersSet()
     {
         _viewReport = null;
         _homeCurrency = Pfs.Config().HomeCurrency;
@@ -83,7 +83,9 @@ protected override void OnParametersSet()
             {
                 d = inData,
                 MC = UiF.Curr(inData.RCEod.MarketCurrency),
-                SymbolToolTip = string.Empty
+                SymbolToolTip = string.Empty,
+                HcTakenAgainstVal = inData.HcTakenAgainstVal,
+                HcTakenAgainstInv = inData.HcTakenAgainstInv,
             };
 
             if (_viewCompanyNameColumn == false)
@@ -97,6 +99,44 @@ protected override void OnParametersSet()
             }
 
             outData.AvrgTime = Local_FormatAvrgTime((int)inData.AvrgTimeAsMonths);
+
+            foreach (RepDataWeightHoldingSub holding in inData.SubHoldings)
+            {
+                ViewSubData subData = new()
+                {
+                    Portfolio = holding.RCHolding.PfName,
+                    PurhaceDate = holding.RCHolding.SH.PurhaceDate,
+                    SoldDate = null,
+                    OriginalUnits = holding.RCHolding.SH.OriginalUnits,
+                    Units = holding.RCHolding.SH.Units,
+                    McBuyPrice = holding.RCHolding.SH.McPriceWithFeePerUnit,
+                    McSoldPrice = null,
+                    HcInvested = holding.RCTotalHold.HcInvested,
+                    HcGrowth = holding.RCTotalHold.HcGrowthAmount,
+                    HcDividents = holding.RRHoldingsTotalDiv != null ? holding.RRHoldingsTotalDiv.ViewHcDiv : 0,
+                };
+                outData.subs.Add(subData);
+            }
+
+            foreach (RepDataWeightTradeSub trade in inData.SubTrades)
+            {
+                ViewSubData subData = new()
+                {
+                    Portfolio = trade.RCTrade.PfName,
+                    PurhaceDate = trade.RCTrade.ST.PurhaceDate,
+                    SoldDate = trade.RCTrade.ST.Sold?.SaleDate,
+                    OriginalUnits = trade.RCTrade.ST.OriginalUnits,
+                    Units = trade.RCTrade.ST.Units,
+                    McBuyPrice = trade.RCTrade.ST.McPriceWithFeePerUnit,
+                    McSoldPrice = trade.RCTrade.ST.Sold?.McPriceWithFeePerUnit,
+                    HcInvested = trade.RCTrade.ST.HcInvested,
+                    HcGrowth = trade.RCTrade.ST.HcSoldProfit,
+                    HcDividents = trade.HcTradeDividents
+                };
+                outData.subs.Add(subData);
+            }
+
+            outData.subs = outData.subs.OrderByDescending(s => s.PurhaceDate).ToList();
 
             _viewReport.Add(outData);
         }
@@ -119,7 +159,7 @@ protected override void OnParametersSet()
 
     private void OnRowClicked(TableRowClickEventArgs<ViewReportWeightData> data)
     {
-        if (data == null || data.Item == null) return;
+        if (data == null || data.Item == null || data.Item.subs.Count == 0) return;
 
         data.Item.ShowDetails = !data.Item.ShowDetails;
     }
@@ -163,5 +203,33 @@ protected override void OnParametersSet()
         public bool ShowDetails;
 
         public string SymbolToolTip;
+
+        public decimal HcTakenAgainstInv;
+        public decimal HcTakenAgainstVal;
+
+        public List<ViewSubData> subs = new();
+    }
+
+    protected class ViewSubData
+    {
+        public string Portfolio;
+
+        public DateOnly PurhaceDate;
+
+        public DateOnly? SoldDate;
+
+        public decimal OriginalUnits;
+
+        public decimal Units;
+
+        public decimal McBuyPrice;
+
+        public decimal? McSoldPrice;
+
+        public decimal HcInvested;
+
+        public decimal HcGrowth;
+
+        public decimal HcDividents;
     }
 }

@@ -37,7 +37,9 @@ public class RCDivident // Each PaymentDate is own 'RCDivident' (Note! Only RCSt
 
     public decimal TradesUnits = 0;         // !!!TODO!!! 'RCDivident' seams too targeted to one use case, RECHECK -> rename? move as sub of RCStock?
 
-    public decimal HcTotalDiv { get { return PaymentPerUnit * (HoldingUnits + TradesUnits) * CurrencyRate; } }
+    public decimal HcTotalHoldingDiv { get { return PaymentPerUnit * HoldingUnits * CurrencyRate; } }
+    public decimal HcTotalTradeDiv { get { return PaymentPerUnit * TradesUnits * CurrencyRate; } }
+    public decimal HcTotalDiv { get { return HcTotalHoldingDiv + HcTotalTradeDiv; } }
 
     protected RCDivident() { }
 

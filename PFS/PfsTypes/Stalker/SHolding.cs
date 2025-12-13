@@ -41,8 +41,6 @@ public class SHolding
     public decimal McPriceWithFeePerUnit { get { return PricePerUnit + FeePerUnit; } }
     public decimal HcPriceWithFeePerUnit { get { return (PricePerUnit + FeePerUnit) * CurrencyRate; } }
 
-    public Sale Sold { get; set; } = null;
-
     // Decision! Holding tracks each divident that is payed for it, there is no more any generic divident structure!
     public List<Divident> Dividents { get; set; } = new();  // Each and every divident payed toward these shares
 
@@ -50,9 +48,21 @@ public class SHolding
 
     public CurrencyId DivCurrency() => AnyDividents() == true ? Dividents.Last().Currency : CurrencyId.Unknown;
 
+    public decimal HcTotalDividents { get {
+            decimal ret = 0;
+            foreach (Divident d in Dividents)
+                ret += d.HcPaymentPerUnit * Units;
+            return ret;
+        }
+    }
+
     public SHolding()
     {
     }
+
+    public Sale Sold { get; set; } = null; // same SHolding works for both open and already traded position
+
+    public decimal HcSoldProfit { get { return (Sold.HcPriceWithFeePerUnit - HcPriceWithFeePerUnit) * Units; } }
 
     public decimal McInvested { get { return McPriceWithFeePerUnit * Units; } }
 

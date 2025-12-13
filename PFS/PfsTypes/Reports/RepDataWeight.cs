@@ -36,40 +36,19 @@ public class RepDataWeight
 
     public decimal AvrgTimeAsMonths { get; set; } = 0;
 
-    /*
-     * Symbol
-     * Company
-     * 
-     * Target%  from group item like '5% high prio'
-     * Curr%
-     * Diff%    - missing atm...
-     * 
-     * Growth%
-     * Div%
-     * 
-     * House%
-     * 
-     * 
-     * 
-     * TODO:
-     * - Yes do also second line comment w % that has extra popup over target% to show plan to increase
-     * - Keep that drop down (sub) almost unchanged, but add there also info from Curr%... and maybe from history sales?
-     * - 
-     */
+    public decimal HcHistoryDivident { get; set; } = 0;
 
+    public decimal HcTradeProfits { get; set; } = 0;
 
+    public decimal HcTakenAgainstInv { get; set; } = 0;
+    public decimal HcTakenAgainstVal { get; set; } = 0;
 
+    public List<RepDataWeightHoldingSub> SubHoldings { get; set; } = new();
 
-
-    public decimal HcInvestedOfTotalP { get; set; }     // useless
-
-    public decimal HcGain { get; set; }
-    public int HcGainP { get; set; }
-
-    public List<RepDataWeightSub> SubHoldings { get; set; }
+    public List<RepDataWeightTradeSub> SubTrades { get; set; } = new();
 }
 
-public class RepDataWeightSub
+public class RepDataWeightHoldingSub
 {
     public RCHolding RCHolding { get; set; } = null;
 
@@ -78,18 +57,16 @@ public class RepDataWeightSub
     public RRTotalDivident RRHoldingsTotalDiv { get; set; } = null;
 }
 
+public class RepDataWeightTradeSub
+{
+    public RCTrade RCTrade { get; set; } = null;
+
+    public decimal HcTradeProfit { get; set; } = 0;
+
+    public decimal HcTradeDividents { get; set; } = 0;
+}
+
 public class RepDataWeightHeader
 {
-    public decimal HcIOwn { get; set; } = 0;            // This is coming from configs if user provided
-    public decimal HcTotalValuation { get; set; } = 0;
     public decimal TotalCurrentP { get; set; } = 0;     // How much from iOwn is currently shown
-
-
-    public RRTotalDivident HcTotalDivident { get; set; } = null;
-    public int HcGrowthP { get; set; } = 0;
-    public decimal HcTotalGain { get; set; }
-    public int HcTotalGainP { get; set; }
-
-
-    public decimal HcTotalInvested { get; set; } = 0;   // useless
 }

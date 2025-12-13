@@ -27,6 +27,8 @@ else
             <col style="width: 5%;" />      @* AvrgTime *@ 
             <col style="width: 5%;" />      @* Growth *@ 
             <col style="width: 5%;" />      @* Total Div *@ 
+            <col style="width: 5%;" />      @* Taken x Inv*@ 
+            <col style="width: 5%;" />      @* Taken x Val *@ 
         </ColGroup>
         <HeaderContent>
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.StockMeta.symbol)">Symbol</MudTableSortLabel></MudTh>
@@ -41,7 +43,7 @@ else
                 <MudTh>Target%</MudTh>
             }
             @* % Current *@
-            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.CurrentP)">@_headerTextCurrent</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<ViewReportWeightData, object>(x => x.d.CurrentP)">@_headerTextCurrent</MudTableSortLabel></MudTh>
 
             @* AvrgTime *@
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.AvrgTimeAsMonths)">AvrgTime</MudTableSortLabel></MudTh>
@@ -51,6 +53,12 @@ else
 
             @* Total Div *@
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.RRTotalDivident?.ViewHcDivP)">Divident</MudTableSortLabel></MudTh>
+
+            @* Taken x Inv *@ 
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.HcTakenAgainstInv)">Taken x Inv</MudTableSortLabel></MudTh>
+
+            @* Taken x Val *@ 
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.HcTakenAgainstVal)">Taken x Val</MudTableSortLabel></MudTh>
 
         </HeaderContent>
         <RowTemplate>
@@ -102,7 +110,26 @@ else
 
             @* Total Div *@
             <MudTd>
-                @(context.d.RRTotalDivident.ViewHcDivP + "%")
+                @if (context.d.RRTotalDivident.HcDiv > 0 )
+                {
+                    @(context.d.RRTotalDivident.ViewHcDivP + "%")
+                }
+            </MudTd>
+
+            @* Taken x Inv *@
+            <MudTd>
+                @if (context.d.HcTakenAgainstInv < -0.1m || context.d.HcTakenAgainstInv > 0.1m)
+                {
+                    @(context.d.HcTakenAgainstInv.To0() + "x")
+                }
+            </MudTd>
+
+            @* Taken x Val *@
+            <MudTd>
+                @if (context.d.HcTakenAgainstVal < -0.1m || context.d.HcTakenAgainstVal > 0.1m)
+                {
+                    @(context.d.HcTakenAgainstVal.To0() + "x")
+                }
             </MudTd>
 
         </RowTemplate>
@@ -114,52 +141,91 @@ else
                     <td colspan="10">
                         <!-- !!!NOTE!!! <= This is amount of columns on table that popdown extens to -->
 
-                        <MudTable T="RepDataWeightSub" Items="@context.d.SubHoldings" Hover="true" FixedHeader="true">
+                        <MudTable T="ViewSubData" Items="@context.subs" Hover="true" FixedHeader="true">
                             <ColGroup>
                                 <col style="width: 6%;" />      @* PfName *@
                                 <col style="width: 10%;" />     @* Purhace Date *@
+                                <col style="width: 10%;" />     @* Sold Date *@
                                 <col style="width: 7%;" />      @* Owning Months *@
                                 <col style="width: 7%;" />      @* Units *@
-                                <col style="width: 7%;" />      @* Avrg.Price *@
-                                <col style="width: 7%;" />      @* Invested *@
+                                <col style="width: 7%;" />      @* Buy Price *@
+                                <col style="width: 7%;" />      @* Sold Price *@
+                                <col style="width: 10%;" />     @* Invested *@
                                 <col style="width: 10%;" />     @* Growth *@
-                                <col style="width: 15%;" />     @* Div Gained L/%/T/% *@
+                                <col style="width: 15%;" />     @* Div *@
                             </ColGroup>
                             <HeaderContent>
                                 <MudTh>Portfolio</MudTh>
                                 <MudTh>Purhaced</MudTh>
+                                <MudTh>Sold</MudTh>
                                 <MudTh>Owned</MudTh>
                                 <MudTh>Units</MudTh>
-                                <MudTh>Avrg.Price</MudTh>
+                                <MudTh>Buy Price</MudTh>
+                                <MudTh>Sold</MudTh>
                                 <MudTh>Invested</MudTh>
                                 <MudTh>Growth</MudTh>
-                                <MudTh>Div L% T%</MudTh>
+                                <MudTh>Div</MudTh>
                             </HeaderContent>
                             <RowTemplate Context="dropdown">
-                                <MudTd>@dropdown.RCHolding.PfName</MudTd>
-                                <MudTd>@dropdown.RCHolding.SH.PurhaceDate.ToYMD()</MudTd>
-                                <MudTd><RCellPeriod From="@dropdown.RCHolding.SH.PurhaceDate" To="@DateOnly.FromDateTime(DateTime.Now)" /></MudTd>
+                                <MudTd>@dropdown.Portfolio</MudTd>
                                 <MudTd>
-                                    @if (dropdown.RCHolding.SH.Units != dropdown.RCHolding.SH.OriginalUnits)
+                                    @if (dropdown.SoldDate.HasValue == false )
                                     {
-                                        @(dropdown.RCHolding.SH.Units.To() + "/" + @dropdown.RCHolding.SH.OriginalUnits.To())
+                                        <b>@dropdown.PurhaceDate.ToYMD()</b>
                                     }
                                     else
                                     {
-                                        @dropdown.RCHolding.SH.Units.To()
+                                        @dropdown.PurhaceDate.ToYMD()
                                     }
                                 </MudTd>
-                                <MudTd>@dropdown.RCHolding.SH.PricePerUnit.To00()@UiF.Curr(context.d.RCEod.MarketCurrency)</MudTd>
+                                <MudTd>@dropdown.SoldDate?.ToYMD()</MudTd>
+                                <MudTd><RCellPeriod From="@dropdown.PurhaceDate" To="@dropdown.SoldDate" /></MudTd>
+                                <MudTd>
+                                    @if (dropdown.Units != dropdown.OriginalUnits)
+                                    {
+                                        @(dropdown.Units.To() + "/" + @dropdown.OriginalUnits.To())
+                                    }
+                                    else
+                                    {
+                                        @dropdown.Units.To()
+                                    }
+                                </MudTd>
+                                <MudTd>@dropdown.McBuyPrice.To00()@UiF.Curr(context.d.RCEod.MarketCurrency)</MudTd>
+                                <MudTd>
+                                    @if (dropdown.McSoldPrice.HasValue)
+                                    {
+                                        @dropdown.McSoldPrice.Value.To00()@UiF.Curr(context.d.RCEod.MarketCurrency)
+                                    }
+                                </MudTd>
 
                                 @* Invested (nnnE) *@
-                                <MudTd>@dropdown.RCTotalHold.HcInvested.To()@_HC</MudTd>
-
-                                <MudTd><RCellTotalGrowth RRTotalHold="@dropdown.RCTotalHold" MarketCurrency="@context.d.RCEod.MarketCurrency" HomeCurrency="@_homeCurrency" /></MudTd>
                                 <MudTd>
-                                    @if (dropdown.RRHoldingsTotalDiv != null)
+                                    @if (dropdown.SoldDate.HasValue == false)
                                     {
-                                        <RCellDividentDual HomeCurrency="@_homeCurrency" DividentCurrency="@dropdown.RCHolding.SH.DivCurrency()" RRDivTotal="@dropdown.RRHoldingsTotalDiv"
-                                                           RRDivLatest="@RRHoldingDivident.CreateLatest(dropdown.RCHolding.SH)" />
+                                        <b>@dropdown.HcInvested.To()@_HC</b>
+                                    }
+                                    else
+                                    {
+                                        @dropdown.HcInvested.To()@_HC
+                                    }
+                                </MudTd>
+
+                                @* Growth *@
+                                <MudTd>
+                                    @if (dropdown.HcGrowth < 0)
+                                    {
+                                        <span style="color:red">@dropdown.HcGrowth.To()@_HC&nbsp;</span>
+                                    }
+                                    else
+                                    {
+                                        @("+" + dropdown.HcGrowth.To() + _HC)
+                                    }    
+                                </MudTd>
+
+                                <MudTd>
+                                    @if (dropdown.HcDividents > 0 )
+                                    {
+                                        @(dropdown.HcDividents.To() +_HC)
                                     }
                                 </MudTd>
 

@@ -69,23 +69,13 @@ else
             @* AvrgPrice *@ 
             <MudTd>@context.d.RCTotalHold.McAvrgPrice.To00()@context.MC</MudTd>
             @* LatestEOD *@
-            <MudTd> @context.d.RCEod.fullEOD.Close.To00()@UiF.Curr(context.d.RCEod.MarketCurrency) </MudTd>
+            <MudTd>@context.d.RCEod.fullEOD.Close.To00()@context.MC</MudTd>
 
             @* Invested (nnnE 1.8%) *@
             <MudTd>@context.d.RCTotalHold.HcInvested.To()@_HC @context.d.HcInvestedOfTotalP.ToP()</MudTd>
 
             @* Valuation (+/-X% nnnE) *@ 
-            <MudTd>
-            @if ( context.d.RCTotalHold.HcGrowthP < 0 )
-            {
-                <span style="color:red"><b>@context.d.RCTotalHold.HcGrowthP%&nbsp;</b></span>
-            }
-            else
-            {
-                <b>+@context.d.RCTotalHold.HcGrowthP%&nbsp;</b>
-            }
-            @context.d.RCTotalHold.HcValuation@_HC &nbsp;
-            </MudTd>
+            <MudTd><RCellHoldValuation RCTotalHold="@context.d.RCTotalHold" HC="@_HC" /></MudTd>
 
             @* % of Total Valuation *@
             <MudTd>@context.d.HcValuationOfTotalP.ToP()</MudTd>
@@ -152,7 +142,7 @@ else
                             <RowTemplate Context="dropdown">
                                 <MudTd>@dropdown.RCHolding.PfName</MudTd>
                                 <MudTd>@dropdown.RCHolding.SH.PurhaceDate.ToYMD()</MudTd>
-                                <MudTd><RCellPeriod From="@dropdown.RCHolding.SH.PurhaceDate" To="@DateOnly.FromDateTime(DateTime.Now)" /></MudTd>
+                                <MudTd><RCellPeriod From="@dropdown.RCHolding.SH.PurhaceDate" /></MudTd>
                                 <MudTd>
                                     @if (dropdown.RCHolding.SH.Units != dropdown.RCHolding.SH.OriginalUnits)
                                     {

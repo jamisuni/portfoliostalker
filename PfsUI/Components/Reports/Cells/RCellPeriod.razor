@@ -7,11 +7,16 @@
 
 @code {
     [Parameter] public DateOnly From { get; set; }
-    [Parameter] public DateOnly To { get; set; }
+    [Parameter] public DateOnly? To { get; set; }
 
     string FormatPeriod()
     {
-        int months = (int)((To.DayNumber - From.DayNumber) / 30.437);
+        DateOnly to = DateOnly.FromDateTime(DateTime.Now);
+
+        if ( To.HasValue)
+            to = To.Value;
+
+        int months = (int)((to.DayNumber - From.DayNumber) / 30.437);
 
         if (months < 12)
             return months.ToString() + "m";

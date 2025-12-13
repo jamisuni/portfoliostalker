@@ -1,0 +1,25 @@
+﻿@namespace PfsUI.Components
+
+@using Pfs.Types
+
+@if (RCTotalHold == null)
+{
+}
+else
+{
+    @if (RCTotalHold.HcGrowthP < 0)
+    {
+        <span style="color:red"><b>@RCTotalHold.HcGrowthP%&nbsp;</b></span>
+    }
+    else
+    {
+        <b>+@RCTotalHold.HcGrowthP%&nbsp;</b>
+    }
+    @RCTotalHold.HcValuation
+    @HC
+}
+
+@code {
+    [Parameter] public RCGrowth RCTotalHold { get; set; }
+    [Parameter] public string HC { get; set; }
+}

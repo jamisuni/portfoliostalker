@@ -44,6 +44,17 @@ public class RCStock
 
     public Dictionary<DateOnly, RCDivident> Dividents { get; set; } = new(); // Each PaymentDate is own RCDivident
 
+    public decimal HcTotalTradeDividents
+    {
+        get 
+        {
+            decimal total = 0;
+            foreach (KeyValuePair<DateOnly, RCDivident> kvp in Dividents)
+                total += kvp.Value.HcTotalTradeDiv;
+            return total;
+        }
+    }
+
     public RCStock(SStock sStock, StockMeta stockMeta)
     {
         Stock = sStock;

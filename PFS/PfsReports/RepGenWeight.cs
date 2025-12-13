@@ -29,7 +29,7 @@ public class RepGenWeight
         List<RepDataWeight> ret = new();
         RepDataWeightHeader header = new();
 
-        decimal hcTotalDiv = 0;
+        decimal hcTotalValuation = 0;
 
         IEnumerable<RCStock> reportStocks = collector.GetStocks(reportParams, stalkerData);
 
@@ -45,7 +45,8 @@ public class RepGenWeight
             if (sm == null)
                 sm = stockMetaProv.AddUnknown(stock.Stock.SRef);
 
-            if (stock.Holdings == null || stock.Holdings.Count == 0)
+
+            if (stock.Holdings == null || stock.Holdings.Count == 0)            // ??Maybe include old ones also if has weight set??
                 continue; // Only stocks user is currently invested on
 
             if (stock.RCEod == null)
@@ -56,14 +57,12 @@ public class RepGenWeight
                 StockMeta = sm,
                 RCEod = stock.RCEod,
                 RCTotalHold = stock.RCTotalHold,
-                SubHoldings = new(),
                 NoteHeader = stockNotes.GetHeader(stock.Stock.SRef),
             };
 
-
             entry.TargetP = stalkerData.GetStockSectors(stock.Stock.SRef)[weightSector];
 
-            decimal target = 2.0m;
+            decimal target = 2.0m; // Note! Defaults to 2% so meaning even entrys without sector set are having value
 
             if (string.IsNullOrEmpty(entry.TargetP) == false && decimal.TryParse(entry.TargetP.Split('%')[0], out decimal tval))
                 target = tval;
@@ -71,23 +70,9 @@ public class RepGenWeight
             if (stock.RCHoldingsTotalDivident != null)
                 entry.RRTotalDivident = new(stock.RCHoldingsTotalDivident);
 
-            entry.HcGain = 0;
-            if (stock.RCTotalHold != null)
-                entry.HcGain += stock.RCTotalHold.HcGrowthAmount;
-            if (stock.RCHoldingsTotalDivident != null)
-                entry.HcGain += stock.RCHoldingsTotalDivident.HcDiv;
-
-            if (entry.HcGain != 0)
-                entry.HcGainP = (int)(entry.HcGain / entry.RCTotalHold.HcInvested * 100);
-            else
-                entry.HcGainP = 0;
-
             ret.Add(entry);
 
-            header.HcTotalInvested += stock.RCTotalHold.HcInvested;
-            header.HcTotalValuation += stock.RCTotalHold.HcValuation;
-
-            hcTotalDiv += stock.RCHoldingsTotalDivident.HcDiv;
+            hcTotalValuation += stock.RCTotalHold.HcValuation;
 
             // Idea here is to count each E or $ how long its invested, then divided by total units gets avrg owning day
             long totalHcDays = 0;
@@ -97,10 +82,29 @@ public class RepGenWeight
             if (totalHcDays > 0)
                 entry.AvrgTimeAsMonths = (totalHcDays / stock.RCTotalHold.Units) / 30.437m;
 
+            // Also keep track of historical sell gains/looses for the stock
+
+            foreach (RCTrade rct in stock.Trades)
+            {
+                entry.HcTradeProfits += (rct.ST.Sold.HcPriceWithFeePerUnit -  rct.ST.HcPriceWithFeePerUnit) * rct.ST.Units;
+
+                RepDataWeightTradeSub sub = new()
+                {
+                    RCTrade = rct,
+                };
+
+                sub.HcTradeProfit = rct.ST.HcSoldProfit;
+                sub.HcTradeDividents = rct.ST.HcTotalDividents;
+
+                entry.SubTrades.Add(sub);
+            }
+
+            entry.HcHistoryDivident = stock.HcTotalTradeDividents;
+
             // DropDown with row for each separate holding
             foreach (RCHolding rch in stock.Holdings)
             {
-                RepDataWeightSub sub = new()
+                RepDataWeightHoldingSub sub = new()
                 {
                     RCHolding = rch,
                     RCTotalHold = new RCGrowth(rch.SH, stock.RCEod.fullEOD.Close, stock.RCEod.LatestConversionRate),
@@ -111,32 +115,31 @@ public class RepGenWeight
 
                 entry.SubHoldings.Add(sub);
             }
+
+            decimal totalTaken = entry.HcHistoryDivident +      // Dividents paid to already sold/traded positions
+                                 entry.RRTotalDivident.HcDiv +  // Dividents of current holdings
+                                 entry.HcTradeProfits;          // Trade profits from already sold positions
+
+            if (totalTaken != 0 && stock.RCTotalHold.HcValuation > 0)
+                entry.HcTakenAgainstVal = totalTaken / stock.RCTotalHold.HcValuation;
+
+            if (totalTaken != 0 && stock.RCTotalHold.HcInvested > 0)
+                entry.HcTakenAgainstInv = totalTaken / stock.RCTotalHold.HcInvested;
         }
 
         if ( ret.Count == 0 )
             return (null, null);
 
-        decimal totalOwning = header.HcIOwn = pfsStatus.GetAppCfg(AppCfgId.IOwn);
+        decimal totalOwning = pfsStatus.GetAppCfg(AppCfgId.IOwn);
 
         if (totalOwning < 1000)
-            totalOwning = header.HcTotalValuation;
-
-        header.HcTotalDivident = new RRTotalDivident(hcTotalDiv, header.HcTotalInvested);
-
-        header.HcGrowthP = (int)((header.HcTotalValuation - header.HcTotalInvested) / header.HcTotalInvested * 100);
-
-        header.HcTotalGain = header.HcTotalValuation - header.HcTotalInvested + hcTotalDiv;
-        if (header.HcTotalGain != 0)
-            header.HcTotalGainP = (int)(header.HcTotalGain / header.HcTotalInvested * 100);
+            totalOwning = hcTotalValuation;
 
         foreach (RepDataWeight stock in ret )
         {
             stock.CurrentP = (stock.RCTotalHold.HcValuation / totalOwning) * 100;
 
             header.TotalCurrentP += stock.CurrentP;
-
-
-            stock.HcInvestedOfTotalP = (stock.RCTotalHold.HcInvested / header.HcTotalInvested) * 100;
         }
 
         return (header, stocks: ret.OrderBy(s => s.StockMeta.name).ToList());
