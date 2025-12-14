@@ -62,7 +62,7 @@ public class RepGenWeight
 
             entry.TargetP = stalkerData.GetStockSectors(stock.Stock.SRef)[weightSector];
 
-            decimal target = 2.0m; // Note! Defaults to 2% so meaning even entrys without sector set are having value
+            decimal target = 0.5m; // Note! Defaults to 0.5% for those left over positions
 
             if (string.IsNullOrEmpty(entry.TargetP) == false && decimal.TryParse(entry.TargetP.Split('%')[0], out decimal tval))
                 target = tval;
@@ -70,6 +70,7 @@ public class RepGenWeight
             if (stock.RCHoldingsTotalDivident != null)
                 entry.RRTotalDivident = new(stock.RCHoldingsTotalDivident);
 
+            header.TotalPlannedP += target;
             ret.Add(entry);
 
             hcTotalValuation += stock.RCTotalHold.HcValuation;

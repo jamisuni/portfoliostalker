@@ -36,6 +36,7 @@ public partial class ReportWeight
 
     protected string _headerTextCompany = string.Empty;
     protected string _headerTextCurrent = string.Empty;
+    protected string _headerTextPlanned = string.Empty;
 
     protected bool _showTargetWeightTab = true;
 
@@ -143,6 +144,7 @@ public partial class ReportWeight
 
         _headerTextCompany = $"Company (total {_viewReport.Count()})";
         _headerTextCurrent = $"Curr {header.TotalCurrentP.ToP()}";
+        _headerTextPlanned = $"Plan {header.TotalPlannedP.ToP()}";
         return;
 
         string Local_FormatAvrgTime(int months)

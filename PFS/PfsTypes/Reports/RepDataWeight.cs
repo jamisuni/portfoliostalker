@@ -69,4 +69,6 @@ public class RepDataWeightTradeSub
 public class RepDataWeightHeader
 {
     public decimal TotalCurrentP { get; set; } = 0;     // How much from iOwn is currently shown
+
+    public decimal TotalPlannedP { get; set; } = 0;
 }

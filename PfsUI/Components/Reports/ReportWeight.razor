@@ -21,9 +21,9 @@ else
             }
             @if (_showTargetWeightTab)
             {
-            <col style="width: 8%;" />      @* Target% *@
+            <col style="width: 7%;" />      @* Target% *@
             }
-            <col style="width: 5%;" />      @* Current% *@
+            <col style="width: 7%;" />      @* Current% *@
             <col style="width: 5%;" />      @* AvrgTime *@ 
             <col style="width: 5%;" />      @* Growth *@ 
             <col style="width: 5%;" />      @* Total Div *@ 
@@ -40,7 +40,7 @@ else
             @if (_showTargetWeightTab)
             {
                 @* % Target *@
-                <MudTh>Target%</MudTh>
+                <MudTh>@_headerTextPlanned</MudTh>
             }
             @* % Current *@
             <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<ViewReportWeightData, object>(x => x.d.CurrentP)">@_headerTextCurrent</MudTableSortLabel></MudTh>
