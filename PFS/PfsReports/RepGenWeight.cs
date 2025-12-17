@@ -36,15 +36,12 @@ public class RepGenWeight
         if (reportStocks.Count() == 0)
             return (null, null);
 
-        int weightSector = Local_GetWeightSectorId();
-
         foreach (RCStock stock in collector.GetStocks(reportParams, stalkerData))
         {
             StockMeta sm = stockMetaProv.Get(stock.Stock.SRef);
 
             if (sm == null)
                 sm = stockMetaProv.AddUnknown(stock.Stock.SRef);
-
 
             if (stock.Holdings == null || stock.Holdings.Count == 0)            // ??Maybe include old ones also if has weight set??
                 continue; // Only stocks user is currently invested on
@@ -60,17 +57,9 @@ public class RepGenWeight
                 NoteHeader = stockNotes.GetHeader(stock.Stock.SRef),
             };
 
-            entry.TargetP = stalkerData.GetStockSectors(stock.Stock.SRef)[weightSector];
-
-            decimal target = 0.5m; // Note! Defaults to 0.5% for those left over positions
-
-            if (string.IsNullOrEmpty(entry.TargetP) == false && decimal.TryParse(entry.TargetP.Split('%')[0], out decimal tval))
-                target = tval;
-
             if (stock.RCHoldingsTotalDivident != null)
                 entry.RRTotalDivident = new(stock.RCHoldingsTotalDivident);
 
-            header.TotalPlannedP += target;
             ret.Add(entry);
 
             hcTotalValuation += stock.RCTotalHold.HcValuation;
@@ -131,16 +120,25 @@ public class RepGenWeight
         if ( ret.Count == 0 )
             return (null, null);
 
+        int weightSector = Local_GetWeightSectorId();
+
         decimal totalOwning = pfsStatus.GetAppCfg(AppCfgId.IOwn);
 
         if (totalOwning < 1000)
             totalOwning = hcTotalValuation;
 
         foreach (RepDataWeight stock in ret )
-        {
+        {   // Current weight % for stock
             stock.CurrentP = (stock.RCTotalHold.HcValuation / totalOwning) * 100;
-
             header.TotalCurrentP += stock.CurrentP;
+
+            // Target weight % for stock
+            stock.TargetP = stalkerData.GetStockSectors(stock.StockMeta.GetSRef())[weightSector];
+
+            if (string.IsNullOrEmpty(stock.TargetP) == false && decimal.TryParse(stock.TargetP.Split('%')[0], out decimal tval))
+                header.TotalPlannedP += tval;
+            else // if target not set, assume current weight as target
+                header.TotalPlannedP += stock.CurrentP;
         }
 
         return (header, stocks: ret.OrderBy(s => s.StockMeta.name).ToList());
