@@ -39,6 +39,8 @@ public interface IFEStalker
 
     IReadOnlyCollection<SPortfolio> GetPortfolios();
 
+    ReadOnlyCollection<SHolding> GetPortfolioHoldings(string pfName, string sRef = null);
+
     string[] GetSectorNames();
     string[] GetSectorFieldNames(int sectorId);
     public string[] GetStockSectorFields(string sRef);

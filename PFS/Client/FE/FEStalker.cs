@@ -261,6 +261,11 @@ public class FEStalker : IFEStalker
         return _clientStalker.Portfolios().AsReadOnly();
     }
 
+    public ReadOnlyCollection<SHolding> GetPortfolioHoldings(string pfName, string sRef = null)
+    {
+        return _clientStalker.PortfolioHoldings(pfName, sRef).AsReadOnly();
+    }
+
     public ReadOnlyCollection<SAlarm> StockAlarmList(MarketId marketId, string symbol)
     {
         return _clientStalker.StockAlarms($"{marketId}${symbol}");

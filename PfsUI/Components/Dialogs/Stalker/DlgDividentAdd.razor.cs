@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
 using Pfs.Types;
+using System.Collections.ObjectModel;
 
 namespace PfsUI.Components;
 
@@ -59,7 +60,7 @@ public partial class DlgDividentAdd
         set { _paymentPerUnit = value; RecalcTotals(); }
     }
 
-    protected decimal _units = 1;
+    protected decimal _units = 0;
     protected decimal Units
     {
         get { return _units; }
@@ -114,6 +115,20 @@ public partial class DlgDividentAdd
             else
                 // Dialog is started to add divident under specific holding
                 _extraHeader = "To holding, purhaced " + Holding.PurhaceDate.ToString("yyyy-MM-dd");
+        }
+        else if ( string.IsNullOrEmpty(PfName) == false )
+        {   
+            ReadOnlyCollection<SHolding> holdings = Pfs.Stalker().GetPortfolioHoldings(PfName, $"{Market}${Symbol}");
+            
+            _units = holdings.Select(h => h.Units).Sum(); // Default units per pf's current ownings, but dont lock it
+
+            SHolding holding = holdings.MaxBy(h => h.PurhaceDate);
+
+            if ( holding.Dividents.Count() > 0 )
+            {
+                _currency = holding.Dividents.Last().Currency;
+                PaymentPerUnit = holding.Dividents.Last().PaymentPerUnit;
+            }
         }
     }
 
