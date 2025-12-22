@@ -148,6 +148,7 @@ else
                                 <col style="width: 10%;" />     @* Sold Date *@
                                 <col style="width: 7%;" />      @* Owning Months *@
                                 <col style="width: 7%;" />      @* Units *@
+                                <col style="width: 7%;" />      @* Current *@
                                 <col style="width: 7%;" />      @* Buy Price *@
                                 <col style="width: 7%;" />      @* Sold Price *@
                                 <col style="width: 10%;" />     @* Invested *@
@@ -160,6 +161,7 @@ else
                                 <MudTh>Sold</MudTh>
                                 <MudTh>Owned</MudTh>
                                 <MudTh>Units</MudTh>
+                                <MudTh>Current</MudTh>
                                 <MudTh>Buy Price</MudTh>
                                 <MudTh>Sold</MudTh>
                                 <MudTh>Invested</MudTh>
@@ -188,6 +190,12 @@ else
                                     else
                                     {
                                         @dropdown.Units.To()
+                                    }
+                                </MudTd>
+                                <MudTd>
+                                    @if ( dropdown.CurrentP > 0 )
+                                    {
+                                        @dropdown.CurrentP.ToP()
                                     }
                                 </MudTd>
                                 <MudTd>@dropdown.McBuyPrice.To00()@UiF.Curr(context.d.RCEod.MarketCurrency)</MudTd>

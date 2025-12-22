@@ -115,6 +115,7 @@ public partial class ReportWeight
                     HcInvested = holding.RCTotalHold.HcInvested,
                     HcGrowth = holding.RCTotalHold.HcGrowthAmount,
                     HcDividents = holding.RRHoldingsTotalDiv != null ? holding.RRHoldingsTotalDiv.ViewHcDiv : 0,
+                    CurrentP = holding.CurrentP,
                 };
                 outData.subs.Add(subData);
             }
@@ -233,5 +234,7 @@ public partial class ReportWeight
         public decimal HcGrowth;
 
         public decimal HcDividents;
+
+        public decimal CurrentP;
     }
 }

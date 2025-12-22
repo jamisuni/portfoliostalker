@@ -139,6 +139,11 @@ public class RepGenWeight
                 header.TotalPlannedP += tval;
             else // if target not set, assume current weight as target
                 header.TotalPlannedP += stock.CurrentP;
+
+            foreach ( RepDataWeightHoldingSub sub in stock.SubHoldings)
+            {
+                sub.CurrentP = (sub.RCTotalHold.HcValuation / totalOwning) * 100;
+            }
         }
 
         return (header, stocks: ret.OrderBy(s => s.StockMeta.name).ToList());
