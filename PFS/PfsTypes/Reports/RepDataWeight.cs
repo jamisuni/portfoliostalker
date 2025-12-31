@@ -59,6 +59,8 @@ public class RepDataWeightHoldingSub
     public RRTotalDivident RRHoldingsTotalDiv { get; set; } = null;
 
     public decimal CurrentP { get; set; } = 0;
+
+    public decimal YearlyDivPForHcHolding { get; set; } = 0;
 }
 
 public class RepDataWeightTradeSub

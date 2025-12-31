@@ -165,7 +165,8 @@ else
                                 <col style="width: 7%;" />      @* Sold Price *@
                                 <col style="width: 10%;" />     @* Invested *@
                                 <col style="width: 10%;" />     @* Growth *@
-                                <col style="width: 15%;" />     @* Div *@
+                                <col style="width: 10%;" />     @* Div *@
+                                <col style="width: 7%;" />      @* Annual Div% *@ 
                             </ColGroup>
                             <HeaderContent>
                                 <MudTh>Portfolio</MudTh>
@@ -179,6 +180,7 @@ else
                                 <MudTh>Invested</MudTh>
                                 <MudTh>Growth</MudTh>
                                 <MudTh>Div</MudTh>
+                                <MudTh>Annual Div</MudTh>
                             </HeaderContent>
                             <RowTemplate Context="dropdown">
                                 <MudTd>@dropdown.Portfolio</MudTd>
@@ -246,6 +248,13 @@ else
                                     @if (dropdown.HcDividents > 0 )
                                     {
                                         @(dropdown.HcDividents.To() +_HC)
+                                    }
+                                </MudTd>
+
+                                <MudTd>
+                                    @if (dropdown.YearlyDivPForHcHolding > 0)
+                                    {
+                                        @(dropdown.YearlyDivPForHcHolding.ToP())
                                     }
                                 </MudTd>
 

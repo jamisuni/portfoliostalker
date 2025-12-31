@@ -98,6 +98,7 @@ public class RepGenWeight
                 {
                     RCHolding = rch,
                     RCTotalHold = new RCGrowth(rch.SH, stock.RCEod.fullEOD.Close, stock.RCEod.LatestConversionRate),
+                    YearlyDivPForHcHolding = rch.YearlyDivPForHcHolding,
                 };
 
                 if (rch.SH.AnyDividents())

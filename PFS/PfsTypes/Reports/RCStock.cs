@@ -142,7 +142,12 @@ public class RCStock
         }
 
         if (RCTotalHold.HcAvrgPrice > 0 && twoLatestDivs.Count > 0)
+        {
             // Estimate yearly div% for HcInvested per payment frequence and latest divident payment
             YearlyDivPForHcHolding = twoLatestDivs.First().HcPaymentPerUnit * DivPaidTimesPerYear * 100 / RCTotalHold.HcAvrgPrice;
+
+            foreach (RCHolding holding in Holdings)
+                holding.YearlyDivPForHcHolding = twoLatestDivs.First().HcPaymentPerUnit * DivPaidTimesPerYear * 100 / holding.SH.HcPriceWithFeePerUnit;
+        }
     }
 }

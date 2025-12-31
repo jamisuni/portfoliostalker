@@ -116,6 +116,7 @@ public partial class ReportWeight
                     HcGrowth = holding.RCTotalHold.HcGrowthAmount,
                     HcDividents = holding.RRHoldingsTotalDiv != null ? holding.RRHoldingsTotalDiv.ViewHcDiv : 0,
                     CurrentP = holding.CurrentP,
+                    YearlyDivPForHcHolding = holding.YearlyDivPForHcHolding,
                 };
                 outData.subs.Add(subData);
             }
@@ -133,7 +134,7 @@ public partial class ReportWeight
                     McSoldPrice = trade.RCTrade.ST.Sold?.McPriceWithFeePerUnit,
                     HcInvested = trade.RCTrade.ST.HcInvested,
                     HcGrowth = trade.RCTrade.ST.HcSoldProfit,
-                    HcDividents = trade.HcTradeDividents
+                    HcDividents = trade.HcTradeDividents,
                 };
                 outData.subs.Add(subData);
             }
@@ -236,5 +237,7 @@ public partial class ReportWeight
         public decimal HcDividents;
 
         public decimal CurrentP;
+
+        public decimal YearlyDivPForHcHolding;
     }
 }

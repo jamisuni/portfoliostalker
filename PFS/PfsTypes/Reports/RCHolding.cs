@@ -24,6 +24,8 @@ public class RCHolding
 
     public string PfName { get; internal set; }
 
+    public decimal YearlyDivPForHcHolding { get; set; } = 0;
+
     public RCHolding(SHolding holding, string pfName)
     {
         SH = holding;
