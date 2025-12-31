@@ -43,6 +43,8 @@ public class RepDataWeight
     public decimal HcTakenAgainstInv { get; set; } = 0;
     public decimal HcTakenAgainstVal { get; set; } = 0;
 
+    public decimal YearlyDivPForHcHolding { get; set; } = 0;
+
     public List<RepDataWeightHoldingSub> SubHoldings { get; set; } = new();
 
     public List<RepDataWeightTradeSub> SubTrades { get; set; } = new();

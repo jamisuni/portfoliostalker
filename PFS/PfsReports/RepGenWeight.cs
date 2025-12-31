@@ -115,6 +115,8 @@ public class RepGenWeight
 
             if (totalTaken != 0 && stock.RCTotalHold.HcInvested > 0)
                 entry.HcTakenAgainstInv = totalTaken / stock.RCTotalHold.HcInvested;
+
+            entry.YearlyDivPForHcHolding = stock.YearlyDivPForHcHolding;
         }
 
         if ( ret.Count == 0 )

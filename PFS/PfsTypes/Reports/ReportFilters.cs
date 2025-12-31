@@ -92,6 +92,7 @@ public class ReportFilters : IReportFilters
         { ReportId.Invested, [] },
         { ReportId.Overview, [] },
         { ReportId.Divident, [] },
+        { ReportId.Weight, [] },
         { ReportId.ExpHoldings, [] },
         { ReportId.ExpSales, [] },
         { ReportId.ExpDividents, [] },

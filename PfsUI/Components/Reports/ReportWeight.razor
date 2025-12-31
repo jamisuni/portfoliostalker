@@ -27,6 +27,7 @@ else
             <col style="width: 5%;" />      @* AvrgTime *@ 
             <col style="width: 5%;" />      @* Growth *@ 
             <col style="width: 5%;" />      @* Total Div *@ 
+            <col style="width: 5%;" />      @* Annual Div% *@ 
             <col style="width: 5%;" />      @* Taken x Inv*@ 
             <col style="width: 5%;" />      @* Taken x Val *@ 
         </ColGroup>
@@ -52,7 +53,10 @@ else
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.RCTotalHold.HcGrowthP)">Growth</MudTableSortLabel></MudTh>
 
             @* Total Div *@
-            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.RRTotalDivident?.ViewHcDivP)">Divident</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.RRTotalDivident?.ViewHcDivP)">Paid Div</MudTableSortLabel></MudTh>
+
+            @* Annual Div% *@
+            <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.YearlyDivPForHcHolding)">Annual Div%</MudTableSortLabel></MudTh>
 
             @* Taken x Inv *@ 
             <MudTh><MudTableSortLabel SortBy="new Func<ViewReportWeightData, object>(x => x.d.HcTakenAgainstInv)">Taken x Inv</MudTableSortLabel></MudTh>
@@ -113,6 +117,14 @@ else
                 @if (context.d.RRTotalDivident.HcDiv > 0 )
                 {
                     @(context.d.RRTotalDivident.ViewHcDivP + "%")
+                }
+            </MudTd>
+
+            @* Annual Div% *@
+            <MudTd>
+                @if (context.d.RRTotalDivident.HcDiv > 0 && context.d.YearlyDivPForHcHolding > 0)
+                {
+                    @(context.d.YearlyDivPForHcHolding.ToP())
                 }
             </MudTd>
 
