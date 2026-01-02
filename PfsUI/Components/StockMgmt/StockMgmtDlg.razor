@@ -26,6 +26,10 @@
     </DialogContent>
 
     <DialogActions>
+        @if (string.IsNullOrWhiteSpace(_secBtnText) == false)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="OnBtnSecAsync">@_secBtnText</MudButton>
+        }
         @if ( string.IsNullOrWhiteSpace(_primBtnText) == false)
         {
         <MudButton Variant="Variant.Filled" Color="Color.Secondary"  OnClick="OnBtnPrimAsync">@_primBtnText</MudButton>

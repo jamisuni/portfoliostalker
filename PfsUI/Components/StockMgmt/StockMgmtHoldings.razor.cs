@@ -179,7 +179,7 @@ public partial class StockMgmtHoldings
         StateHasChanged();
     }
     
-    protected async Task OnBtnAddDividentAsync(ViewReportHoldingsData data)
+    protected async Task OnBtnAddDivident2HoldingAsync(ViewReportHoldingsData data)
     {
         var parameters = new DialogParameters
         {
@@ -236,6 +236,27 @@ public partial class StockMgmtHoldings
 
         if (!result.Canceled)
             StateHasChanged();
+    }
+
+    public async Task FromOwner_DoAddDividentAsync()
+    {
+        var parameters = new DialogParameters
+        {
+            { "Market", Market },
+            { "Symbol", Symbol },
+            { "PfName", null },
+            { "Holding", null },
+        };
+
+        var dialog = await LaunchDialog.ShowAsync<DlgDividentAdd>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            evChanged?.Invoke(this, EventArgs.Empty);
+        }
+        RefreshReport();
+        StateHasChanged();
     }
 
     protected class ViewReportHoldingsData

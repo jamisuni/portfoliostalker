@@ -43,8 +43,8 @@ public partial class DlgDividentAdd
     protected bool _fullscreen { get; set; } = false;
     protected CurrencyId _homeCurrency;
     protected CurrencyId _currency;
-    protected List<CurrencyId> _allCurrencies = new();    
-    
+    protected List<CurrencyId> _allCurrencies = new();
+    protected List<string> _pfsWithHoldings = new();
 
     protected bool _lockedUnits = false;
     protected DateTime? _exDivDate = DateTime.UtcNow.Date.AddDays(-1); // Going -1 as PFS is using 'Latest' of day, and its not available for today...
@@ -90,6 +90,12 @@ public partial class DlgDividentAdd
         set { _hcTotal = value; RecalcTotals(); }
     }
 
+    protected string PfSelection
+    {
+        get { return PfName; }
+        set { PfName = value; InitWithPf(PfName); StateHasChanged(); }
+    }
+
     protected override void OnInitialized()
     {
         _homeCurrency = Pfs.Config().HomeCurrency;
@@ -116,19 +122,28 @@ public partial class DlgDividentAdd
                 // Dialog is started to add divident under specific holding
                 _extraHeader = "To holding, purhaced " + Holding.PurhaceDate.ToString("yyyy-MM-dd");
         }
-        else if ( string.IsNullOrEmpty(PfName) == false )
-        {   
-            ReadOnlyCollection<SHolding> holdings = Pfs.Stalker().GetPortfolioHoldings(PfName, $"{Market}${Symbol}");
-            
-            _units = holdings.Select(h => h.Units).Sum(); // Default units per pf's current ownings, but dont lock it
+        else if (string.IsNullOrEmpty(PfName) )
+        {
+            foreach (SPortfolio pf in Pfs.Stalker().GetPortfolios())
+                if (Pfs.Stalker().GetPortfolioHoldings(pf.Name, $"{Market}${Symbol}").Count > 0)
+                    _pfsWithHoldings.Add(pf.Name);
+        }
+        else
+            InitWithPf(PfName);
+    }
 
-            SHolding holding = holdings.MaxBy(h => h.PurhaceDate);
+    protected void InitWithPf(string pfName)
+    {
+        ReadOnlyCollection<SHolding> holdings = Pfs.Stalker().GetPortfolioHoldings(PfName, $"{Market}${Symbol}");
 
-            if ( holding.Dividents.Count() > 0 )
-            {
-                _currency = holding.Dividents.Last().Currency;
-                PaymentPerUnit = holding.Dividents.Last().PaymentPerUnit;
-            }
+        _units = holdings.Select(h => h.Units).Sum(); // Default units per pf's current ownings, but dont lock it
+
+        SHolding holding = holdings.MaxBy(h => h.PurhaceDate);
+
+        if (holding.Dividents.Count() > 0)
+        {
+            _currency = holding.Dividents.Last().Currency;
+            PaymentPerUnit = holding.Dividents.Last().PaymentPerUnit;
         }
     }
 

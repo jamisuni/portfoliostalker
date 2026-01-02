@@ -41,6 +41,7 @@ else
             <MudTh>Per Unit</MudTh>
             <MudTh>Total Units</MudTh>
             <MudTh>Payment</MudTh>
+            <MudTh>Annual Div</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd>@context.d.PaymentDate.ToString("yyyy-MMM-dd")</MudTd>
@@ -49,6 +50,7 @@ else
             <MudTd>@(context.d.PayPerUnit.To000() + UiF.Curr(context.d.Currency) + " / " + context.d.HcPayPerUnit.To000() + _HC)</MudTd>
             <MudTd>@context.d.Units.To()</MudTd>
             <MudTd>@((context.d.HcPayPerUnit * context.d.Units).To0() + _HC)</MudTd>
+            <MudTd>@context.d.YearlyDivPForHcHolding.ToP()</MudTd>
         </RowTemplate>
     </MudTable>
 }

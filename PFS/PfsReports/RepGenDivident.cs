@@ -33,12 +33,6 @@ public class RepGenDivident
 
         foreach (RCStock stock in reportStocks)
         {
-            if (stock.RCTotalHold != null)
-            {
-                ret.HcTotalInvested += stock.RCTotalHold.HcInvested;
-                ret.HcTotalValuation += stock.RCTotalHold.HcValuation;
-            }
-
             StockMeta stockMeta = stockMetaProv.Get(stock.Stock.SRef);
 
             // Dividents under RCStock are on dictionary w PaymentDate as key, and that stocks that day dividents on Value
@@ -64,6 +58,7 @@ public class RepGenDivident
                     PayPerUnit = kvp.Value.PaymentPerUnit,
                     HcPayPerUnit = kvp.Value.PaymentPerUnit * kvp.Value.CurrencyRate,
                     Currency = kvp.Value.Currency,
+                    YearlyDivPForHcHolding = stock.RCTotalHold != null ? kvp.Value.HcPaymentPerUnit * stock.DivPaidTimesPerYear * 100 / stock.RCTotalHold.HcAvrgPrice : 0,
                 };
 
                 ret.LastPayments.Add(div);

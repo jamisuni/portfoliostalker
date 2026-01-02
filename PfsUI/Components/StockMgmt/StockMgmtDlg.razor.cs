@@ -43,6 +43,7 @@ public partial class StockMgmtDlg
     protected const int TabIdHoldings = 4;
 
     protected string _primBtnText = String.Empty;
+    protected string _secBtnText = String.Empty;
 
     StockMgmtNote _childStockMgmtNote;
     StockMgmtAlarms _childStockMgmtAlarms;
@@ -84,16 +85,23 @@ public partial class StockMgmtDlg
         {
             case TabIdNote:
                 _primBtnText = _btnNoteEdit;
+                _secBtnText = string.Empty;
                 break;
 
             case TabIdAlarms:
             case TabIdOrders:
-            case TabIdHoldings:
                 _primBtnText = "Add";
+                _secBtnText = string.Empty;
+                break;
+
+            case TabIdHoldings:
+                _primBtnText = "Add Holding";
+                _secBtnText = "Add divident";
                 break;
 
             default:
                 _primBtnText = string.Empty;
+                _secBtnText = string.Empty;
                 break;
         }
     }
@@ -125,6 +133,16 @@ public partial class StockMgmtDlg
 
             case TabIdHoldings:
                 await _childStockMgmtHoldings.FromOwner_DoAddHoldinAsync();
+                break;
+        }
+    }
+
+    protected async Task OnBtnSecAsync()
+    {
+        switch (_tabs.ActivePanelIndex)
+        {
+            case TabIdHoldings:
+                await _childStockMgmtHoldings.FromOwner_DoAddDividentAsync();
                 break;
         }
     }
