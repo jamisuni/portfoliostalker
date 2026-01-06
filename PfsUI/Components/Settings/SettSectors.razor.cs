@@ -68,8 +68,12 @@ partial class SettSectors
 
             for (int fieldId = 0; fieldId < SSector.MaxFields; fieldId++)
             {
+                string[] sRefs = Pfs.Stalker().GetSectorFieldStocks(sectorId, fields[fieldId]);
+
                 _viewRow[fieldId + 1].Edit[sectorId] = fields[fieldId];
-                _viewRow[fieldId + 1].Usage[sectorId] = 0; // _usageData.Where(s => s.Sectors[sectorId] == entry.Edit[sectorId]).Count();
+                _viewRow[fieldId + 1].Usage[sectorId] = sRefs.Count();
+
+                _viewRow[0].Usage[sectorId] += sRefs.Count();
             }
         }
     }

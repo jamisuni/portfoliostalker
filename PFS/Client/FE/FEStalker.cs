@@ -313,6 +313,25 @@ public class FEStalker : IFEStalker
         return ret;
     }
 
+    public string[] GetSectorFieldStocks(int sectorId, string fieldName)
+    {
+        List<string> retSRefs = new();
+
+        (_, string[] fieldNames) = _clientStalker.GetSector(sectorId);
+
+        int fieldPos = fieldNames.IndexOf(fieldName);
+
+        if (fieldPos < 0)
+            return Array.Empty<string>();
+
+        foreach ( SStock stock in _clientStalker.Stocks() )
+        {
+            if (stock.Sectors[sectorId] == fieldPos)
+                retSRefs.Add(stock.SRef);
+        }
+        return retSRefs.ToArray();
+    }
+
     public string[] GetStockSectorFields(string sRef)
     {
         return _clientStalker.GetStockSectors(sRef);

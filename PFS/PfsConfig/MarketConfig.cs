@@ -108,6 +108,8 @@ public class MarketConfig : IMarketMeta, IPfsSetMarketConfig, ICmdHandler, IData
 
     public (DateOnly localDate, DateTime utcTime) LastClosing(MarketId marketId)
     {
+        Log.Debug(marketId.ToString());
+
         MarketDef marketSett = _marketDef.Single(d => d.Market.ID == marketId);
 
         TimeZoneInfo marketTimezone = TimeZoneInfo.FindSystemTimeZoneById(marketSett.TimezoneTag);
@@ -132,7 +134,7 @@ public class MarketConfig : IMarketMeta, IPfsSetMarketConfig, ICmdHandler, IData
             marketLocalClosing = marketLocalClosing.AddWorkingDays(-1);
         }
 
-        while (_configs.ContainsKey(marketId) && Array.Exists(_configs[marketId].Holidays, h => h == DateOnly.FromDateTime(marketLocalClosing)) )
+        while (_configs.ContainsKey(marketId) && _configs[marketId].Holidays != null && Array.Exists(_configs[marketId].Holidays, h => h == DateOnly.FromDateTime(marketLocalClosing)) )
         {   // Finally check against holidays information and move further if happen to be on user defined market holiday
             marketLocalClosing = marketLocalClosing.AddWorkingDays(-1);
         }
@@ -145,7 +147,7 @@ public class MarketConfig : IMarketMeta, IPfsSetMarketConfig, ICmdHandler, IData
     {
         var next = LastClosing(marketId).utcTime.AddWorkingDays(+1);
 
-        while (_configs.ContainsKey(marketId) && Array.Exists(_configs[marketId].Holidays, h => h == DateOnly.FromDateTime(next)))
+        while (_configs.ContainsKey(marketId) && _configs[marketId].Holidays != null && Array.Exists(_configs[marketId].Holidays, h => h == DateOnly.FromDateTime(next)))
         {   // Finally check against holidays information and move further if happen to be on user defined market holiday
             next = next.AddWorkingDays(+1);
         }

@@ -43,5 +43,7 @@ public interface IFEStalker
 
     string[] GetSectorNames();
     string[] GetSectorFieldNames(int sectorId);
-    public string[] GetStockSectorFields(string sRef);
+    string[] GetStockSectorFields(string sRef);
+
+    string[] GetSectorFieldStocks(int sectorId, string fieldName);
 }
