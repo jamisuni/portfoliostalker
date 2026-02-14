@@ -157,7 +157,7 @@ public class StalkerXML
                             myPfStElem.SetAttributeValue("PRate", trade.CurrencyRate);
 
                         if (trade.Sold.CurrencyRate != 1)
-                            myPfStElem.SetAttributeValue("SRate", trade.CurrencyRate);
+                            myPfStElem.SetAttributeValue("SRate", trade.Sold.CurrencyRate);
 
                         if (trade.AnyDividents())
                         {
