@@ -66,7 +66,7 @@ public class RepGenInvested
             if (stock.RCHoldingsTotalDivident != null)
                 entry.HcGain += stock.RCHoldingsTotalDivident.HcDiv;
 
-            if (entry.HcGain != 0)
+            if (entry.HcGain != 0 && entry.RCTotalHold.HcInvested != 0)
                 entry.HcGainP = (int)(entry.HcGain / entry.RCTotalHold.HcInvested * 100);
             else
                 entry.HcGainP = 0;
@@ -99,10 +99,11 @@ public class RepGenInvested
 
         header.HcTotalDivident = new RRTotalDivident(hcTotalDiv, header.HcTotalInvested);
 
-        header.HcGrowthP = (int)((header.HcTotalValuation - header.HcTotalInvested) / header.HcTotalInvested * 100);
+        if (header.HcTotalInvested != 0)
+            header.HcGrowthP = (int)((header.HcTotalValuation - header.HcTotalInvested) / header.HcTotalInvested * 100);
 
         header.HcTotalGain = header.HcTotalValuation - header.HcTotalInvested + hcTotalDiv;
-        if (header.HcTotalGain != 0)
+        if (header.HcTotalGain != 0 && header.HcTotalInvested != 0)
             header.HcTotalGainP = (int)(header.HcTotalGain / header.HcTotalInvested * 100);
 
         foreach (RepDataInvested stock in ret )

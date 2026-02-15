@@ -6,19 +6,21 @@ Testing strategy and coverage for Portfolio Stalker. See [architecture.md](archi
 
 - **Framework**: xUnit 2.x with Microsoft.NET.Test.Sdk
 - **Target**: net10.0
-- **Project**: `PFS/PfsData.Tests/PfsData.Tests.csproj`
+- **Projects**: `PFS/PfsData.Tests/PfsData.Tests.csproj` (domain), `PFS/PfsReports.Tests/PfsReports.Tests.csproj` (reports)
 - **CI**: `dotnet test --verbosity diagnostic` runs on every push to `main` (`.github/workflows/main.yml`)
 
 ## Test Helpers
 
 | File | Purpose |
 |------|---------|
-| `Helpers/StalkerTestFixture.cs` | `CreateEmpty()` — fresh StalkerDoCmd; `CreatePopulated()` — pre-loaded with 3 portfolios, 7 stocks, 8 holdings, 1 trade, 4 dividends, 2 orders, 2 alarms, 2 sectors |
-| `Helpers/StalkerAssert.cs` | `Ok(Result)` — asserts success with error message display; `Fail(Result, substring)` — asserts failure with optional message check |
+| `PfsData.Tests/Helpers/StalkerTestFixture.cs` | `CreateEmpty()` — fresh StalkerDoCmd; `CreatePopulated()` — pre-loaded with 3 portfolios, 7 stocks, 8 holdings, 1 trade, 4 dividends, 2 orders, 2 alarms, 2 sectors |
+| `PfsData.Tests/Helpers/StalkerAssert.cs` | `Ok(Result)` — asserts success with error message display; `Fail(Result, substring)` — asserts failure with optional message check |
+| `PfsReports.Tests/Helpers/ReportTestFixture.cs` | Creates full stub environment (EOD, rates, markets, stock meta) matching `CreatePopulated()` fixture data |
+| `PfsReports.Tests/Helpers/ReportStubs.cs` | Stub implementations: `StubStockMeta`, `StubEodLatest`, `StubLatestRates`, `StubMarketMeta`, `StubPfsPlatform`, `StubStockNotes`, `StubPfsStatus`, `StubReportFilters`, `StubExtraColumns`, `StubFetchConfig`, plus filter variants |
 
 ## Current Test Coverage
 
-### Stalker Domain Model (142 tests across 14 classes)
+### PfsData.Tests — Stalker Domain Model (142 tests across 14 classes)
 
 All tests follow Arrange-Act-Assert pattern using fixture helpers and Result/FailResult assertions.
 
@@ -39,6 +41,20 @@ All tests follow Arrange-Act-Assert pattern using fixture helpers and Result/Fai
 | `StalkerXmlTests` | 12 | XML persistence | Export structure, import without warnings, round-trip: portfolios, holdings, alarms, sectors, orders, trades, dividends, sector stock assignments, currency rates |
 | `RealDataPatternTests` | 14 | Real-world patterns | Symbols with dots/dashes, custom PurhaceId formats, multiple dividends per holding, dividend on trade scenarios, multiple partial sales, Delete-Divident (from holding/trade), zero fees, 3 sectors, Close-Stock CLOSED$ format, XML round-trip with special symbols |
 
+### PfsReports.Tests — Report Generation (71 tests across 7 classes)
+
+Tests use `ReportTestFixture` (stub-based infrastructure) and `StalkerTestFixture.CreatePopulated()` for fixture data. Stubs: `StubStockMeta`, `StubEodLatest`, `StubLatestRates`, `StubMarketMeta`, `StubPfsPlatform`, `StubStockNotes`, `StubPfsStatus`, `StubReportFilters`, `StubExtraColumns`, `StubFetchConfig`, plus filter variants (`FilterByPfReportFilters`, `FilterBySectorReportFilters`, `FilterByOwningReportFilters`).
+
+| Test Class | Tests | Area | Key Scenarios |
+|------------|-------|------|---------------|
+| `RCGrowthTests` | 5 | RCGrowth record | Constructor calculations, McAvrgPrice, HcValuation, growth percentages |
+| `RCStockRecalcTests` | 9 | RCStock.RecalculateTotals | Single/multi holding, dividends, no holdings, no EOD, trade-only |
+| `ReportCalcTests` | 36 | StMgHoldings, StMgHistory, Invested, PfSales, ExpHoldings, RCEod, RCDivident, RRDivident, SHolding, PfStocks, BUG-14/15 repros, multi-currency, edge cases | Growth calculation, partial sales, null StockMeta, header totals, gain formulas, percentage sums, holding time, dividend aggregation, zero-invested edge case, empty stalker, overview group duplicates, failed messages for missing EOD, alarm/order inclusion, multi-currency conversion, StockMetaHist events |
+| `WeightReportTests` | 6 | RepGenWeight | Happy path, CurrentP sums to 100%, TargetP from Weight sector, AvrgTimeAsMonths formula, trade profit accumulation, TakenAgainstValuation formula |
+| `DividentReportTests` | 5 | RepGenDivident | Happy path, monthly grouping, 13-month detail cutoff, YearlyDivP projection, no-dividends edge case |
+| `OverviewReportTests` | 5 | OverviewGroups, OverviewStocks | Default group creation (5 + per-PF), valuation totals, CLOSED market exclusion, all stocks returned, alarms/orders populated |
+| `PreCalcTests` | 6 | ReportPreCalc | All stocks aggregated, PF filter, sector filter, owning filter, RecalculateTotals correctness, closest-trigger order kept |
+
 ## Coverage Gaps
 
 Areas without automated tests, listed by priority for future coverage.
@@ -51,10 +67,9 @@ Areas without automated tests, listed by priority for future coverage.
 - `ProvConfig`: API key storage, key operations (set/del/clear)
 - `AppConfig`: Settings persistence
 
-**PfsReports — Report Generation**
-- `ReportPreCalc`: RCStock aggregation, expired EOD detection
-- All RepGen classes: Calculation accuracy, filter application, edge cases (empty portfolios, missing EOD data, multi-currency)
-- `OverviewGroups` / `OverviewStocks`: Grouping and sorting logic
+**PfsReports — Report Generation (partially covered)**
+- Covered: RepGenWeight, RepGenDivident, RepGenPfStocks, RepGenInvested, RepGenPfSales, RepGenExpHoldings, RepGenStMgHoldings, RepGenStMgHistory, OverviewGroups, OverviewStocks, ReportPreCalc filtering
+- Remaining gaps: RepGenTracking, RepGenExpSales, RepGenExpDividents, expired EOD detection edge cases
 
 **PfsHelpers — Utilities**
 - `CmdParser`: Template matching, enum parsing, bracket handling

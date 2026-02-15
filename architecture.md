@@ -168,27 +168,78 @@ Common interface: `SetPrivateKey()`, `IsMarketSupport()`, `GetBatchSizeLimit()`,
 
 ### Pipeline
 
-1. `ReportPreCalc` aggregates domain data into `List<RCStock>` (stock-oriented report cells)
-2. `RepGen*` classes transform RCStock data with filters into `RepData*` report containers
-3. UI renders RepData through report components
+```
+StalkerData + IDataOwner stores
+        │
+        ▼
+   ReportPreCalc (constructor)
+   ├── Loops all portfolios → builds List<RCStock>
+   ├── Resolves StockMeta, FullEOD, conversion rates
+   ├── Aggregates Holdings, Trades, Orders, Dividends per stock
+   └── Calls RecalculateTotals() on each RCStock
+        │
+        ▼
+   ReportPreCalc.GetStocks(filters, stalkerData)   ← yield return with sector/market/owning filters
+        │
+        ▼
+   RepGen* report generators
+   ├── Transform RCStock data into RepData* containers
+   ├── Apply report-specific logic (grouping, totals, calculations)
+   └── Return typed report data
+        │
+        ▼
+   UI report components render RepData* via MudBlazor tables
+```
+
+### Key Report Types (PfsTypes/Reports/)
+
+| Type | Prefix | Purpose |
+|------|--------|---------|
+| `RCStock` | RC | Pre-calculated stock with all cross-portfolio aggregated data |
+| `RCEod` | RC | EOD price with currency conversion and expiration info |
+| `RCGrowth` | RC | Investment growth calculation (units, invested, valuation, growth%) |
+| `RCHolding` | RC | Single holding wrapper with PF name |
+| `RCTrade` | RC | Single trade wrapper with PF name |
+| `RCOrder` | RC | Closest-to-trigger order per PF |
+| `RCDivident` | RC | Per-PaymentDate dividend aggregation (holding + trade units) |
+| `RCTotalHcDivident` | RC | Total home-currency dividend with invested base |
+| `RRAlarm` | RR | Alarm evaluation result against current EOD |
+| `RRDivident` / `RRTotalDivident` | RR | Dividend report result types |
+| `RepData*` | RepData | Report-specific output containers consumed by UI |
+| `ReportFilters` | — | User-configurable filters: PF, Sector (x3), Market, Owning |
 
 ### Report Generators
 
+**PreCalc-based** (use `IReportPreCalc` + `IReportFilters`):
+
 | Generator | Output | Description |
 |-----------|--------|-------------|
-| `RepGenPfStocks` | `RepDataPfStocks` | Portfolio stock listing with holdings/alarms/orders |
-| `RepGenDivident` | `RepDataDivident` | Dividend analysis |
-| `RepGenTracking` | `RepDataTracking` | Watched stocks not in portfolio |
-| `RepGenWeight` | `RepDataWeight` | Portfolio weight vs target allocation |
-| `RepGenInvested` | `RepDataInvested` | Investment summary and growth |
-| `RepGenPfSales` | `RepDataPfSales` | Closed positions, profit/loss |
-| `RepGenStMgHoldings` | `RepDataStMgHoldings` | Stock management holdings view |
-| `RepGenStMgHistory` | `RepDataStMgHistory` | Stock management transaction history |
-| `RepGenExpHoldings` | `RepDataExpHoldings` | Export: holdings |
-| `RepGenExpDividents` | `RepDataExpDividents` | Export: dividends |
-| `RepGenExpSales` | `RepDataExpSales` | Export: sales |
-| `OverviewGroups` | `OverviewGroupsData` | Group-level summary |
-| `OverviewStocks` | `OverviewStocksData` | Stock-level summary |
+| `RepGenInvested` | `(header, List<RepDataInvested>)` | Investment summary — holdings with growth, gain, dividends, sub-holdings |
+| `RepGenWeight` | `(header, List<RepDataWeight>)` | Portfolio weight vs target allocation. Trade history. Taken ratio. |
+| `RepGenPfStocks` | `List<RepDataPfStocks>` | Portfolio stock listing with alarms/orders. Includes no-EOD stocks |
+| `RepGenPfSales` | `List<RepDataPfSales>` | Closed positions grouped by TradeId with growth and dividends |
+| `RepGenDivident` | `Result<RepDataDivident>` | Dividend analysis — monthly totals, last 13 months detail |
+| `RepGenExpHoldings` | `List<RepDataExpHoldings>` | Export: current holdings with gain, sector, avg holding time |
+| `RepGenExpSales` | `List<RepDataExpSales>` | Export: all sales for tax reporting |
+| `RepGenExpDividents` | `List<RepDataExpDividents>` | Export: all dividends per payment date |
+| `ReportOverviewGroups` | `Result<List<OverviewGroupsData>>` | Group-level summary: Alarms, Investments, Top, Oldies, Tracking, per-PF |
+| `ReportOverviewStocks` | `List<OverviewStocksData>` | Stock-level overview with extra columns, orders, alarms |
+
+**Standalone** (direct StalkerData access, no PreCalc):
+
+| Generator | Output | Description |
+|-----------|--------|-------------|
+| `RepGenStMgHistory` | `Result<List<RepDataStMgHistory>>` | Single-stock transaction history: Own/Buy/Sold + StockMetaHist events |
+| `RepGenStMgHoldings` | `Result<List<RepDataStMgHoldings>>` | Single-stock current holdings with per-holding growth and dividends |
+| `RepGenTracking` | `List<RepDataTracking>` | All tracked stock metadata with PF ownership and fetch provider info |
+
+### ReportFilters
+
+`ReportFilters` implements `IReportFilters` with 6 filter dimensions: PfName, Sector0-2, Market, Owning. Stored as semicolon-separated strings in XML. Some reports lock specific filters (e.g., PfStocks locks PfName, PfSales locks PfName+Owning). Default instance allows everything.
+
+### Audit Status
+
+Full audit documented in [plan_pfsreports.md](plan_pfsreports.md). Current test coverage: **zero**. Known bugs: BUG-12 through BUG-15 (see [claudejobs.md](claudejobs.md)).
 
 ---
 

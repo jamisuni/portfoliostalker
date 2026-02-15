@@ -62,7 +62,7 @@ public class RepGenExpHoldings
             if (stock.RCHoldingsTotalDivident != null)
                 entry.HcGain += stock.RCHoldingsTotalDivident.HcDiv;
 
-            if (entry.HcGain != 0)
+            if (entry.HcGain != 0 && entry.RCTotalHold.HcInvested != 0)
                 entry.HcGainP = (int)(entry.HcGain / entry.RCTotalHold.HcInvested * 100);
             else
                 entry.HcGainP = 0;

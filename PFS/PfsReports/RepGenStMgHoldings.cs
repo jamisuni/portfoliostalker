@@ -28,6 +28,10 @@ public class RepGenStMgHoldings
         List<RepDataStMgHoldings> report = new();
 
         StockMeta stockMeta = stockMetaProv.Get(sRef);
+
+        if (stockMeta == null)
+            return new FailResult<List<RepDataStMgHoldings>>($"{sRef} failed to find stock.");
+
         FullEOD fullEod = latestEodProv.GetFullEOD(sRef);
         decimal latestConversionRate = latestRatesProv.GetLatest(stockMeta.marketCurrency);
 

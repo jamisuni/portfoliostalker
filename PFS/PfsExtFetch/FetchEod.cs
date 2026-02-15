@@ -238,9 +238,9 @@ public class FetchEod : IFetchEod, ICmdHandler, IOnUpdate, IDataOwner
         // This is specific functionality we use from TwelveData... as they seam have nice API for matching
         StockMeta[] found;
         if ( optMarketId == MarketId.Unknown )
-            found = await new ExtTwelveData(_pfsStatus).FindBySymbolAsync(symbol, [optMarketId]);
-        else
             found = await new ExtTwelveData(_pfsStatus).FindBySymbolAsync(symbol, _marketMetaProv.GetActives().Select(m => m.ID).ToArray());
+        else
+            found = await new ExtTwelveData(_pfsStatus).FindBySymbolAsync(symbol, [optMarketId]);
 
         if ( found != null && found.Count() > 1 && optMarketId == MarketId.Unknown && optMarketCurrency != CurrencyId.Unknown )
         {   // As market was not defined, and we use actives.. got multiple matches... use currency to close decision

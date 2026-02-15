@@ -30,11 +30,12 @@ public class RepGenStMgHistory
         List<RepDataStMgHistory> report = new();
 
         StockMeta stockMeta = stockMetaProv.Get(sRef);
-        FullEOD fullEod = latestEodProv.GetFullEOD(sRef);
-        decimal latestConversionRate = latestRatesProv.GetLatest(stockMeta.marketCurrency);
 
         if (stockMeta == null)
             return new FailResult<List<RepDataStMgHistory>>($"{sRef} failed to find stock.");
+
+        FullEOD fullEod = latestEodProv.GetFullEOD(sRef);
+        decimal latestConversionRate = latestRatesProv.GetLatest(stockMeta.marketCurrency);
 
         RCEod rcEod = null;
         if (fullEod != null && latestConversionRate > 0)

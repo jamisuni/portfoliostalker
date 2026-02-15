@@ -44,6 +44,9 @@ All above reference → PfsTypes (core domain types, interfaces, enums)
 
 PfsExtTransactions (bank CSV import) → PfsTypes
 PfsCmdLine (net8.0 console, standalone) → PfsConfig, PfsTypes
+
+PfsData.Tests (xUnit) → PfsData, PfsTypes
+PfsReports.Tests (xUnit) → PfsReports, PfsData, PfsConfig, PfsTypes
 ```
 
 ### Key Architectural Patterns
@@ -110,7 +113,9 @@ Uses **MudBlazor** component library. Components follow the `.razor` + `.razor.c
 For test coverage details, test plan, and coverage gaps, see [testplan.md](testplan.md).
 
 - **Run tests:** `dotnet test --verbosity diagnostic`
-- **Test project:** `PFS/PfsData.Tests/` — 112 xUnit tests covering Stalker domain model
+- **Test projects:**
+  - `PFS/PfsData.Tests/` — 142 xUnit tests covering Stalker domain model
+  - `PFS/PfsReports.Tests/` — 71 xUnit tests covering report generation
 - **CI:** Tests run automatically on push to `main`
 
 ## Work Rules

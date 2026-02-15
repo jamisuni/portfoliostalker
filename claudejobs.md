@@ -8,11 +8,6 @@ _(none)_
 
 ## Open
 
-### BUG-8: FindBySymbolAsync — Inverted market logic
-- **File:** `PFS/PfsExtFetch/FetchEod.cs:240-243`
-- **Severity:** High — search returns wrong results
-- **Description:** if/else branches swapped: Unknown market searches only Unknown, specified market searches all actives. Should be opposite.
-
 ### BUG-9: MonthsRemainingWorkDays — Double-counts current day
 - **File:** `PFS/PfsExtFetch/FetchEodTask.cs:222-233`
 - **Severity:** Low — off-by-one in monthly credit allocation
@@ -25,10 +20,15 @@ _(none)_
 - **File:** `PFS/PfsExtFetch/FetchEod.cs:170-171`
 - **Severity:** Medium — new fetch request silently dropped if previous still pending
 
+
+
+## Postponed
+
 ### TASK-3: PfsExtFetch test coverage
 - **Plan:** See [plan_pfsextfetch.md](plan_pfsextfetch.md) for full audit results and test proposal
 - **Scope:** ~40-45 new tests across FetchEodPending, FetchEodTask, FetchEod
-- **Status:** Plan complete, awaiting implementation decision
+- **Status:** Plan complete, not urgent — revisit when fetch logic changes
+- **Postponed:** 2026-02-15
 
 ## False Positives
 
@@ -38,6 +38,35 @@ _(none)_
 ## Fixed
 
 _(Items cleared after 30 days)_
+
+### BUG-14: Division by HcInvested with wrong guard — Fixed 2026-02-15
+- **Files:** `RepGenInvested.cs`, `RepGenExpHoldings.cs`
+- **Fix:** Added `HcInvested != 0` guard to all 3 division sites (per-stock HcGainP, header HcGrowthP, header HcTotalGainP). Prevents DivideByZeroException on zero-cost holdings.
+
+### BUG-15: OverviewGroups duplicate SRefs — Fixed 2026-02-15
+- **File:** `PFS/PfsReports/OverviewGroups.cs`
+- **Fix:** Removed redundant `pfGroup.SRefs.Add()` on line 93 — SRefs were already initialized from `portfolio.SRefs.Distinct()` on line 85.
+
+### TASK-5: Complete Report Test Suite — Calculation Verification — Fixed 2026-02-15
+- **Scope:** 31 new tests across 6 files (4 new + 2 extended), covering Weight, Dividend, PfStocks, Overview, PreCalc, BUG-14/15 repros, multi-currency, edge cases
+- **Result:** 213 total tests, all passing (up from 182)
+- **New files:** `WeightReportTests.cs` (6), `DividentReportTests.cs` (5), `OverviewReportTests.cs` (5), `PreCalcTests.cs` (6)
+- **Extended:** `ReportCalcTests.cs` (+9), stub additions in `ReportStubs.cs` and `ReportTestFixture.cs`
+- **Infrastructure:** Added `FilterByPfReportFilters`, `FilterBySectorReportFilters`, `FilterByOwningReportFilters`, `StubExtraColumns`, `StubFetchConfig`
+
+### BUG-12: RepGenStMgHistory — stockMeta used before null check — Fixed 2026-02-15
+- **File:** `PFS/PfsReports/RepGenStMgHistory.cs`
+- **Fix:** Moved null check for `stockMeta` before its first usage (`stockMeta.marketCurrency`)
+
+### BUG-13: RepGenStMgHoldings — No null check on stockMeta at all — Fixed 2026-02-15
+- **File:** `PFS/PfsReports/RepGenStMgHoldings.cs`
+- **Fix:** Added null check for `stockMeta` before its first usage, returning `FailResult` if null
+
+### TASK-4: PfsReports Full Audit & Test Planning — Fixed 2026-02-15
+- **Scope:** Audit all 14 report generators, document bugs, create test plan
+- **Result:** Created [plan_pfsreports.md](plan_pfsreports.md) — full audit with 4 bugs (BUG-12–BUG-15), ~35 proposed tests, 10 stub classes needed. Updated [architecture.md](architecture.md) with expanded report pipeline docs.
+- **Bugs found:** BUG-12 (HIGH), BUG-13 (HIGH), BUG-14 (LOW), BUG-15 (LOW)
+- **Additional findings:** 9+ double-enumeration performance issues, return type inconsistency, 7 code markers, sort-inside-loop in RepGenDivident
 
 ### BUG-1: StalkerDoCmd.StockSet() — Off-by-one on FindIndex — Fixed 2026-02-14
 - **File:** `PFS/PfsData/Stalker/StalkerDoCmd.cs` line ~489
@@ -74,6 +103,10 @@ _(Items cleared after 30 days)_
 
 ### TASK-2b: InvariantCulture fixes in source code — Fixed 2026-02-14
 - **Files fixed:** StalkerParam.cs, Decimal.cs, SAlarm.cs, RepGenWeight.cs — all now use InvariantCulture for decimal parsing/formatting
+
+### BUG-8: FindBySymbolAsync — Inverted market logic — Fixed 2026-02-15
+- **File:** `PFS/PfsExtFetch/FetchEod.cs:240-243`
+- **Fix:** Swapped the if/else branches — Unknown market now searches all actives, specified market searches only that market
 
 ### TASK-1: Unit Test Project for Stalker Library — Fixed 2026-02-14
 - **Project:** `PFS/PfsData.Tests/PfsData.Tests.csproj` (xUnit, net10.0)

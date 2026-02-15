@@ -89,8 +89,6 @@ public class ReportOverviewGroups
             {
                 if (portfolio.SRefs.Contains(stock.StockMeta.GetSRef()) == false)
                     continue;
-                
-                pfGroup.SRefs.Add(stock.StockMeta.GetSRef());
 
                 foreach ( RCHolding holding in stock.Holdings.Where(h => h.PfName == portfolio.Name) )
                 {
