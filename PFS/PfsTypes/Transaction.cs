@@ -15,8 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.en.html>.
  */
 
-using System.Text;
-
 namespace Pfs.Types;
 
 public class Transaction
@@ -56,19 +54,34 @@ public class Transaction
 
     public string IsValid()
     {
-        StringBuilder sb = new();
-
         switch (Action)
         {
             case TaType.Unknown:
                 return "Unknown type action";
 
+            case TaType.Buy:
+            case TaType.Sell:
+                if (Units <= 0)
+                    return "Units must be positive";
+                if (McAmountPerUnit <= 0)
+                    return "Price per unit must be positive";
+                if (McFee < 0)
+                    return "Fee cannot be negative";
+                break;
 
+            case TaType.Divident:
+                if (Units <= 0)
+                    return "Units must be positive";
+                if (McAmountPerUnit <= 0)
+                    return "Payment per unit must be positive";
+                break;
+
+            case TaType.Round:
+            case TaType.Close:
+                break;
         }
 
-        // !!!TODO!!! Get back here and add verifications per type etc to make sure all fields are there and has positive etc values
-
-        return sb.ToString();
+        return string.Empty;
     }
 }
 

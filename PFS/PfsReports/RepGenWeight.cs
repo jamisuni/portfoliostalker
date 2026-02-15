@@ -138,7 +138,7 @@ public class RepGenWeight
             // Target weight % for stock
             stock.TargetP = stalkerData.GetStockSectors(stock.StockMeta.GetSRef())[weightSector];
 
-            if (string.IsNullOrEmpty(stock.TargetP) == false && decimal.TryParse(stock.TargetP.Split('%')[0], out decimal tval))
+            if (string.IsNullOrEmpty(stock.TargetP) == false && decimal.TryParse(stock.TargetP.Split('%')[0], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal tval))
                 header.TotalPlannedP += tval;
             else // if target not set, assume current weight as target
                 header.TotalPlannedP += stock.CurrentP;

@@ -39,16 +39,21 @@ public class StalkerData
         _sectors = new SSector[SSector.MaxSectors];
     }
 
-    public static void DeepCopy(StalkerData from, StalkerData to) 
+    public static void DeepCopy(StalkerData from, StalkerData to)
     {
         to._portfolios = new();
         to._stocks = new();
+        to._sectors = new SSector[SSector.MaxSectors];
 
         foreach (SPortfolio pf in from._portfolios)
             to._portfolios.Add(pf.DeepCopy());
 
         foreach (SStock s in from._stocks)
             to._stocks.Add(s.DeepCopy());
+
+        for (int i = 0; i < SSector.MaxSectors; i++)
+            if (from._sectors[i] != null)
+                to._sectors[i] = from._sectors[i].DeepCopy();
     }
 
     public SPortfolio PortfolioRef(string pfName)

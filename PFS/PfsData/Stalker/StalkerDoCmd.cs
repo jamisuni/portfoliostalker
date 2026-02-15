@@ -486,7 +486,7 @@ public class StalkerDoCmd : StalkerData
         {
             int index = pf.SRefs.FindIndex(s => s == oldSRef);
 
-            if (index > 0)
+            if (index >= 0)
                 pf.SRefs[index] = updSRef;
 
             foreach (SOrder so in pf.StockOrders)

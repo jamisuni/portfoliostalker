@@ -38,45 +38,45 @@ public static class DecimalExtensions
 
     public static string To(this decimal value)
     {
-        return value.ToString("0");
+        return value.ToString("0", CultureInfo.InvariantCulture);
     }
 
     public static string To0(this decimal value)
     {
-        return value.ToString("0.0");
+        return value.ToString("0.0", CultureInfo.InvariantCulture);
     }
 
     public static string To00(this decimal value)
     {
-        return value.ToString("0.00");
+        return value.ToString("0.00", CultureInfo.InvariantCulture);
     }
 
     public static string To000(this decimal value)
     {
-        return value.ToString("0.000");
+        return value.ToString("0.000", CultureInfo.InvariantCulture);
     }
 
     public static string To0000(this decimal value)
     {
-        return value.ToString("0.0000");
+        return value.ToString("0.0000", CultureInfo.InvariantCulture);
     }
 
     public static string ToP(this decimal value) // procentage
     {
         if (-20 < value && value < 20 )
-            return value.ToString("0.0") + "%";
+            return value.ToString("0.0", CultureInfo.InvariantCulture) + "%";
         else
-            return value.ToString("0") + "%";
+            return value.ToString("0", CultureInfo.InvariantCulture) + "%";
     }
 
     public static string ToV(this decimal value) // compact value
     {
         if (value < 20)
-            return value.ToString("0.00");
+            return value.ToString("0.00", CultureInfo.InvariantCulture);
         else if (value < 100)
-            return value.ToString("0.0");
+            return value.ToString("0.0", CultureInfo.InvariantCulture);
         else
-            return value.ToString("0");
+            return value.ToString("0", CultureInfo.InvariantCulture);
     }
 
     public static decimal ToVR(this decimal value) // compact value

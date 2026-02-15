@@ -225,8 +225,8 @@ public class SAlarmTrailingSellP : SAlarm
     protected void ParsePrms(string prms)
     {
         string[] split = prms.Split(';');
-        DropP = decimal.Parse(split[0]);
-        High = decimal.Parse(split[1]);
+        DropP = DecimalExtensions.Parse(split[0]);
+        High = DecimalExtensions.Parse(split[1]);
     }
 
     public static string CreatePrms(decimal dropP, decimal high)
@@ -251,7 +251,7 @@ public class SAlarmTrailingBuyP : SAlarm
         {   // This is dynamic alarm, and actually updating one of its prms
             Low = eod.Close;
         }
-        else if (eod.Close > Low && (eod.Close - Low) / eod.Close * 100 >= RecoverP)
+        else if (eod.Close > Low && (eod.Close - Low) / Low * 100 >= RecoverP)
             return true;
 
         return false;
@@ -276,8 +276,8 @@ public class SAlarmTrailingBuyP : SAlarm
     protected void ParsePrms(string prms)
     {
         string[] split = prms.Split(';');
-        RecoverP = decimal.Parse(split[0]);
-        Low = decimal.Parse(split[1]);
+        RecoverP = DecimalExtensions.Parse(split[0]);
+        Low = DecimalExtensions.Parse(split[1]);
     }
 
     public static string CreatePrms(decimal recoverP, decimal low)

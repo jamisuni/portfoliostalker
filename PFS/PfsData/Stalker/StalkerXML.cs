@@ -322,12 +322,18 @@ public class StalkerXML
                         int sectorPos = Array.IndexOf(ret.Sectors, ret.Sectors.FirstOrDefault(s => s != null && s.Name == sector));
 
                         if (sectorPos == -1)
+                        {
+                            warnings.Add($"stalker, stock {sstock.SRef} has unknown sector [{sector}], skipped");
                             continue;
+                        }
 
                         int fieldPos = Array.IndexOf(ret.Sectors[sectorPos].FieldNames, ret.Sectors[sectorPos].FieldNames.FirstOrDefault(s => s == field));
 
                         if (fieldPos == -1)
+                        {
+                            warnings.Add($"stalker, stock {sstock.SRef} has unknown field [{field}] in sector [{sector}], skipped");
                             continue;
+                        }
 
                         sstock.Sectors[sectorPos] = fieldPos;
                     }

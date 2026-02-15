@@ -92,7 +92,7 @@ public class StalkerParam
                     if (Error != null)
                         return Error;
 
-                    Value = value.ToString();
+                    Value = value.ToString(CultureInfo.InvariantCulture);
                     return Error = new OkResult();
                 }
 
@@ -256,7 +256,7 @@ public class StalkerParam
         {
             decimal value;
 
-            if (decimal.TryParse(param, out value) == false)
+            if (decimal.TryParse(param, NumberStyles.Any, CultureInfo.InvariantCulture, out value) == false)
             {
                 Error = new FailResult($"{Name} failed to parse {param} as decimal");
                 return 0;
@@ -385,7 +385,7 @@ public class StalkerParam
 
     public static implicit operator string(StalkerParam param) { return param.Value; }
     public static implicit operator int(StalkerParam param) { return int.Parse(param.Value); }
-    public static implicit operator double(StalkerParam param) { return double.Parse(param.Value); }
+    public static implicit operator double(StalkerParam param) { return double.Parse(param.Value, CultureInfo.InvariantCulture); }
     public static implicit operator decimal(StalkerParam param) { return DecimalExtensions.Parse(param.Value); }
     public static implicit operator DateOnly(StalkerParam param) { return DateOnly.ParseExact(param.Value, "yyyy-MM-dd", CultureInfo.InvariantCulture); }
     public static implicit operator SAlarmType(StalkerParam param) {  return (SAlarmType)Enum.Parse(typeof(SAlarmType), param.Value); }

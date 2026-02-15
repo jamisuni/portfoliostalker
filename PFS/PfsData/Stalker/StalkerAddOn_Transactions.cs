@@ -22,63 +22,34 @@ namespace Pfs.Data.Stalker;
 // Provides generic Validate & Convert a external Brokers 'ExtTransaction' records to Stalker Action's format
 public class StalkerAddOn_Transactions
 {
-    // Does check & complete transactions information to make sure everything required is available
-    public static bool Validate(Transaction ta, StalkerDoCmd stalkerDoCmd)      // !!!TODO!!!
+    // Validates transaction fields and checks for duplicates. Returns (errMsg, isDuplicate).
+    // errMsg is empty if valid. isDuplicate is true if UniqueId already exists in stalker data.
+    public static (string ErrMsg, bool IsDuplicate) Validate(Transaction ta, StalkerDoCmd stalkerDoCmd)
     {
-#if false
-        ta.Status = Transaction.ProcessingStatus.Acceptable;
+        // Field validation
+        string validErr = ta.IsValid();
+        if (string.IsNullOrEmpty(validErr) == false)
+            return (validErr, false);
 
-        switch ( ta.Type )
+        // Duplicate check
+        switch (ta.Action)
         {
             case TaType.Buy:
-            case TaType.Sell:
-            case TaType.Divident:
-            {
-                    if (ta.Units <= 0)
-                        ta.Status = Transaction.ProcessingStatus.Err_UnitAmount;
-                    
-                    else if (ta.AmountPerUnit <= 0)
-                        ta.Status = Transaction.ProcessingStatus.Err_PricePerUnit;
-
-                    else if (ta.Fee < 0)
-                        ta.Status = Transaction.ProcessingStatus.Err_Fee;
-                }
-                break;
-
-            default:
-                ta.Status = Transaction.ProcessingStatus.Err_UnknownType;
-                break;
-        }
-
-        if (ta.Status != Transaction.ProcessingStatus.Acceptable)
-            return false;
-
-        switch (ta.Type)
-        {
-            case TaType.Buy:
-                {
-                    if (stalkerDoCmd.IsPurhaceId(ta.UniqueId) )
-                        ta.Status = Transaction.ProcessingStatus.Duplicate;
-                }
+                if (string.IsNullOrEmpty(ta.UniqueId) == false && stalkerDoCmd.IsPurhaceId(ta.UniqueId))
+                    return (string.Empty, true);
                 break;
 
             case TaType.Sell:
-                {
-                    if (stalkerDoCmd.IsTradeId(ta.UniqueId) )
-                        ta.Status = Transaction.ProcessingStatus.Duplicate;
-                }
+                if (string.IsNullOrEmpty(ta.UniqueId) == false && stalkerDoCmd.IsTradeId(ta.UniqueId))
+                    return (string.Empty, true);
                 break;
 
             case TaType.Divident:
-                // Divident is not that easy, as not uniqueId base and we do not know company for sure yet
-                // so that part needs to be handled later when actually trying to save it to company!
+                // Divident duplicate check is handled later when saving to company
                 break;
         }
 
-        if (ta.Status != BtAction.Acceptable)
-            return false;
-#endif
-        return true;
+        return (string.Empty, false);
     }
 
     // Assumes everything is Validated, so this creates actual Stalker compatible Action commands, return empty for error

@@ -39,7 +39,7 @@ public class SSector
     {
         SSector ret = (SSector)this.MemberwiseClone();
 
-        // !!!TODO!!!
+        ret.FieldNames = (string[])FieldNames.Clone();
 
         return ret;
     }

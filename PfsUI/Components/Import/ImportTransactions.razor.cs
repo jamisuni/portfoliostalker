@@ -377,10 +377,23 @@ public partial class ImportTransactions
             // Recreate this always if needs validation, as Stalker gets updated per user actions
             StalkerDoCmd stalkerCopy = Pfs.Stalker().GetCopyOfStalker();
 
-#if false
             foreach (BtAction entry in _brokerTransactions)
-                StalkerAddOn_ExtTransactions.Validate(entry, stalkerCopy);                                      // !!!TODO!!!
-#endif
+            {
+                if (entry.Status != BtAction.TAStatus.Acceptable)
+                    continue;
+
+                var (errMsg, isDuplicate) = StalkerAddOn_Transactions.Validate(entry.TA, stalkerCopy);
+
+                if (string.IsNullOrEmpty(errMsg) == false)
+                {
+                    entry.Status = BtAction.TAStatus.ErrConversion;
+                    entry.ErrMsg = errMsg;
+                }
+                else if (isDuplicate)
+                {
+                    entry.Status = BtAction.TAStatus.ErrTestDupl;
+                }
+            }
         }
 
         // 5) From Broker Transactions find all different broker provided companies, for company list
