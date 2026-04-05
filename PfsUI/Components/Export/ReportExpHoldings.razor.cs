@@ -579,7 +579,7 @@ public partial class ReportExpHoldings
             Sector = exp.SectorDef;
             MC = UiF.Curr(exp.StockMeta.marketCurrency);
 
-            AvrgPriceD = exp.RCTotalHold.HcAvrgPrice;
+            AvrgPriceD = exp.RCTotalHold.McAvrgPrice;
             AvrgTimeD = exp.AvrgTimeAsMonths;
             InvestedD = exp.RCTotalHold.HcInvested;
             ValuationD = exp.RCTotalHold.HcValuation;
