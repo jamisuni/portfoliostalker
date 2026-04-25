@@ -181,6 +181,12 @@ public partial class DlgAlarmEdit
 
     protected async Task DlgSaveAsync()
     {
+        if (_editType == SAlarmType.Unknown)
+        {
+            await LaunchDialog.ShowMessageBox("Missing type!", "Please select an alarm type before saving.", yesText: "Ok");
+            return;
+        }
+
         string cmd;
         string prms = string.Empty;
 

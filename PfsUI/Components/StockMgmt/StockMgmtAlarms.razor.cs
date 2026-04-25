@@ -99,6 +99,9 @@ public partial class StockMgmtAlarms
 
         decimal? GetAlarmDistance(SAlarm alarm)
         {
+            if (_fullEod == null)
+                return null;
+
             switch ( alarm.AlarmType )
             {
                 case SAlarmType.Under: return alarm.GetAlarmDistance(_fullEod.GetSafeLow());

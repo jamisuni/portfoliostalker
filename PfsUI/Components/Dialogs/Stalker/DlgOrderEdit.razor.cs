@@ -41,6 +41,8 @@ public partial class DlgOrderEdit
     protected SOrder _order = null;
     protected DateTime? _minDate = null;
     protected DateTime? _lastDate = DateTime.UtcNow.Date;
+    protected string _existingIsin = string.Empty;
+    protected string _newIsin = string.Empty;
 
     protected override void OnInitialized()
     {
@@ -67,6 +69,9 @@ public partial class DlgOrderEdit
 
         if (_order == null)
             _order = new();
+
+        StockMeta sm = Pfs.Stalker().GetStockMeta(Market, Symbol);
+        _existingIsin = sm?.ISIN ?? string.Empty;
 
         return;
     }
@@ -173,6 +178,9 @@ public partial class DlgOrderEdit
     {
         if (await Verify() == false)
             return;
+
+        if (string.IsNullOrWhiteSpace(_existingIsin) && !string.IsNullOrWhiteSpace(_newIsin))
+            Pfs.Stalker().UpdateCompanyNameIsin(Market, Symbol, DateOnly.FromDateTime(_lastDate.Value), string.Empty, _newIsin);
 
         // Add-Order PfName Type SRef Units Price LastDate
         string cmd = $"Add-Order PfName=[{PfName}] Type=[{_order.Type}] SRef=[{Market}${Symbol}] Units=[{_order.Units}] Price=[{_order.PricePerUnit}] LastDate=[{_lastDate.Value.ToString("yyyy-MM-dd")}]";

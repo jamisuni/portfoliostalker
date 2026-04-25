@@ -52,6 +52,8 @@ public partial class DlgHoldingsEdit
     protected string _conversionLabel = string.Empty;
     protected bool _allowDelete = false;                            // Can delete only if has no trades, nor dividents
     protected bool _allowEditUnits = false;                         // Cant edit units if has dividents
+    protected string _existingIsin = string.Empty;                  // Non-empty = already stored, show read-only
+    protected string _newIsin = string.Empty;                       // Editable only when no ISIN stored yet
 
     protected override void OnInitialized()
     {
@@ -96,6 +98,9 @@ public partial class DlgHoldingsEdit
             _viewCurrencyRate = false;
             _currencyRate = 1;
         }
+
+        StockMeta sm = Pfs.Stalker().GetStockMeta(Market, Symbol);
+        _existingIsin = sm?.ISIN ?? string.Empty;
     }
 
     protected async Task OnFullScreenChanged(bool fullscreen)
@@ -146,6 +151,9 @@ public partial class DlgHoldingsEdit
             _currencyRate < 0.001m)
             return;
 
+        if (string.IsNullOrWhiteSpace(_existingIsin) && !string.IsNullOrWhiteSpace(_newIsin))
+            Pfs.Stalker().UpdateCompanyNameIsin(Market, Symbol, DateOnly.FromDateTime(_purhaceDate.Value), string.Empty, _newIsin);
+
         // Edit-Holding PurhaceId Date Units Price Fee CurrencyRate Note
         string cmd = $"Edit-Holding PurhaceId=[{_purhaceId}] Date=[{_purhaceDate.Value.ToString("yyyy-MM-dd")}] Units=[{_units}] Price=[{_pricePerUnit}] Fee=[{_totalFee}] CurrencyRate=[{_currencyRate}] Note=[{_purhaceNote}]";
 
@@ -166,6 +174,9 @@ public partial class DlgHoldingsEdit
             _totalFee < 0 ||
             _currencyRate < 0.001m)
             return;
+
+        if (string.IsNullOrWhiteSpace(_existingIsin) && !string.IsNullOrWhiteSpace(_newIsin))
+            Pfs.Stalker().UpdateCompanyNameIsin(Market, Symbol, DateOnly.FromDateTime(_purhaceDate.Value), string.Empty, _newIsin);
 
         // Add-Holding PfName SRef PurhaceId Date Units Price Fee CurrencyRate Note
         string cmd = $"Add-Holding PfName=[{PfName}] SRef=[{Market}${Symbol}] PurhaceId=[{_purhaceId}] Date=[{_purhaceDate.Value.ToString("yyyy-MM-dd")}] " +

@@ -25,6 +25,15 @@
                 }
             </MudSelect>
         }
+        @if (!string.IsNullOrEmpty(_existingIsin))
+        {
+            <MudTextField Value="@_existingIsin" ReadOnly="true" Variant="Variant.Text" Label="ISIN" />
+        }
+        else
+        {
+            <MudTextField @bind-Value="_newIsin" Variant="Variant.Outlined" Label="ISIN (optional)" />
+        }
+
         <MudNumericField @bind-Value="_units" Label="Purhaces Units" Variant="Variant.Outlined" HideSpinButtons="true" ReadOnly="_allowEditUnits" />
         <MudNumericField @bind-Value="_pricePerUnit" Label="Price per Unit" Variant="Variant.Outlined" Min="0" HideSpinButtons="true" AdornmentText="@UiF.Curr(_marketCurrency)" Adornment="Adornment.End" />
         <MudNumericField @bind-Value="_totalFee" Label="Fee" Variant="Variant.Outlined" Min="0" HideSpinButtons="true" AdornmentText="@UiF.Curr(_marketCurrency)" Adornment="Adornment.End" />

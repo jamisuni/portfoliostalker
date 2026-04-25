@@ -686,7 +686,12 @@ public class StalkerDoCmd : StalkerData
             // Multiple alarms w same Value level for one stock are NOT allowed, not even different types
             return new FailResult($"Cant add duplicate Alarm as has already existing alarm for {level.ToString("0.00")}!");
 
-        stock.Alarms.Add(SAlarm.Create(Type, level, note, prms));
+        SAlarm newAlarm = SAlarm.Create(Type, level, note, prms);
+
+        if (newAlarm == null)
+            return new FailResult($"Invalid alarm type {Type}!");
+
+        stock.Alarms.Add(newAlarm);
 
         return new OkResult();
     }

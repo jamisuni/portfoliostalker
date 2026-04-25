@@ -21,6 +21,15 @@
             }
         </MudSelect>
 
+        @if (!string.IsNullOrEmpty(_existingIsin))
+        {
+            <MudTextField Value="@_existingIsin" ReadOnly="true" Variant="Variant.Text" Label="ISIN" />
+        }
+        else
+        {
+            <MudTextField @bind-Value="_newIsin" Variant="Variant.Outlined" Label="ISIN (optional)" />
+        }
+
         <MudSelect T="SOrder.OrderType" @bind-Value="@_order.Type" Label="Select Type" Required  >
             @foreach (SOrder.OrderType item in Enum.GetValues(typeof(SOrder.OrderType)))
             {
