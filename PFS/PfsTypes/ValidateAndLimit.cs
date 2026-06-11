@@ -34,7 +34,7 @@ public class Limit
 {
     public const int CompName = 32;
     public const int PfName = 12;
-    public const int Symbol = 8;    // 'ADC.PR.A' == 8 chars
+    public const int Symbol = 10;   // 'REXR.PR.C' == 9 chars, +1 spare
 }
 
 public enum ValidateId : int
@@ -67,7 +67,7 @@ public class Validate
                 {
                     if (string.IsNullOrWhiteSpace(content) ||
                         content.Length > Limit.Symbol ||
-                        new Regex(@"^[A-Z][A-Z0-9.\-]{0,7}$").IsMatch(content) == false)
+                        new Regex(@"^[A-Z][A-Z0-9.\-]{0," + (Limit.Symbol - 1) + @"}$").IsMatch(content) == false)
                         return new FailResult<string>(FormatMsg(id));
 
                     return new OkResult<string>(content);
@@ -77,8 +77,8 @@ public class Validate
                 {   // Need to have $ separating market and symbol. Market must match to regex [A-Z]{1,6} and symbol checked with recursive call to ValidateId.Symbol
 
                     if (string.IsNullOrWhiteSpace(content) ||
-                        content.Length > Limit.Symbol + 6 + 1 || // 6 chars for market, 1 for $, and 8 for symbol
-                        new Regex(@"^[A-Z]{1,6}\$[A-Z][A-Z0-9.\-]{0,7}$").IsMatch(content) == false)
+                        content.Length > Limit.Symbol + 6 + 1 || // 6 chars for market, 1 for $, and Limit.Symbol for symbol
+                        new Regex(@"^[A-Z]{1,6}\$[A-Z][A-Z0-9.\-]{0," + (Limit.Symbol - 1) + @"}$").IsMatch(content) == false)
                         return new FailResult<string>(FormatMsg(id));
 
                     return new OkResult<string>(content);

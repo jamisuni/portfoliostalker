@@ -24,6 +24,19 @@ public class RealDataPatternTests
     }
 
     [Fact]
+    public void Symbol_NineCharPreferred_Accepted()
+    {   // 'REXR.PR.C' style preferred tickers go over the old 8 char Limit.Symbol
+        Assert.True(Validate.Str(ValidateId.Symbol, "REXR.PR.C").Ok);
+        Assert.True(Validate.Str(ValidateId.SRef, "NYSE$REXR.PR.C").Ok);
+        Assert.True(Validate.Str(ValidateId.Symbol, "ABCDE.PR.X").Ok);    // 10 chars passes limit
+        Assert.True(Validate.Str(ValidateId.Symbol, "ABCDEF.PR.X").Fail); // 11 chars doesnt
+
+        var s = StalkerTestFixture.CreateEmpty();
+        StalkerAssert.Ok(s.DoAction("Add-Alarm Type=Under SRef=NYSE$REXR.PR.C Level=20.00 Prms= Note=Preferred"));
+        Assert.NotNull(s.StockRef("NYSE$REXR.PR.C"));
+    }
+
+    [Fact]
     public void CustomPurhaceId_AlphanumericFormats()
     {
         var s = StalkerTestFixture.CreateEmpty();
